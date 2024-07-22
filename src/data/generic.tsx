@@ -31,7 +31,7 @@ export default {
   features: "Features",
   delete: "Delete",
   example: "Example",
-  edit: "Edit",
+  edit: "수정",
   cancelEdit: "Cancel Edit",
   deleteAll: "Delete All",
   create: "Create",

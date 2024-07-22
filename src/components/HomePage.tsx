@@ -100,11 +100,11 @@ function HomePage() {
       </GeneralObserver>
 
       <div className={containerStyles.centerContent}>
-        <h1 className={typographyStyles.h1}>Highlights</h1>
+        <h1 className={typographyStyles.h1}>하이라이트</h1>
 
         <p className={typographyStyles.homeParagraph}>
-          This project is getting recognized by the community and industry. It's
-          helping more developers to build forms in React than ever.
+          React Hook Form은 커뮤니티와 업계에서 인정받고 있어요. RHF 덕분에
+          개발자들이 React에서 폼을 만드는 데 더 많은 도움을 받고 있어요.
         </p>
 
         <section className={styles.feedback}>
@@ -125,8 +125,8 @@ function HomePage() {
 
             <h3>Javascript Rising Star</h3>
             <p>
-              React Hook Form have matured and evolved around hooks. Simplifies
-              a piece of React development.
+              React Hook Form은 훅 생태계에서 성장하고 발전했어요. React 개발의
+              일부분을 간단하게 만들어줘요.
             </p>
           </div>
 
@@ -144,10 +144,9 @@ function HomePage() {
                 d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0"
               />
             </svg>
-            <h3>React Open Source Awards</h3>
+            <h3>React Open Source 수상</h3>
             <p>
-              The winner of 2020 GitNation React OS Award for the category of
-              Productivity Booster.
+              2020년 GitNation React OS 상에서 생산성 향상 부문의 수상했어요.
             </p>
           </div>
 
@@ -168,19 +167,19 @@ function HomePage() {
             <h3>Technology Radar</h3>
 
             <p>
-              The project is fortunate enough to be under the radar for the
-              Languages & Frameworks section.
+              이 프로젝트가 rador의 언어&프레임워크 부문에 속한다는 것은
+              행운이에요.
             </p>
           </div>
         </section>
       </div>
 
       <div className={containerStyles.centerContent}>
-        <h1 className={typographyStyles.h1}>The Community</h1>
+        <h1 className={typographyStyles.h1}>커뮤니티</h1>
 
         <p className={typographyStyles.homeParagraph}>
-          Build and drive by the community. On a mission to make every React
-          developer's life easier when it comes to building forms.
+          커뮤니티에 의해 구축되고 주도돼요. 모든 React 개발자가 폼을 더 쉽게
+          만들 수 있도록 하는 것이 미션이에요.
         </p>
 
         <section className={styles.feedback}>
@@ -204,11 +203,10 @@ function HomePage() {
               />
             </svg>
             <p>
-              This is where it's at. A React form library that is both well
-              thought out and flexible enough to get out of your way when you
-              need it to. After fussing around with React forms for years,
-              switching to react-hook-form feels like a superpower. Everything
-              runs faster and my code is cleaner.
+              바로 여기에 있어요. 잘 설계되어 있으면서도 필요할 때 유연하게
+              사용할 수 있는 React 폼 라이브러리. 몇 년 동안 React 폼을
+              사용하다가 react-hook-form으로 전환한 것은 마치 초능력처럼
+              느껴져요. 모든 것이 더 빠르게 실행되고 코드가 더 깔끔해졌어요.
             </p>
           </div>
 
@@ -232,11 +230,11 @@ function HomePage() {
               />
             </svg>
             <p>
-              Creating a form is no more complicated while building a react
-              application with the help of react-hook-form. Most of the time I
-              use this package for creating a form as validation is so much
-              simple here. It is the best form maker for me while I stop to work
-              with formika. Very nice user interface and performance are good.
+              react-hook-form의 도움으로 React 애플리케이션에서 폼을 만드는 것은
+              이제 복잡하지 않아요. 유효성 검사가 매우 간단하기 때문에 대부분의
+              경우 이 패키지를 사용하여 폼을 만들어요. Formik을 사용하는 것을
+              멈추고 나서 이게 제게는 최고의 폼 만들기 도구에요. 사용자
+              인터페이스와 성능이 매우 뛰어나요.
             </p>
           </div>
 
@@ -260,11 +258,11 @@ function HomePage() {
               />
             </svg>
             <p>
-              The best React form library that I have ever used while building a
-              react app because of its utility and simplicity. It has a lot of
-              useful tools and doesn’t require much code compared to Formik, and
-              Redux Form. As the number of re-renders in the application is
-              small and mounting time is less it is super smooth.
+              제가 React 앱을 만들면서 사용해본 폼 라이브러리 중에서 이게
+              최고에요. 유용하면서도 간단해서죠. 유용한 tool들이 많고,
+              Formik이나 Redux Form과 비교하면 코드가 많이 필요하지 않아요.
+              애플리케이션의 리렌더링 횟수가 적고, 마운트 시간이 짧아서 매우
+              smooth해요.
             </p>
           </div>
         </section>
