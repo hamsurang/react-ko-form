@@ -42,7 +42,7 @@ export default {
   video: "Videos",
   newsletter: "Newsletter",
   binding: "3rd Party Bindings",
-  liveDemo: "Live Demo",
+  liveDemo: "라이브 데모",
   control: (
     <>
       <Link href="/docs/useform/control">
