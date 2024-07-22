@@ -145,9 +145,7 @@ function HomePage() {
               />
             </svg>
             <h3>React Open Source 수상</h3>
-            <p>
-              2020년 GitNation React OS 상에서 생산성 향상 부문의 수상했어요.
-            </p>
+            <p>2020년 GitNation React OS의 생산성 향상 부문에서 수상했어요.</p>
           </div>
 
           <div>
