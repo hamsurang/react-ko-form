@@ -16,9 +16,10 @@ export default {
     buttonText: `Learn Advanced Usage`,
   },
   needYourSupport: {
-    title: "Thank you for your support",
-    description: `If you find React Hook Form to be useful in your project, please consider to star and support it.`,
-    buttonText: `Star us on GitHub`,
+    title: "지원해 주셔서 감사합니다",
+    description:
+      "프로젝트에서 React Hook Form이 유용하다고 생각하신다면, 스타를 눌러 지원해 주시길 부탁드립니다.",
+    buttonText: "GitHub에서 스타 누르기",
   },
   codeExample: "Code Examples",
   menu: "Menu",
