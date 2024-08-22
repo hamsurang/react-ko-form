@@ -1,28 +1,28 @@
 ---
 title: getValues
-description: Get form values
+description: 폼 값 가져오기
 sidebar: apiLinks
 ---
 
 ## \</> `getValues:` <TypeText>`(payload?: string | string[]) => Object`</TypeText>
 
-An optimized helper for reading form values. The difference between `watch` and `getValues` is that `getValues` **will not** trigger re-renders or subscribe to input changes.
+폼 값을 읽기 위한 최적화된 헬퍼입니다. `watch`와 `getValues`의 차이점은 `getValues`는 리렌더링을 발생시키지 않으며, input의 변경 사항을 구독하지 **않는다**는 점입니다.
 
 ### Props
 
 ---
 
-| Type        | Description                                               |
-| ----------- | --------------------------------------------------------- |
-| `undefined` | Returns the entire form values.                           |
-| `string`    | Gets the value at path of the form values.                |
-| `array`     | Returns an array of the value at path of the form values. |
+| Type        | Description                                     |
+| ----------- | ----------------------------------------------- |
+| `undefined` | 폼의 모든 값을 반환합니다.                      |
+| `string`    | 폼 값에서 지정된 경로의 값을 가져옵니다.        |
+| `array`     | 폼 값에서 지정된 경로의 값을 배열로 반환합니다. |
 
-**Examples:**
+**예제:**
 
 ---
 
-The example below shows what to expect when you invoke `getValues` method.
+아래 예제는 getValues 메서드를 호출할 때 기대할 수 있는 동작을 보여줍니다.
 
 ```jsx copy
 <input {...register("root.test1")} />
@@ -39,12 +39,12 @@ The example below shows what to expect when you invoke `getValues` method.
 
 <Admonition type="important" title="Rules">
 
-- Disabled inputs will be returned as `undefined`. If you want to prevent users from updating the input and still retain the field value, you can use `readOnly` or disable the entire &lt;fieldset /&gt;. Here is an [example](https://codesandbox.io/s/react-hook-form-disabled-inputs-oihxx).
-- It will return `defaultValues` from `useForm` before the **initial** render.
+- 비활성화된 입력값은 `undefined`로 반환됩니다. 사용자가 입력을 수정하지 못하게 하면서도 필드 값을 유지하고 싶다면, `readOnly`를 사용하거나 전체 &lt;fieldset /&gt;을 비활성화할 수 있습니다. [예제](https://codesandbox.io/s/react-hook-form-disabled-inputs-oihxx)를 참조하세요.
+- **초기** 렌더링 이전에는 `useForm`에서 제공된 `defaultValues`를 반환합니다.
 
 </Admonition>
 
-**Examples:**
+**예제:**
 
 ---
 
