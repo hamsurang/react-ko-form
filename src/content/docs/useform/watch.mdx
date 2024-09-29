@@ -1,23 +1,23 @@
 ---
 title: watch
-description: Subscribe to input changes
+description: input 변경 사항 구독
 sidebar: apiLinks
 ---
 
 ## \</> `watch:` <TypeText>(names?: string | string[] | (data, options) => void) => unknown</TypeText>
 
-This method will watch specified inputs and return their values. It is useful to render input value and for determining what to render by condition.
+이 메서드는 지정된 입력을 감시하고 해당 값을 반환합니다. 입력 값을 렌더링하고 조건에 따라 렌더링할 내용을 결정할 때 유용합니다.
 
 ### Props
 
 ---
 
-| Type                                                                           | Description                                                                                       |
-| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| <TypeText>string</TypeText>                                                    | Watch input value by name (similar to lodash [get](https://lodash.com/docs/4.17.15#get) function) |
-| <TypeText>string[]</TypeText>                                                  | Watch multiple inputs                                                                             |
-| <TypeText>undefined</TypeText>                                                 | Watch all inputs                                                                                  |
-| <TypeText>`(data: unknown, { name: string, type: string }) => void`</TypeText> | Watch all inputs and invoke a callback                                                            |
+| Type                                                                           | Description                                                                             |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| <TypeText>string</TypeText>                                                    | 이름으로 입력 값을 감시 (lodash [get](https://lodash.com/docs/4.17.15#get) 함수와 유사) |
+| <TypeText>string[]</TypeText>                                                  | 여러 입력을 감시                                                                        |
+| <TypeText>undefined</TypeText>                                                 | 모든 입력을 감시                                                                        |
+| <TypeText>`(data: unknown, { name: string, type: string }) => void`</TypeText> | 모든 입력을 감시하고 콜백을 호출                                                        |
 
 ### Return
 
@@ -32,10 +32,10 @@ This method will watch specified inputs and return their values. It is useful to
 
 <Admonition type="important" title="Rules">
 
-- When `defaultValue` is not defined, the first render of `watch` will return `undefined` because it is called before `register`. It's **recommended** to provide `defaultValues` at `useForm` to avoid this behaviour, but you can set the inline `defaultValue` as the second argument.
-- When both `defaultValue` and `defaultValues` are supplied, `defaultValue` will be returned.
-- This API will trigger re-render at the root of your app or form, consider using a callback or the [useWatch](/docs/usewatch) api if you are experiencing performance issues.
-- `watch` result is optimised for render phase instead of `useEffect`'s deps, to detect value update you may want to use an external custom hook for value comparison.
+- `defaultValue`가 정의되지 않은 경우, `watch`의 첫 번째 렌더링은 `register` 이전에 호출되기 때문에 `undefined`를 반환합니다. 이 동작을 방지하려면 `useForm`에서 `defaultValues`를 제공하는 것이 좋지만 인라인 `defaultValue`를 두 번째 인수로 설정할 수 있습니다.
+- `defaultValue`와 `defaultValues`를 모두 제공되면 `defaultValue`가 반환됩니다.
+- 이 API는 앱 또는 form의 루트에서 다시 렌더링을 트리거하므로 성능 문제가 발생하는 경우 콜백 또는 [useWatch](/docs/usewatch) API를 사용하는 것이 좋습니다.
+- `watch` 결과는 값 업데이트를 감지하기 위해 `useEffect`의 deps 대신 렌더 단계에 최적화되어 있으므로, 값 비교를 위해 외부 커스텀 훅을 사용하는 것이 좋습니다.
 
 </Admonition>
 
@@ -64,11 +64,11 @@ function App() {
     formState: { errors },
     handleSubmit,
   } = useForm<IFormInputs>()
-  const watchShowAge = watch("showAge", false) // you can supply default value as second argument
-  const watchAllFields = watch() // when pass nothing as argument, you are watching everything
-  const watchFields = watch(["showAge", "age"]) // you can also target specific fields by their names
+  const watchShowAge = watch("showAge", false) // 두 번째 인수로 기본 값을 제공할 수 있습니다.
+  const watchAllFields = watch() // 인수를 전달하지 않으면, 모든 것을 감시하게 됩니다.
+  const watchFields = watch(["showAge", "age"]) // 이름을 통해 특정 필드를 대상으로 할 수도 있습니다.
 
-  // Callback version of watch.  It's your responsibility to unsubscribe when done.
+  // watch의 콜백 버전입니다. 완료되면 unsubscribe하는 것은 사용자 책임입니다.
   React.useEffect(() => {
     const subscription = watch((value, { name, type }) =>
       console.log(value, name, type)
@@ -105,11 +105,11 @@ function App() {
     formState: { errors },
     handleSubmit,
   } = useForm()
-  const watchShowAge = watch("showAge", false) // you can supply default value as second argument
-  const watchAllFields = watch() // when pass nothing as argument, you are watching everything
-  const watchFields = watch(["showAge", "number"]) // you can also target specific fields by their names
+  const watchShowAge = watch("showAge", false) // 두 번째 인수로 기본 값을 제공할 수 있습니다.
+  const watchAllFields = watch() // 인수를 전달하지 않으면, 모든 것을 감시하게 됩니다.
+  const watchFields = watch(["showAge", "number"]) // 이름을 통해 특정 필드를 대상으로 할 수도 있습니다.
 
-  // Callback version of watch.  It's your responsibility to unsubscribe when done.
+  // watch의 콜백 버전입니다. 완료되면 unsubscribe하는 것은 사용자 책임입니다.
   React.useEffect(() => {
     const subscription = watch((value, { name, type }) =>
       console.log(value, name, type)
@@ -124,7 +124,7 @@ function App() {
       <form onSubmit={handleSubmit(onSubmit)}>
         <input type="checkbox" {...register("showAge")} />
 
-        {/* based on yes selection to display Age Input*/}
+        {/* ‘예’ 선택에 따라 나이 input 필드를 표시 */}
         {watchShowAge && (
           <input type="number" {...register("age", { min: 50 })} />
         )}
