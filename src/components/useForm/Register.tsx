@@ -12,9 +12,7 @@ const Register = () => {
       <h1 className={typographyStyles.headingWithTopMargin} id="main">
         register
       </h1>
-      <p className={typographyStyles.subHeading}>
-        Register uncontrolled/controlled inputs
-      </p>
+      <p className={typographyStyles.subHeading}>Register 비제어/제어 입력</p>
 
       <div className={containerStyles.wrapper}>
         <Menu pages={apiLinks} />

@@ -55,22 +55,22 @@ export default function ApiRefTable({ api }: { api: any }) {
 
       <section>
         <p>
-          <b className={typographyStyles.note}>Tip:</b>: What's happened to the
-          input after invoke register API:
+          <b className={typographyStyles.note}>Tip:</b> register API를 호출한 후
+          입력 필드에 다음과 같은 변화가 발생합니다.
         </p>
       </section>
 
       <CodeArea
         rawData={`const { onChange, onBlur, name, ref } = register('firstName'); 
-// include type check against field path with the name you have supplied.
+// 제공한 이름으로 필드 경로에 대한 타입 검사를 포함합니다.
         
 <input 
-  onChange={onChange} // assign onChange event 
-  onBlur={onBlur} // assign onBlur event
-  name={name} // assign name prop
-  ref={ref} // assign ref prop
+  onChange={onChange} // onChange 이벤트 할당
+  onBlur={onBlur} // onBlur 이벤트 할당 
+  name={name} // name 속성 할당
+  ref={ref} // ref 속성 할당
 />
-// same as above
+// 위와 동일
 <input {...register('firstName')} />
 `}
       />
@@ -134,7 +134,7 @@ export default function ApiRefTable({ api }: { api: any }) {
                 <br />
                 <code className={typographyStyles.typeText}>React.Ref</code>
               </td>
-              <td>React element ref</td>
+              <td>React 요소 참조(ref)</td>
               <td>
                 <CodeArea
                   withOutCopy
@@ -402,26 +402,26 @@ export default function ApiRefTable({ api }: { api: any }) {
               </td>
               <td>
                 <p>
-                  Returns a Number normally. If something goes wrong{" "}
-                  <code>NaN</code> will be returned.
+                  보통 숫자를 반환합니다. 문제가 발생하면 <code>NaN</code> 이
+                  반환됩니다.
                 </p>
                 <ul>
                   <li>
                     <p>
-                      <code>valueAs</code> process is happening{" "}
-                      <strong>before</strong> validation.
+                      <code>valueAs</code> 프로세스는 유효성 검사{" "}
+                      <strong>전</strong>에 발생합니다.
                     </p>
                   </li>
                   <li>
                     <p>
-                      Only applicable and support to {`<input type="number" />`}
-                      , but we still cast to number type without trim or any
-                      other data manipulation.
+                      {`<input type="number" />`}에만 적용되고 지원되지만
+                      trim이나 다른 데이터 조작 없이도 숫자 타입으로
+                      캐스팅됩니다.
                     </p>
                   </li>
                   <li>
-                    Does not transform <code>defaultValue</code> or{" "}
-                    <code>defaultValues</code>.
+                    <code>defaultValue</code> 나 <code>defaultValues</code>는
+                    변환되지 않습니다.
                   </li>
                 </ul>
               </td>
@@ -445,22 +445,22 @@ export default function ApiRefTable({ api }: { api: any }) {
               </td>
               <td>
                 <p>
-                  Returns a <code>Date</code> object normally. If something goes
-                  wrong <code>Invalid Date</code> will be returned.
+                  보통 <code>Date</code> 객체를 반환합니다. 문제가 발생하면
+                  <code>유효하지 않은 날짜</code>가 반환됩니다.
                 </p>
                 <ul>
                   <li>
                     <p>
-                      <code>valueAs</code> process is happening{" "}
-                      <strong>before</strong> validation.
+                      <code>valueAs</code> 프로세스는 유효성 검사{" "}
+                      <strong>전</strong>에 발생합니다.
                     </p>
                   </li>
                   <li>
-                    <p>Only applies to {`<input />`}.</p>
+                    <p>{`<input />`}에만 적용됩니다.</p>
                   </li>
                   <li>
-                    Does not transform <code>defaultValue</code> or{" "}
-                    <code>defaultValues</code>.
+                    <code>defaultValue</code> 나 <code>defaultValues</code>는
+                    변환되지 않습니다.
                   </li>
                 </ul>
               </td>
@@ -485,23 +485,23 @@ export default function ApiRefTable({ api }: { api: any }) {
                 >{`<T>(value: any) => T`}</code>
               </td>
               <td>
-                <p>Return input value by running through the function.</p>
+                <p>함수를 실행하여 입력값을 반환합니다</p>
                 <ul>
                   <li>
                     <p>
-                      <code>valueAs</code> process is happening{" "}
-                      <strong>before</strong> validation. Also,{" "}
-                      <code>setValueAs</code> is ignored if either{" "}
-                      <code>valueAsNumber</code> or <code>valueAsDate</code> are{" "}
-                      <code>true</code>.
+                      <code>valueAs</code> 프로세스는 유효성 검사{" "}
+                      <strong>전</strong>에 발생합니다. 또한,{" "}
+                      <code>valueAsNumber</code> 나 <code>valueAsDate</code>가{" "}
+                      <code>true</code>인 경우 <code>setValueAs</code>는
+                      무시됩니다.
                     </p>
                   </li>
                   <li>
-                    <p>Only applies to text input.</p>
+                    <p>텍스트 입력에만 적용됩니다. </p>
                   </li>
                   <li>
-                    Does not transform <code>defaultValue</code> or{" "}
-                    <code>defaultValues</code>.
+                    <code>defaultValue</code> 나 <code>defaultValues</code>는
+                    변환되지 않습니다.
                   </li>
                 </ul>
               </td>
@@ -527,19 +527,17 @@ export default function ApiRefTable({ api }: { api: any }) {
               </td>
               <td>
                 <p>
-                  Set <code>disabled</code> to <code>true</code> will lead input
-                  value to be <code>undefined</code> and input control to be
-                  disabled.
+                  <code>disabled</code>를 <code>true</code>로 설정하면 입력 값이{" "}
+                  <code>undefined</code>가 되며 입력 컨트롤이 비활성화됩니다.
                 </p>
                 <ul>
                   <p>
-                    <code>Disabled</code> prop will also omit{" "}
-                    <strong>built-in</strong> validation rules.
+                    <code>Disabled</code> 속성은 <strong>내장된</strong> 유효성
+                    검사 규칙도 제외합니다.
                   </p>
                   <p>
-                    For schema validation, you can leverage the{" "}
-                    <code>undefined</code> value returned from input or context
-                    object.
+                    스키마 유효성 검사를 위해, 입력 또는 컨텍스트 객체에서
+                    반환된 <code>undefined</code> 값을 활용할 수 있습니다.
                   </p>
                 </ul>
               </td>
@@ -564,8 +562,7 @@ export default function ApiRefTable({ api }: { api: any }) {
               </td>
               <td>
                 <p>
-                  <code>onChange</code> function event to be invoked in the
-                  change event.
+                  변경 이벤트에서 호출될 <code>onChange</code> 함수.
                 </p>
               </td>
               <td>
@@ -587,8 +584,7 @@ export default function ApiRefTable({ api }: { api: any }) {
               </td>
               <td>
                 <p>
-                  <code>onBlur</code> function event to be invoked in the blur
-                  event.
+                  블러(blur) 이벤트에서 호출될 <code>onBlur</code> 함수.
                 </p>
               </td>
               <td>
@@ -608,10 +604,9 @@ export default function ApiRefTable({ api }: { api: any }) {
               </td>
               <td>
                 <p>
-                  Set up value for the registered input. This prop should be
-                  utilised inside <code>useEffect</code> or invoke once, each
-                  re-run will update or overwrite the input value which you have
-                  supplied.
+                  등록된(registered) 입력의 값을 설정합니다. 이 속성은{" "}
+                  <code>useEffect</code> 내부에서 사용하거나 한 번만 호출해야
+                  하며, 재실행할 때마다 입력 값을 업데이트하거나 덮어씁니다.
                 </p>
               </td>
               <td>
@@ -629,13 +624,13 @@ export default function ApiRefTable({ api }: { api: any }) {
               </td>
               <td>
                 <p>
-                  Input will be unregistered after unmount and defaultValues
-                  will be removed as well.
+                  입력이 언마운트된 후 등록이 해제되며 defaultValues도
+                  제거됩니다.
                 </p>
                 <p>
-                  <b>Note:</b> this prop should be avoided when using with{" "}
-                  <code>useFieldArray</code> as <code>unregister</code> function
-                  gets called after input unmount/remount and reorder.
+                  <b>Note:</b> 이 속성은 입력이 언마운트/리마운트 및 재정렬될 때{" "}
+                  <code>unregister</code> 함수가 호출되므로{" "}
+                  <code>useFieldArray</code>와 함께 사용할 때 피해야 합니다.
                 </p>
               </td>
               <td>
@@ -659,8 +654,9 @@ export default function ApiRefTable({ api }: { api: any }) {
               </td>
               <td>
                 <p>
-                  Validation will be triggered for the dependent inputs,it only
-                  limited to <code>register</code> api not <code>trigger</code>.
+                  유효성 검사는 종속 입력에 대해 트리거 됩니다. 이는{" "}
+                  <code>trigger</code>가 아닌 <code>register</code> api 에만
+                  제한됩니다.
                 </p>
               </td>
               <td>
@@ -684,22 +680,21 @@ export default function ApiRefTable({ api }: { api: any }) {
         <ul>
           <li>
             <p>
-              <code>name</code> is <b>required</b> and <b>unique</b> (except
-              native radio and checkbox). Input name supports both dot and
-              bracket syntax, which allows you to easily create nested form
-              fields.
+              <code>name</code> 은 <b>필수</b> 이며 <b>고유</b>해야 합니다(기본
+              라디오 및 체크박스 제외). 입력 이름은 점과 대괄호 구문을 모두
+              지원하므로 중첩된 폼 필드를 쉽게 만들 수 있습니다.
             </p>
           </li>
           <li>
             <p>
-              <code>name</code> can neither start with a number nor use number
-              as key name. Please avoid special characters as well.
+              <code>name</code> 은 숫자로 시작하거나 키 이름으로 숫자를 사용할
+              수 없습니다. 특수 문자의 사용도 피해야 합니다.
             </p>
           </li>
           <li>
             <p>
-              we are using dot syntax only for typescript usage consistency, so
-              bracket <code>[]</code> will not work for array form value.
+              TypeScript 사용 시 일관성을 위해 점 구문만을 사용하고 있으므로,
+              배열 폼 값에는 대괄호 <code>[]</code> 를 사용할 수 없습니다.
             </p>
 
             <CodeArea
@@ -709,45 +704,43 @@ register('test[0]firstName'); // ❌`}
           </li>
           <li>
             <p>
-              <code>disabled</code> input will result in an{" "}
-              <code>undefined</code> form value. If you want to prevent users
-              from updating the input, you can use <code>readOnly</code> or
-              disable the entire {`<fieldset />`}. Here is an{" "}
+              <code>비활성화</code>된 입력은 <code>undefined</code> 폼 값을
+              결과로 제공합니다. 사용자가 입력을 업데이트하지 못하도록 하려면{" "}
+              <code>readOnly</code> 를 사용하거나 전체
+              {`<fieldset />`}을 비활성화할 수 있습니다. 다음은{" "}
               <a
                 href="https://codesandbox.io/s/react-hook-form-disabled-inputs-oihxx"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                example
+                예제
               </a>
-              .
+              입니다.
             </p>
           </li>
           <li>
             <p>
-              To produce an array of fields, input names should be followed by a{" "}
-              dot and number. For example: <code>test.0.data</code>
+              필드 배열을 생성하려면 입력 이름 뒤에 점과 숫자를 붙여야 합니다.
+              예: <code>test.0.data</code>
             </p>
           </li>
           <li>
             <p>
-              Changing the name on each render will result in new inputs being
-              registered. It's recommended to keep static names for each
-              registered input.
+              렌더링할 때마다 이름을 변경하면 새로운 입력이
+              등록(registered)됩니다. 따라서 각 등록된(registered) 입력에 대해
+              고정된 이름을 사용하는 것이 좋습니다.
             </p>
           </li>
           <li>
             <p>
-              Input value and reference will no longer gets removed based on
-              unmount. You can invoke unregister to remove that value and
-              reference.
+              입력 값과 참조는 언마운트 시 더 이상 제거되지 않습니다. 해당 값과
+              참조를 제거하려면 unregister를 호출할 수 있습니다.
             </p>
           </li>
           <li>
             <p>
-              Individual register option can't be removed by{" "}
-              <code>undefined</code> or <code>{`{}`}</code>. You can update
-              individual attribute instead.
+              개별 register 옵션은 <code>undefined</code> 나 <code>{`{}`}</code>
+              로 제거할 수 없습니다. 대신 개별 속성을 업데이트할 수 있습니다.
             </p>
 
             <CodeArea
@@ -760,8 +753,8 @@ register('test', { required: false });  // ✅
           </li>
           <li>
             <p>
-              There are certain keyword which need to avoid before conflicting
-              with type check. They are <code>ref</code>, <code>_f</code>
+              타입 검사와 충돌을 피하기 위해 <code>ref</code>, <code>_f</code>{" "}
+              와 같은 키워드는 피해야 합니다.
             </p>
           </li>
         </ul>
@@ -779,7 +772,7 @@ register('test', { required: false });  // ✅
 
         <h2 className={typographyStyles.subTitle}>Video</h2>
         <p>
-          The following video explain <code>register</code> API in detail.
+          다음 동영상에서는 <code>register</code> API에 대해 자세히 설명합니다.
         </p>
 
         <iframe

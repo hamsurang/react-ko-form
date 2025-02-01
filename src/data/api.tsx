@@ -451,15 +451,15 @@ const App = () => {
     description: (
       <>
         <p>
-          This method allows you to register an input or select element and
-          apply validation rules to React Hook Form. Validation rules are all
-          based on the HTML standard and also allow for custom validation
-          methods.
+          이 메서드를 사용하면 입력 이 메서드를 사용하면 입력 또는 선택 요소를
+          등록(register)하고 React Hook Form에 유효성 검사 규칙을 적용할 수
+          있습니다. 유효성 검사 규칙은 모두 HTML 표준을 기반으로 하며 사용자
+          정의 유효성 검사 메서드도 허용합니다.
         </p>
 
         <p>
-          By invoking the register function and supplying an input's name, you
-          will receive the following methods:
+          register 함수를 호출하고 입력의 이름을 제공하면 다음과 같은 메서드가
+          제공됩니다:
         </p>
 
         <h2 className={typographyStyles.subTitle}>Props</h2>
@@ -485,8 +485,8 @@ const App = () => {
                 </td>
                 <td>
                   <p>
-                    <code>onChange</code> prop to subscribe the input change
-                    event.
+                    <code>onChange</code>
+                    속성은 입력 변경 이벤트를 구독합니다.
                   </p>
                 </td>
               </tr>
@@ -501,7 +501,8 @@ const App = () => {
                 </td>
                 <td>
                   <p>
-                    <code>onBlur</code> prop to subscribe the input blur event.
+                    <code>onBlur</code> 속성은 입력 블러(blur) 이벤트를
+                    구독합니다.
                   </p>
                 </td>
               </tr>
@@ -513,7 +514,7 @@ const App = () => {
                   <code className={typographyStyles.typeText}>string</code>
                 </td>
                 <td>
-                  <p>Input's name being registered.</p>
+                  <p>입력 이름을 등록(registered)합니다.</p>
                 </td>
               </tr>
             </tbody>
@@ -522,13 +523,12 @@ const App = () => {
       </>
     ),
     example: "Submit Result",
-    selectHelp:
-      "By selecting the register option, the API table below will get updated.",
+    selectHelp: "register 옵션을 선택하면 아래의 API 표가 업데이트됩니다.",
     options: {
       title: "Select Options",
-      registerWithValidation: "Register with validation",
+      registerWithValidation: "유효성 검사를 포함한 register",
       registerWithValidationMessage:
-        "Register with validation and error message",
+        "유효성 검사와 에러메세지를 포함한 register",
       note: (
         <>
           <h2 className={typographyStyles.subTitle}>Tips</h2>
@@ -536,18 +536,17 @@ const App = () => {
           <h4 className={typographyStyles.questionTitle}>Custom Register</h4>
 
           <p>
-            You can also <code>register</code> inputs with{" "}
-            <code>useEffect</code> and treat them as virtual inputs. For
-            controlled components, we provide a custom hook{" "}
-            <Link href="/docs/usecontroller">useController</Link> and{" "}
-            <Link href="/docs/usecontroller/controller">Controller</Link>{" "}
-            component to take care this process for you.
+            <code>useEffect</code>로 입력을 <code>등록</code>하고 가상 입력처럼
+            처리할 수도 있습니다. 제어 컴포넌트의 경우, 이 과정을 처리하기 위해
+            custom hook인 <Link href="/docs/usecontroller">useController</Link>{" "}
+            와 <Link href="/docs/usecontroller/controller">Controller</Link>{" "}
+            컴포넌트를 제공합니다.
           </p>
 
           <p>
-            If you choose to manually register fields, you will need to update
-            the input value with{" "}
-            <Link href="/docs/useform/setvalue">setValue</Link>.
+            필드를 수동으로 등록(register)하고 싶다면,{" "}
+            <Link href="/docs/useform/setvalue">setValue</Link>를 사용하여 입력
+            값을 업데이트해야 합니다..
           </p>
 
           <CodeArea
@@ -558,12 +557,12 @@ const App = () => {
           />
 
           <h4 className={typographyStyles.questionTitle}>
-            How to work with innerRef, inputRef?
+            innerRef, inputRef를 어떻게 사용하나요?
           </h4>
 
           <p>
-            When the custom input component didn't expose ref correctly, you can
-            get it working via the following.
+            사용자 정의 입력 컴포넌트가 ref를 노출하지 않는 경우, 다음과 같은
+            방법을 통해 동작시킬 수 있습니다.
           </p>
 
           <CodeArea
@@ -594,47 +593,48 @@ const Select = React.forwardRef(({ onChange, onBlur, name, label }, ref) => (
       required: (
         <>
           <p>
-            A Boolean which, if true, indicates that the input must have a value
-            before the form can be submitted. You can assign a string to return
-            an error message in the <code>errors</code> object.
+            폼을 제출하기 전에 입력 필드에 값이 있어야 함을 나타내는 Boolean
+            값입니다. true로 설정하면 입력 필드가 필수 항목이 됩니다. 문자열을
+            할당하여
+            <code>errors</code> 객체에서 오류 메시지를 반환할 수 있습니다.
           </p>
 
           <p>
-            <b className={typographyStyles.note}>Note:</b> This config aligns
-            with web constrained API for required input validation, for{" "}
-            <code>object</code> or <code>array</code> type of input use{" "}
-            <code>validate</code> function instead.
+            <b className={typographyStyles.note}>Note: </b>이 구성은 필수 입력
+            유효성 검사를 위한 웹 제한 API와 일치합니다. <code>객체</code> 나{" "}
+            <code>배열</code> 유형의 입력인 경우 <code>validate</code> 함수를
+            대신 사용하세요.
           </p>
         </>
       ),
-      maxLength: "The maximum length of the value to accept for this input.",
-      minLength: "The minimum length of the value to accept for this input.",
-      max: "The maximum value to accept for this input.",
-      min: "The minimum value to accept for this input.",
+      maxLength: "이 입력에서 허용할 값의 최대 길이입니다.",
+      minLength: "이 입력에서 허용할 값의 최소 길이입니다.",
+      max: "이 입력에서 허용할 최대값입니다.",
+      min: "이 입력에서 허용할 최소값입니다.",
       pattern: (
         <>
-          <p>The regex pattern for the input.</p>
+          <p>입력에 대한 정규식 패턴입니다.</p>
           <p>
-            <b className={typographyStyles.note}>Note:</b> A RegExp object with
-            the /g flag keeps track of the lastIndex where a match occurred.
+            <b className={typographyStyles.note}>Note:</b>
+            /g 플래그를 가진 RegExp 객체는 일치가 발생한 마지막 인덱스를
+            추적합니다.
           </p>
         </>
       ),
       validate: (
         <>
           <p>
-            You can pass a callback function as the argument to validate, or you
-            can pass an object of callback functions to validate all of them.
-            This function will be executed on its own without depending on other
-            validation rules included in the <code>required</code> attribute.
+            콜백 함수를 인수로 전달하여 유효성을 검사하거나 콜백 함수의 객체를
+            전달하여 모든 함수의 유효성을 검사할 수 있습니다. 이 함수는{" "}
+            <code>required</code> 속성에 포함된 다른 유효성 검사 규칙에 의존하지
+            않고 독립적으로 실행됩니다.
           </p>
           <p>
-            <b className={typographyStyles.note}>Note:</b> for{" "}
-            <code>object</code> or <code>array</code> input data, it's
-            recommended to use the <code>validate</code> function for validation
-            as the other rules mostly apply to <code>string</code>,{" "}
-            <code>string[]</code>, <code>number</code> and <code>boolean</code>{" "}
-            data types.
+            <b className={typographyStyles.note}>Note:</b>다른 규칙들은 주로{" "}
+            <code>문자열</code> ,<code>문자열 배열(string[])</code>,{" "}
+            <code>숫자</code> 및 <code>boolean</code> 데이터 타입에 적용되기
+            때문에 <code>객체</code> 또는 <code>배열</code> 입력 데이터의 경우
+            유효성 검사에 validate 함수를 사용하는 것이 권장됩니다.
           </p>
         </>
       ),
@@ -787,11 +787,7 @@ setValue('test', '')
         Set to <code>true</code> during validation.
       </>
     ),
-    validatingFields: (
-      <>
-        Capture fields which are getting async validation.
-      </>
-    ),
+    validatingFields: <>Capture fields which are getting async validation.</>,
   },
   errors: {
     title: "errors",
@@ -2192,8 +2188,8 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ sugar syntax t
           <td>
             <p>
               Update input/inputs at a particular position, updated fields will
-              get unmounted and remounted. If this is not desired behavior, please
-              use{" "}
+              get unmounted and remounted. If this is not desired behavior,
+              please use{" "}
               <Link href="/docs/useform/setvalue">
                 <code>setValue</code>
               </Link>{" "}
