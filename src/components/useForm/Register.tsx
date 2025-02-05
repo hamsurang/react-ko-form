@@ -12,7 +12,9 @@ const Register = () => {
       <h1 className={typographyStyles.headingWithTopMargin} id="main">
         register
       </h1>
-      <p className={typographyStyles.subHeading}>Register 비제어/제어 입력</p>
+      <p className={typographyStyles.subHeading}>
+        비제어/제어 입력 필드 등록(register)
+      </p>
 
       <div className={containerStyles.wrapper}>
         <Menu pages={apiLinks} />
