@@ -284,34 +284,35 @@ useForm({
   - 입력 필드를 언마운트하면 해당 값이 제거됩니다.
   - 숨겨진 데이터는 `hidden` 속성을 사용하여 저장해야 합니다.
   - 등록된(registered) 입력만 submission 데이터에 포함됩니다.
-  - hook form이 입력 필드가 DOM에서 언마운트되었는지 확인하려면 `useForm` 또는 `useWatch`의 `useEffect`에서 이를 알려야 합니다.
+  - hook form이 입력 필드가 DOM에서 언마운트되었는지 확인하려면 언마운트된 입력 필드는 `useForm` 또는 `useWatch`의 `useEffect`에서 알려야 합니다.
 
-    ```javascript
+    ````javascript
     const NotWork = () => {
-      const [show, setShow] = React.useState(false)
-      // ❌ 알림을 받지 못하면, unregister를 호출해야 함.
-      return show && <input {...register("test")} />
+    const [show, setShow] = React.useState(false)
+    // ❌ 알림을 받지 못하면, unregister를 호출해야 함.
+    return show && <input {...register("test")} />
     }
 
-    const Work = ({ control }) => {
-      const { show } = useWatch({ control })
-      // ✅ useEffect에서 알려줌.
-      return show && <input {...register("test1")} />
-    }
+        const Work = ({ control }) => {
+          const { show } = useWatch({ control })
+          // ✅ useEffect에서 알려줌.
+          return show && <input {...register("test1")} />
+        }
 
-    const App = () => {
-      const [show, setShow] = React.useState(false)
-      const { control } = useForm({ shouldUnregister: true })
-      return (
-        <div>
-          // ✅ useForm'의 useEffect에서 알려줌.
-          {show && <input {...register("test2")} />}
-          <NotWork />
-          <Work control={control} />
-        </div>
-      )
-    }
-    ```
+        const App = () => {
+          const [show, setShow] = React.useState(false)
+          const { control } = useForm({ shouldUnregister: true })
+          return (
+            <div>
+              // ✅ useForm의 useEffect에서 알려줌.
+              {show && <input {...register("test2")} />}
+              <NotWork />
+              <Work control={control} />
+            </div>
+          )
+        }
+        ```
+    ````
 
 #### shouldUseNativeValidation: <TypeText>boolean = false</TypeText> {#shouldUseNativeValidation}
 
