@@ -446,7 +446,7 @@ export default function ApiRefTable({ api }: { api: any }) {
               <td>
                 <p>
                   보통 <code>Date</code> 객체를 반환합니다. 문제가 발생하면
-                  <code>유효하지 않은 날짜</code>가 반환됩니다.
+                  <code>Invalid Date</code>가 반환됩니다.
                 </p>
                 <ul>
                   <li>
