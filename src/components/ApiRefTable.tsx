@@ -134,7 +134,7 @@ export default function ApiRefTable({ api }: { api: any }) {
                 <br />
                 <code className={typographyStyles.typeText}>React.Ref</code>
               </td>
-              <td>React 요소 참조(ref)</td>
+              <td>React 요소 참조(ref).</td>
               <td>
                 <CodeArea
                   withOutCopy
@@ -485,7 +485,7 @@ export default function ApiRefTable({ api }: { api: any }) {
                 >{`<T>(value: any) => T`}</code>
               </td>
               <td>
-                <p>함수를 실행하여 입력값을 반환합니다</p>
+                <p>함수를 실행하여 입력값을 반환합니다.</p>
                 <ul>
                   <li>
                     <p>
@@ -733,8 +733,8 @@ register('test[0]firstName'); // ❌`}
           </li>
           <li>
             <p>
-              입력 값과 참조는 언마운트 시 더 이상 제거되지 않습니다. 해당 값과
-              참조를 제거하려면 unregister를 호출할 수 있습니다.
+              언마운트에 따라 입력 값과 참조는 더 이상 제거되지 않습니다. 해당
+              값과 참조를 제거하려면 unregister를 호출할 수 있습니다.
             </p>
           </li>
           <li>

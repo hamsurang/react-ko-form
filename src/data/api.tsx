@@ -607,13 +607,13 @@ const Select = React.forwardRef(({ onChange, onBlur, name, label }, ref) => (
           </p>
         </>
       ),
-      maxLength: "이 입력에서 허용할 값의 최대 길이입니다.",
-      minLength: "이 입력에서 허용할 값의 최소 길이입니다.",
-      max: "이 입력에서 허용할 최대값입니다.",
-      min: "이 입력에서 허용할 최소값입니다.",
+      maxLength: "이 입력에서 허용할 값의 최대 길이.",
+      minLength: "이 입력에서 허용할 값의 최소 길이.",
+      max: "이 입력에서 허용할 최대값.",
+      min: "이 입력에서 허용할 최소값.",
       pattern: (
         <>
-          <p>입력에 대한 정규식 패턴입니다.</p>
+          <p>입력에 대한 정규식 패턴.</p>
           <p>
             <b className={typographyStyles.note}>Note:</b>
             /g 플래그를 가진 RegExp 객체는 일치가 발생한 마지막 인덱스를
