@@ -56,7 +56,7 @@ export default function ApiRefTable({ api }: { api: any }) {
       <section>
         <p>
           <b className={typographyStyles.note}>Tip:</b> register API를 호출한 후
-          입력 필드에 다음과 같은 변화가 발생합니다.
+          입력 필드에 어떤 일이 발생했는지 알아보세요:
         </p>
       </section>
 
@@ -628,7 +628,7 @@ export default function ApiRefTable({ api }: { api: any }) {
                   제거됩니다.
                 </p>
                 <p>
-                  <b>Note:</b> 이 속성은 입력이 언마운트/리마운트 및 재정렬될 때{" "}
+                  <b>Note:</b> 이 속성은 입력이 언마운트/리마운트 및 재정렬된 후{" "}
                   <code>unregister</code> 함수가 호출되므로{" "}
                   <code>useFieldArray</code>와 함께 사용할 때 피해야 합니다.
                 </p>
