@@ -3,7 +3,7 @@ name: Sync Master to Master-Ko via Sync Branch
 on:
   push:
     branches:
-      - master  # master에 push가 발생할 때 트리거
+      - master # master에 push가 발생할 때 트리거
 
 jobs:
   sync-master-ko:
@@ -37,8 +37,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PR_TITLE="Sync master into master-ko (Review Required)"
-          PR_BODY="This automated PR is created from master and targets the master-ko branch.
-Please review the changes and resolve any conflicts if necessary."
+          PR_BODY="This automated PR is created from master and targets the master-ko branch. Please review the changes and resolve any conflicts if necessary."
           curl -X POST \
             -H "Authorization: token ${GITHUB_TOKEN}" \
             -H "Accept: application/vnd.github.v3+json" \
