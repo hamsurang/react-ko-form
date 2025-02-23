@@ -1,0 +1,46 @@
+name: Sync Master to Master-Ko via Sync Branch
+
+on:
+  push:
+    branches:
+      - master  # master에 push가 발생할 때 트리거
+
+jobs:
+  sync-master-ko:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config user.name "minchodang"
+          git config user.email "minsu910725@gmail.com"
+
+      - name: Create Sync Branch from master
+        id: create-sync
+        run: |
+          # origin/master에서 최신 상태를 체크아웃
+          git checkout origin/master
+          # 새로운 sync 브랜치 생성 (타임스탬프로 구분)
+          SYNC_BRANCH="sync-master-to-master-ko-$(date +%Y%m%d%H%M%S)"
+          git checkout -b "$SYNC_BRANCH"
+          # 생성한 sync 브랜치 원격에 푸시
+          git push origin "$SYNC_BRANCH"
+          echo "sync_branch=$SYNC_BRANCH" >> $GITHUB_ENV
+
+      - name: Create Pull Request for master-ko
+        if: env.sync_branch != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_TITLE="Sync master into master-ko (Review Required)"
+          PR_BODY="This automated PR is created from master and targets the master-ko branch.
+Please review the changes and resolve any conflicts if necessary."
+          curl -X POST \
+            -H "Authorization: token ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/pulls \
+            -d "{\"title\": \"${PR_TITLE}\", \"body\": \"${PR_BODY}\", \"head\": \"${{ env.sync_branch }}\", \"base\": \"master-ko\"}"
