@@ -1,12 +1,12 @@
 ---
 title: setError
-description: 입력 오류를 수동으로 설정하기
+description: 입력 에러를 수동으로 설정하기
 sidebar: apiLinks
 ---
 
 ## \</> `setError:` <TypeText>`(name: string, error: FieldError, { shouldFocus?: boolean }) => void`</TypeText>
 
-이 함수는 하나 이상의 오류를 수동으로 설정할 수 있도록 합니다.
+이 함수는 하나 이상의 에러를 수동으로 설정할 수 있도록 합니다.
 
 ### Props
 
@@ -15,23 +15,23 @@ sidebar: apiLinks
 | Name    | Type                                                                                  | Description                                                                                                                                                |
 | ------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `name`  | <TypeText>string</TypeText>                                                           | 입력 필드의 이름.                                                                                                                                          |
-| `error` | <TypeText>`{ type: string, message?: string, types: MultipleFieldErrors }`</TypeText> | 오류의 타입과 메시지를 설정합니다.                                                                                                                         |
-| config  | <TypeText>`{ shouldFocus?: boolean }`</TypeText>                                      | 오류 설정 시 입력 필드에 포커스를 줄지 여부를 설정합니다. 이 기능은 입력 필드의 참조가 등록되어 있을 때만 동작하며, custom register에는 작동하지 않습니다. |
+| `error` | <TypeText>`{ type: string, message?: string, types: MultipleFieldErrors }`</TypeText> | 에러 타입과 메시지를 설정합니다.                                                                                                                           |
+| config  | <TypeText>`{ shouldFocus?: boolean }`</TypeText>                                      | 에러 설정 시 입력 필드에 포커스를 줄지 여부를 설정합니다. 이 기능은 입력 필드의 참조가 등록되어 있을 때만 동작하며, custom register에는 작동하지 않습니다. |
 
 <Admonition type="important" title="Rules">
 
-- 이 메서드는 입력이 `register`의 관련 규칙을 통과한 경우에는 관련된 입력 오류를 지속하지 않습니다.
+- 이 메서드는 입력이 `register`의 연관된 규칙을 통과한 경우, 관련 입력 에러를 유지하지 않습니다.
   ```javascript
   register("registerInput", { minLength: 4 })
   setError("registerInput", { type: "custom", message: "custom message" })
   // minLength 요구 사항을 충족하는 한 유효성 검사는 통과합니다.
   ```
-- 입력 필드와 연관되지 않은 오류는 `clearErrors`를 통해 지워질 때까지 지속됩니다. 이 동작은 필드 수준에서의 내장 유효성 검사에만 해당됩니다.
+- 입력 필드와 연관되지 않은 에러는 `clearErrors`를 통해 지워질 때까지 지속됩니다. 이 동작은 필드 수준에서의 내장 유효성 검사에만 해당됩니다.
   ```javascript
   setError("notRegisteredInput", { type: "custom", message: "custom message" })
-  // 해당 오류를 제거하려면 clearErrors()를 수동으로 호출해야 합니다.
+  // 해당 에러를 제거하려면 clearErrors()를 수동으로 호출해야 합니다.
   ```
-- `root`를 키로 사용하여 서버 또는 전역 오류를 설정할 수 있습니다. 이 유형의 오류는 각 제출 시 지속되지 않습니다.
+- `root`를 키로 서버 또는 전역 에러를 설정할 수 있습니다. 이러한 유형의 에러는 각 submission할 때마다 유지되지 않습니다.
   ```javascript
   setError("root.serverError", {
     type: "400",
@@ -40,7 +40,7 @@ sidebar: apiLinks
     type: "random",
   })
   ```
-- 이 메서드는 비동기 유효성 검사 후, 사용자에게 오류 피드백을 제공하려는 경우, `handleSubmit` 메서드에서 유용할 수 있습니다. (예: API에서 유효성 검사 오류 반환 시)
+- 이 메서드는 비동기 유효성 검사 후, 사용자에게 에러 피드백을 제공하려는 경우, `handleSubmit` 메서드에서 유용할 수 있습니다. (예: API에서 유효성 검사 에러 반환 시)
 - `shouldFocus`는 입력 필드가 비활성화된 경우 작동하지 않습니다.
 - 이 메서드는 `isValid` 폼 상태를 `false`로 강제 설정합니다. 그러나 `isValid`는 항상 입력 등록 규칙 또는 스키마 결과의 유효성 검사 결과에서 파생된다는 점에 유의해야 합니다.
 - 타입 검사를 방해하지 않기 위해 `type`과 `types`라는 키워드는 피해야 합니다.
@@ -51,7 +51,7 @@ sidebar: apiLinks
 
 ---
 
-**단일 오류 설정**
+**단일 에러 설정**
 
 <TabGroup buttonLabels={["TS", "JS"]}>
 
@@ -123,7 +123,7 @@ const App = () => {
 
 </TabGroup>
 
-**다중 오류 설정**
+**다중 에러 설정**
 
 <TabGroup buttonLabels={["TS", "JS"]}>
 
@@ -333,7 +333,7 @@ const App = () => {
 
 </TabGroup>
 
-**서버 오류 설정**
+**서버 에러 설정**
 
 ```javascript copy
 import * as React from "react";
