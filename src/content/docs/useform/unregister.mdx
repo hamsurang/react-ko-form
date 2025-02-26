@@ -1,12 +1,12 @@
 ---
 title: unregister
-description: 비제어, 제어 input Unregister
+description: 비제어, 제어 입력 등록 해제(Unregister)
 sidebar: apiLinks
 ---
 
 ## \</> `unregister:` <TypeText>(name: string | string[], options) => void</TypeText>
 
-이 메서드를 사용하면 단일 input 또는 input 배열을 `unregister`할 수 있습니다. 또한 input을 unregister한 후 상태를 유지하기 위한 두 번째 선택적 인수를 제공합니다.
+이 메서드를 사용하면 단일 입력 또는 입력 배열을 등록 해제(`unregister`) 할 수 있습니다. 또한 입력을 등록 해제(unregister)한 후 상태를 유지하기 위한 두 번째 선택적 인수를 제공합니다.
 
 ### Props
 
@@ -32,16 +32,16 @@ sidebar: apiLinks
 | Name               | Type                         | Description                                                                                                                                                                                                   |
 | ------------------ | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `keepDirty`        | <TypeText>boolean</TypeText> | 이 작업을 수행하는 동안 `isDirty`와 `dirtyFields`는 유지됩니다. 그러나 `isDirty`는 `defaultValues`에 대해 측정되기 때문에 다음 사용자 입력이 `isDirty` formState를 업데이트하지 않는다고 보장하지는 않습니다. |
-| `keepTouched`      | <TypeText>boolean</TypeText> | `touchedFields`는 unregister후 더 이상 해당 입력을 제거하지 않습니다.                                                                                                                                         |
-| `keepIsValid`      | <TypeText>boolean</TypeText> | 이 작업 중에는 `isValid`가 유지됩니다. 그러나 다음 사용자 입력이 스키마 유효성 검사를 위해 `isValid`를 업데이트하지 않는다고 보장하지는 않으므로 unregister에 따라 스키마를 조정해야 합니다.                  |
+| `keepTouched`      | <TypeText>boolean</TypeText> | `touchedFields`는 등록을 해제(unregister)한 후 더 이상 해당 입력을 제거하지 않습니다.                                                                                                                         |
+| `keepIsValid`      | <TypeText>boolean</TypeText> | 이 작업 중에는 `isValid`가 유지됩니다. 그러나 다음 사용자 입력이 스키마 유효성 검사를 위해 `isValid`를 업데이트하지 않는다고 보장하지는 않으므로 등록 해제(unregister)에 따라 스키마를 조정해야 합니다.       |
 | `keepError`        | <TypeText>boolean</TypeText> | `errors`가 업데이트되지 않습니다.                                                                                                                                                                             |
-| `keepValue`        | <TypeText>boolean</TypeText> | input의 현재 `value`는 업데이트되지 않습니다.                                                                                                                                                                 |
-| `keepDefaultValue` | <TypeText>boolean</TypeText> | `useForm`에 정의된 input의 `defaultValue`는 그대로 유지됩니다.                                                                                                                                                |
+| `keepValue`        | <TypeText>boolean</TypeText> | 입력의 현재 `value`는 업데이트되지 않습니다.                                                                                                                                                                  |
+| `keepDefaultValue` | <TypeText>boolean</TypeText> | `useForm`에 정의된 입력의 `defaultValue`는 그대로 유지됩니다.                                                                                                                                                 |
 
 <Admonition type="important" title="Rules">
 
-- 이 방법을 사용하면 input 참조와 해당 값이 제거되므로 **내장 유효성 검사** 규칙도 제거됩니다.
-- input을 'unregister'하면 스키마 유효성 검사에 영향을 미치지 않습니다.
+- 이 방법을 사용하면 입력의 참조와 해당 값이 제거되므로 **내장 유효성 검사** 규칙도 제거됩니다.
+- 입력을 '등록 해제'(unregister)하면 스키마 유효성 검사에 영향을 미치지 않습니다.
 
   ```javascript
   const schema = yup
@@ -54,7 +54,7 @@ sidebar: apiLinks
   unregister("firstName") //  이 경우 firstName input에 대한 유효성 검사는 제거되지 않습니다.
   ```
 
-- `register` 콜백이 있는 입력은 반드시 unmount해야 하며, 그렇지 않으면 입력이 다시 register됩니다.
+- `register` 콜백이 있는 입력은 반드시 unmount해야 하며, 그렇지 않으면 입력이 다시 등록(register)됩니다.
 
   ```javascript
   const [show, setShow] = React.useState(true)
