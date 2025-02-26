@@ -97,7 +97,7 @@ export default {
     errorTitle: "Errors",
     touchedTitle: "Touched",
     watch: "입력값을 변경하면 관찰되는 값(watched value)이 업데이트돼요.",
-    error: "밸리데이션 오류가 여기에 표시돼요.",
+    error: "밸리데이션 에러가 여기에 표시돼요.",
     touched: "터치된 필드는 이곳에 나타나요.",
   },
   validationResolver: {
