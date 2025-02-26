@@ -6,16 +6,16 @@ sidebar: apiLinks
 
 ## \</> `getFieldState:` <TypeText>`(name: string, formState?: Object) => ({isDirty, isTouched, invalid, error})`</TypeText>
 
-이 method는 react-hook-form [v7.25.0](https://github.com/react-hook-form/react-hook-form/releases/tag/v7.25.0)에서 개별 필드 상태를 반환하기 위해 도입되었습니다. 이는 타입 안전한 방식으로 중첩된 필드 상태를 가져오려는 경우에 유용합니다.
+이 메서드는 react-hook-form [v7.25.0](https://github.com/react-hook-form/react-hook-form/releases/tag/v7.25.0)에서 개별 필드 상태를 반환하기 위해 도입되었습니다. 이는 타입 안전한 방식으로 중첩된 필드 상태를 가져오려는 경우에 유용합니다.
 
 ### Props
 
 ---
 
-| Name      | Type                          | Description                                                                                                                                               |
-| --------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`    | <TypeText>`string`</TypeText> | 등록된 필드 이름.                                                                                                                                         |
-| formState | <TypeText>`object`</TypeText> | 선택적인 prop으로, useForm, useFormContext, 또는 useFormState에서 formState를 읽거나 구독하지 않는 경우에만 필요합니다. 자세한 내용은 rules를 참조하세요. |
+| Name      | Type                          | Description                                                                                                                                             |
+| --------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`    | <TypeText>`string`</TypeText> | 등록된 필드 이름.                                                                                                                                       |
+| formState | <TypeText>`object`</TypeText> | 선택적 prop으로, useForm, useFormContext, 또는 useFormState에서 formState를 읽거나 구독하지 않는 경우에만 필요합니다. 자세한 내용은 rules를 참조하세요. |
 
 ### Return
 
@@ -26,7 +26,7 @@ sidebar: apiLinks
 | `isDirty` | <TypeText>`boolean`</TypeText>                 | 필드가 수정되었는지 여부. <br/>**조건:** `dirtyFields`를 구독해야 합니다.                     |
 | isTouched | <TypeText>`boolean`</TypeText>                 | 필드가 포커스와 블러 이벤트를 받았는지 여부.<br/>**조건:** `touchedFields`를 구독해야 합니다. |
 | invalid   | <TypeText>`boolean`</TypeText>                 | 필드가 유효하지 않은지 여부.<br/>**조건:** `errors`를 구독해야 합니다.                        |
-| error     | <TypeText>`undefined \| FieldError`</TypeText> | 필드 오류 객체.<br/>**조건:** `errors`를 구독해야 합니다.                                     |
+| error     | <TypeText>`undefined \| FieldError`</TypeText> | 필드 에러 객체.<br/>**조건:** `errors`를 구독해야 합니다.                                     |
 
 <Admonition type="important" title="Rules">
 
@@ -34,7 +34,7 @@ sidebar: apiLinks
   ```javascript
   getFieldState("test")
   getFieldState("test") // ✅ 입력을 등록하고 필드 상태를 반환합니다
-  getFieldState("non-existent-name") // ❌ 상태를 false로, 오류를 undefined로 반환합니다
+  getFieldState("non-existent-name") // ❌ 상태를 false로, 에러를 undefined로 반환합니다
   ```
 - `getFieldState`는 폼 상태 업데이트를 구독하여 동작하며, 다음과 같은 방법으로 formState를 구독할 수 있습니다:
 

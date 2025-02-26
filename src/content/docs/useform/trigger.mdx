@@ -6,7 +6,7 @@ sidebar: apiLinks
 
 ## `trigger:` <TypeText>`(name?: string | string[]) => Promise<boolean>`</TypeText>
 
-폼 또는 인풋의 유효성 검사를 수동으로 트리거합니다. 이 method는 의존적인 유효성 검사가 있는 경우(입력 유효성 검사가 다른 입력 값에 의존하는 경우)에도 유용합니다.
+폼 또는 인풋의 유효성 검사를 수동으로 트리거합니다. 이 메서드는 의존적인 유효성 검사가 있는 경우(입력 유효성 검사가 다른 입력 값에 의존하는 경우)에도 유용합니다.
 
 ### Props
 
@@ -17,7 +17,7 @@ sidebar: apiLinks
 | name        | <TypeText>undefined</TypeText> | 모든 필드에서 유효성 검사 트리거.                                                                                                            | `trigger()`                              |
 |             | <TypeText>string</TypeText>    | **name**으로 특정 필드 값에 대한 유효성 검사 트리거.                                                                                         | `trigger("yourDetails.firstName")`       |
 |             | <TypeText>string[]</TypeText>  | **name**으로 여러 필드에 대한 유효성 검사 트리거.                                                                                            | `trigger(["yourDetails.lastName"])`      |
-| shouldFocus | <TypeText>boolean</TypeText>   | 오류를 설정하는 동안 입력에 초점을 맞춰야 합니다. 입력의 참조가 등록된(registered) 경우에만 작동하며, custom register에는 작동하지 않습니다. | `trigger('name', { shouldFocus: true })` |
+| shouldFocus | <TypeText>boolean</TypeText>   | 에러를 설정하는 동안 입력에 초점을 맞춰야 합니다. 입력의 참조가 등록된(registered) 경우에만 작동하며, custom register에는 작동하지 않습니다. | `trigger('name', { shouldFocus: true })` |
 
 <Admonition type="important" title="Rules">
 
