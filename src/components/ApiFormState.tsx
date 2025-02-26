@@ -26,7 +26,7 @@ function ApiFormState({ api }: { api: any }) {
         <li>
           <p>
             <code>formState</code>는 렌더링 성능을 향상시키고 특정 상태가
-            구독되지 않았을 때 추가 로직을 건너뛰기 위해
+            구독되지 않았을 때 추가 로직을 건너뛰기 위해{" "}
             <a
               href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy"
               target="_blank"

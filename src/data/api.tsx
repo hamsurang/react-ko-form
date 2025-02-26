@@ -737,7 +737,7 @@ setValue('test', '')
         <Link href="/docs/useform" aria-label="read more about reset api">
           useForm
         </Link>
-        의 defaultValues에 설정된 값 또는
+        의 defaultValues에 설정된 값 또는{" "}
         <Link href="/docs/useform/reset" aria-label="read more about reset api">
           reset
         </Link>{" "}
