@@ -12,10 +12,10 @@ sidebar: apiLinks
 
 ---
 
-| Name               | Type                                                                | Description    |
-| ------------------ | ------------------------------------------------------------------- | -------------- |
-| SubmitHandler      | <TypeText>`(data: Object, e?: Event) => Promise<void>`</TypeText>   | 성공 callback. |
-| SubmitErrorHandler | <TypeText>`(errors: Object, e?: Event) => Promise<void>`</TypeText> | 에러 callback. |
+| Name               | Type                                                                | Description |
+| ------------------ | ------------------------------------------------------------------- | ----------- |
+| SubmitHandler      | <TypeText>`(data: Object, e?: Event) => Promise<void>`</TypeText>   | 성공 콜백.  |
+| SubmitErrorHandler | <TypeText>`(errors: Object, e?: Event) => Promise<void>`</TypeText> | 에러 콜백.  |
 
 <Admonition type="important" title="Rules">
 
@@ -28,7 +28,7 @@ sidebar: apiLinks
   handleSubmit(async (data) => await fetchAPI(data))
   ```
 
-- `disabled`된 input은 폼 값에서 `undefined`로 나타납니다. input을 사용자가 수정하지 못하게 하면서 값을 유지하려면, `readOnly`를 사용하거나 전체 &lt;fieldset /&gt;을 disabled할 수 있습니다. [예시](https://codesandbox.io/s/react-hook-form-disabled-inputs-oihxx)를 참고하세요.
+- `disabled`된 입력은 폼 값에서 `undefined`로 나타납니다. 입력을 사용자가 수정하지 못하게 하면서 값을 유지하려면, `readOnly`를 사용하거나 전체 &lt;fieldset /&gt;을 disabled할 수 있습니다. [예시](https://codesandbox.io/s/react-hook-form-disabled-inputs-oihxx)를 참고하세요.
 - `handleSubmit` 함수는 onSubmit 콜백 내부에서 발생한 에러를 처리하지 않으므로, 비동기 요청에서 에러를 처리할 때는 try-catch를 사용하여 유저에게 에러를 친절하게 처리해 주는 것을 권장합니다.
 
   ```javascript
