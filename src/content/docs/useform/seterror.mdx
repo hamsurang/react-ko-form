@@ -31,7 +31,7 @@ sidebar: apiLinks
   setError("notRegisteredInput", { type: "custom", message: "custom message" })
   // 해당 에러를 제거하려면 clearErrors()를 수동으로 호출해야 합니다.
   ```
-- `root`를 키로 서버 또는 전역 에러를 설정할 수 있습니다. 이러한 유형의 에러는 각 submission할 때마다 유지되지 않습니다.
+- `root`를 키로 서버 또는 전역 에러를 설정할 수 있습니다. 이러한 유형의 에러는 각 submission마다 유지되지 않습니다.
   ```javascript
   setError("root.serverError", {
     type: "400",
@@ -240,7 +240,7 @@ const App = () => {
 
 </TabGroup>
 
-**단일 필드 오류**
+**단일 필드 에러**
 
 <TabGroup buttonLabels={["TS", "JS"]}>
 
