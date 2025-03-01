@@ -1,0 +1,42 @@
+.root {
+  padding: 0 20px 50px;
+  position: relative;
+}
+
+.feedback {
+  margin-top: 40px;
+}
+
+.feedback > div {
+  border-radius: 15px;
+  margin-bottom: 20px;
+}
+
+.feedback svg {
+  margin: 0 auto 10px;
+  width: 45px;
+}
+
+.feedback > div > p {
+  font-size: 15px;
+  text-align: left;
+  padding: 20px 0;
+}
+
+@media (min-width: 768px) {
+  .feedback {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 50px;
+  }
+
+  .feedback > div {
+    margin-bottom: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .root {
+    padding: 0 50px;
+  }
+}

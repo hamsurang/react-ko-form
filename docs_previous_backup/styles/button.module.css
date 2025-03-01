@@ -1,0 +1,118 @@
+.links,
+.codeAsLink {
+  color: var(--color-link);
+}
+
+.codeAsLink {
+  cursor: pointer;
+  text-decoration: underline;
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-link) !important;
+}
+
+.buttonsGroup {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-column-gap: 20px;
+  margin: 0 auto;
+}
+
+.button,
+.primaryButton,
+.pinkButton,
+.darkButton {
+  border-radius: 4px;
+  transition: 0.3s all;
+  cursor: pointer;
+  color: white;
+  font-size: 16px;
+  font-weight: 400;
+  margin: 20px 0;
+  -webkit-appearance: none;
+  line-height: 1;
+  display: inline-block;
+  padding: 16px 10px;
+}
+
+.primaryButton {
+  box-sizing: border-box;
+  background: var(--color-primary);
+  border: 1px solid var(--color-light-blue);
+}
+
+a.primaryButton {
+  text-decoration: none;
+}
+
+a.primaryButton:hover {
+  color: white;
+}
+
+.pinkButton,
+.darkButton {
+  background: var(--color-light-pink);
+  letter-spacing: 0.2rem;
+  text-transform: uppercase;
+  border: 1px solid var(--color-light-pink);
+  width: 100%;
+}
+
+.pinkButton:hover {
+  background: var(--color-secondary);
+}
+
+.darkButton {
+  background: black;
+  color: white;
+  border: 1px solid var(--color-light-pink);
+}
+
+.darkButton:hover {
+  background: var(--color-primary);
+  border: 1px solid var(--color-secondary);
+}
+
+.darkButton:active {
+  background: black;
+}
+
+@keyframes moving {
+  from {
+    transform: translateX(0px);
+  }
+
+  to {
+    transform: translateX(5px);
+  }
+}
+
+.primaryButton:hover > span {
+  display: inline-block;
+  animation: moving 0.4s linear infinite;
+  animation-direction: alternate;
+}
+
+.primaryButton:active {
+  background: black;
+}
+
+.primaryButton:hover {
+  border: 1px solid var(--color-secondary);
+  box-shadow: 0 0 5px #000;
+}
+
+@media (min-width: 768px) {
+  .primaryButton {
+    font-size: 18px;
+    font-weight: 400;
+    margin: 40px 0;
+    padding: 15px 30px;
+  }
+
+  .buttonsGroup {
+    grid-column-gap: 30px;
+  }
+}
