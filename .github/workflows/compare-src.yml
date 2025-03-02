@@ -1,0 +1,80 @@
+name: Update origin-src for Translation
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  update-origin-src:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Fetch All Branches
+        run: git fetch --all
+
+      - name: Compare origin-src with src from origin/master
+        run: |
+          # 만약 origin-src 폴더가 없으면 업데이트가 필요한 것으로 간주합니다.
+          if [ ! -d origin-src ]; then
+            echo "CHANGED" > diff_status.txt
+          else
+            # 임시 폴더를 만들어 origin/master의 src를 추출합니다.
+            mkdir tmp-src
+            git archive origin/master src | tar -x -C tmp-src
+            # origin-src와 tmp-src/src를 재귀적으로 비교합니다.
+            diff -r origin-src tmp-src/src > /dev/null || echo "CHANGED" > diff_status.txt
+          fi
+          if grep -q "CHANGED" diff_status.txt; then
+            echo "Differences detected between origin-src and origin/master's src."
+          else
+            echo "No differences detected."
+          fi
+
+      - name: Update origin-src in master-ko Branch if Needed
+        run: |
+          if grep -q "CHANGED" diff_status.txt; then
+            BRANCH_NAME=update-origin-src-$(date +%Y%m%d%H%M%S)
+            # master-ko 브랜치가 존재하면 해당 브랜치에서, 없으면 새로 생성합니다.
+            if git rev-parse --verify origin/master-ko; then
+              git checkout -B master-ko origin/master-ko
+            else
+              git checkout -B master-ko
+            fi
+            # 업데이트를 위한 새 브랜치 생성
+            git checkout -b $BRANCH_NAME
+            # 기존 origin-src 폴더 제거
+            rm -rf origin-src
+            # origin/master의 src 디렉토리 내용을 추출하여 origin-src로 복사합니다.
+            git archive origin/master src | tar -x
+            mv src origin-src
+            # 변경사항이 있는 경우 커밋 및 PR 생성
+            if ! git diff --quiet; then
+              git add origin-src
+              git commit -m "Update origin-src with latest changes from origin/master's src"
+              git push origin $BRANCH_NAME
+              curl -X POST \
+                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Accept: application/vnd.github.v3+json" \
+                https://api.github.com/repos/${{ github.repository }}/pulls \
+                -d '{
+                  "title": "Update origin-src for translation",
+                  "body": "This PR updates the origin-src directory in master-ko with the latest src changes from origin/master.",
+                  "head": "'"${BRANCH_NAME}"'",
+                  "base": "master-ko"
+                }'
+            else
+              echo "No changes to commit after updating origin-src."
+            fi
+          else
+            echo "No changes detected. Skipping update."
+          fi
+        shell: bash

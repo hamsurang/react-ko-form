@@ -129,7 +129,7 @@ jobs:
           fi
         shell: bash
 
-      - name: Create Pull Request
+      - name: Create Pull Request for Master Sync
         if: env.diff == 'true' || env.existing_pr == 'false'
         run: |
           # 새로운 브랜치 생성
@@ -149,5 +149,37 @@ jobs:
               "body": "This PR syncs the repository with upstream changes and removes the entire .github directory.",
               "head": "'"${BRANCH_NAME}"'",
               "base": "master"
+            }'
+        shell: bash
+
+      - name: Update master-ko Branch (excluding src)
+        run: |
+          # 최신 master 브랜치 체크아웃
+          git checkout master
+          # master-ko 브랜치가 원격에 존재하면 체크아웃, 없으면 새로 생성
+          git fetch origin master-ko || true
+          git checkout -B master-ko origin/master-ko || git checkout -B master-ko
+
+          # master 브랜치의 모든 파일을 가져오되, src는 제외하고 master-ko의 기존 src 유지
+          git checkout master -- .
+          git checkout master-ko -- src
+
+          git add .
+          git commit -m "Update master-ko with upstream changes (excluding src)" || echo "No changes to commit"
+
+          # 새로운 브랜치로 PR 생성
+          BRANCH_NAME=update-master-ko-$(date +%Y%m%d%H%M%S)
+          git checkout -b $BRANCH_NAME
+          git push origin $BRANCH_NAME
+
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/pulls \
+            -d '{
+              "title": "Update master-ko (excluding src)",
+              "body": "This PR updates the master-ko branch with upstream changes except for the src directory.",
+              "head": "'"${BRANCH_NAME}"'",
+              "base": "master-ko"
             }'
         shell: bash

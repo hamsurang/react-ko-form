@@ -1,0 +1,209 @@
+.heading,
+.headingWithTopMargin {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.subHeading {
+  font-size: 15px;
+  padding: 0 20px;
+  text-align: center;
+  color: var(--color-light-pink);
+  max-width: 330px;
+  margin: 0 auto;
+}
+
+.title {
+  text-align: center;
+  font-weight: 400;
+  font-size: 1.1rem;
+  overflow: hidden;
+  position: relative;
+  line-height: 1;
+  margin: 10px auto 20px;
+  max-width: 600px;
+}
+
+.rulesTitle,
+.subTitle {
+  border-bottom: 2px solid var(--color-light-blue);
+  line-height: 1.8;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 0;
+}
+
+.rulesTitle:before,
+.subTitle:before {
+  font-size: 15px;
+  position: relative;
+  margin-right: 8px;
+  top: -2px;
+  content: "ⓘ";
+}
+
+h3.rulesTitle,
+h3.subTitle {
+  font-size: 14px;
+}
+
+h3.rulesTitle:before,
+h3.subTitle:before {
+  top: 0;
+  margin-right: 0.5rem;
+}
+
+.rulesTitle {
+  line-height: 1;
+  margin-top: 2rem;
+  border: 1px solid var(--color-secondary);
+  padding: 0.4rem 0.5rem 0.6rem 0.5rem;
+  border-radius: 6px;
+}
+
+.title:before,
+.title:after {
+  background-color: var(--color-light-blue);
+  content: "";
+  display: inline-block;
+  height: 1px;
+  position: relative;
+  vertical-align: middle;
+  width: 50%;
+}
+
+.title:before {
+  right: 0.5em;
+  margin-left: -50%;
+}
+
+.title:after {
+  left: 0.5em;
+  margin-right: -50%;
+}
+
+.codeHeading > h2:before {
+  display: inline-block;
+  content: "</> ";
+}
+
+.h5 .videoLink,
+.codeHeading .videoLink {
+  text-decoration: none;
+  font-size: 14px;
+  margin-bottom: -5px;
+  margin-left: 15px;
+  background: none;
+  text-transform: uppercase;
+  border: 1px solid var(--color-secondary);
+  padding: 5px 10px;
+  font-family: "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
+    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+}
+
+.h1 {
+  font-size: 24px;
+  display: inline-block;
+  margin: 40px auto;
+  font-weight: 400;
+  padding-bottom: 5px;
+  border-bottom: 2px solid var(--color-secondary);
+}
+
+.h5 {
+  font-size: 18px;
+  text-align: left;
+  font-weight: 500;
+  padding-bottom: 15px;
+  margin: 50px 0 10px;
+  border-bottom: 1px solid var(--color-light-blue);
+}
+
+.h5 > code {
+  font-size: 18px !important;
+}
+
+.typeText {
+  font-weight: 400;
+  font-size: 14px;
+  font-family: monospace;
+  font-variant-ligatures: none;
+  color: var(--color-light-pink) !important;
+}
+
+.note {
+  color: var(--color-light-pink);
+}
+
+.codeBlock {
+  display: block;
+  padding: 10px;
+}
+
+.error {
+  font-size: 12px;
+  color: var(--color-light-pink);
+}
+
+@media (min-width: 768px) {
+  .h1 {
+    font-size: 36px;
+    font-weight: bold;
+  }
+
+  .heading,
+  .headingWithTopMargin {
+    font-size: 55px !important;
+    margin: 80px auto 10px;
+  }
+
+  .subHeading {
+    font-size: 18px;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    max-width: 575px;
+  }
+
+  .title {
+    margin-top: 20px;
+    font-size: 1.3rem;
+    line-height: 1.5;
+  }
+
+  h2.title {
+    margin-top: 40px;
+  }
+
+  .headingWithTopMargin {
+    margin-top: 70px;
+  }
+
+  .questionTitle {
+    padding-left: 10px;
+    border-left: 5px solid var(--color-light-pink);
+    line-height: 1;
+  }
+}
+
+@media (min-width: 1024px) {
+  .h1 {
+    font-size: 50px;
+    margin-top: 60px;
+    line-height: 1.3;
+    border-bottom: 3px solid var(--color-secondary);
+  }
+
+  .homeParagraph {
+    font-size: 20px;
+    line-height: 1.5;
+  }
+
+  .heading,
+  .headingWithTopMargin {
+    margin-top: 20px;
+  }
+
+  .headingWithTopMargin {
+    margin-top: 70px;
+  }
+}

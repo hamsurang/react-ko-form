@@ -1,0 +1,278 @@
+.iconGroup {
+  display: flex;
+  position: absolute;
+  left: 10px;
+  top: 15px;
+  z-index: 2;
+}
+
+.icon {
+  z-index: 10;
+  max-width: 50px;
+  min-width: 35px;
+  flex: 1;
+}
+
+.icon svg {
+  height: 16px;
+  fill: white;
+  transition: 0.3s all;
+  margin-top: 6px;
+}
+
+.icon svg:hover {
+  opacity: 0.5;
+}
+
+.actionButtonGroup {
+  display: flex;
+  bottom: 0;
+  z-index: 5;
+  left: 0;
+  width: 100%;
+  position: fixed;
+  height: 43px;
+}
+
+:global(.dark) .actionButtonGroup {
+  background: var(--color-button-blue);
+  box-shadow: 0 2px 2px 0 #000;
+  width: 100%;
+  z-index: 20;
+}
+
+:global(.light) .actionButtonGroup {
+  background: var(--color-blue);
+}
+
+.actionButtonGroup a {
+  flex: 1;
+  font-size: 0.5rem;
+  border-left: 1px solid var(--color-button-blue);
+  padding: 5px 0;
+  text-align: center;
+  color: white;
+  text-decoration: none;
+  position: relative;
+  min-width: 40px;
+}
+
+.actionButtonGroup a:nth-child(6),
+.actionButtonGroup a:nth-child(7),
+.actionButtonGroup a:nth-child(8),
+.actionButtonGroup a:nth-child(9),
+.actionButtonGroup a:nth-child(10) {
+  display: none;
+}
+
+.actionButtonGroup a:first-child {
+  border-left: 0;
+}
+
+.actionButtonGroup a:hover {
+  color: var(--color-light-pink);
+}
+
+.actionButtonGroup a > span {
+  display: block;
+  height: 20px;
+}
+
+.gitHubButtonWrap {
+  position: absolute;
+  right: 10px;
+  top: 15px;
+  z-index: 1;
+  display: flex;
+  gap: 4px;
+}
+
+.gitHubButtonWrap > span > span {
+  display: flex;
+}
+
+.iconWrapper {
+  height: 15px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.iconWrapper > * {
+  color: white;
+}
+
+a.legacyLink {
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: white;
+  border: 1px solid #234081;
+  border-radius: 4px;
+  padding: 0 0.5rem;
+}
+
+:global(.light) .actionButtonWrapper {
+  background: var(--color-primary);
+  border-bottom: 3px solid var(--color-light-pink);
+}
+
+.mobileMenu {
+  width: 66.99%;
+  right: 0;
+  left: auto;
+  z-index: 2;
+}
+
+.linkExternal {
+  display: flex;
+}
+
+.linkExternal img {
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-left: 0.1rem;
+}
+
+@media (min-width: 768px) {
+  .gitHubButtonWrap {
+    right: 10px;
+  }
+
+  .actionButtonGroup a:nth-child(6),
+  .actionButtonGroup a:nth-child(7),
+  .actionButtonGroup a:nth-child(8),
+  .actionButtonGroup a:nth-child(9),
+  .actionButtonGroup a:nth-child(10) {
+    display: block;
+  }
+
+  .actionButtonGroup a:nth-child(12) {
+    display: none;
+  }
+}
+
+@media (min-width: 1040px) {
+  .mobileOnly {
+    display: none;
+  }
+
+  .menuExpandLink {
+    font-size: 0.7rem;
+    position: relative;
+    top: -2px;
+    cursor: default;
+  }
+
+  .menuExpandLink span {
+    transition: 0.4s all;
+  }
+
+  .menuExpandLink:hover span {
+    color: var(--color-light-pink);
+  }
+
+  :global(.light) .actionButtonWrapper {
+    height: auto;
+  }
+
+  .iconWrapper {
+    display: none;
+  }
+
+  .iconGroup {
+    left: 20px;
+  }
+
+  .actionButtonGroup a.mobileNav {
+    display: none !important;
+  }
+
+  .actionButtonGroup {
+    z-index: 1;
+    justify-content: space-around;
+    position: inherit;
+    background: none;
+    border: none;
+    margin: 0 auto;
+    height: auto;
+    max-width: 610px;
+    padding: 13px 8px;
+  }
+
+  :global(.light) .actionButtonGroup {
+    background: none;
+  }
+
+  .actionButtonGroup a {
+    font-size: 0.7rem;
+    flex: none;
+    border: none;
+    padding: 2px 0;
+  }
+  :global(.dark) .actionButtonGroup a {
+    color: white;
+  }
+  .tools {
+    color: white;
+    height: 29px;
+    display: inline-block;
+  }
+
+  span.tools:focus {
+    outline: none;
+  }
+
+  .tools:focus ~ div .menuExpand,
+  .tools:hover ~ div .menuExpand {
+    transform: translateY(0px);
+    opacity: 1;
+    transition: 0.35s all ease-in;
+  }
+
+  .menuExpand {
+    transition: 0.25s all ease-in;
+    padding: 6px 10px 0;
+    background: var(--color-button-blue);
+    transform: translateY(-80px);
+    opacity: 0;
+    width: max-content;
+    overflow: hidden;
+  }
+
+  .menuExpand:hover {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+
+  .menuExpand a {
+    text-align: left;
+    padding: 2px 0;
+    display: block;
+    width: 100%;
+    margin-bottom: 7px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .menuExpandLink {
+    font-size: 0.8rem;
+    top: -1px;
+  }
+
+  .gitHubButtonWrap {
+    right: 20px;
+  }
+
+  .actionButtonGroup {
+    max-width: 800px;
+  }
+
+  .actionButtonGroup a:nth-child(8) {
+    display: block;
+  }
+
+  .actionButtonGroup a {
+    font-size: 0.8rem;
+  }
+}
