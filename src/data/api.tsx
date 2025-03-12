@@ -1557,25 +1557,25 @@ replace([{data: 'test'}])
                   <ul>
                     <li>
                       <p>
-                        입력이 유효한지 여부를 계산할 것인지 설정 (
+                        입력값의 유효성을 계산할지 여부. (구독 대상:
                         <code className={typographyStyles.typeText}>
                           errors
                         </code>
-                        에 구독 ).
+                        ).
                       </p>
                     </li>
                     <li>
                       <p>
-                        전체 폼이 유효한지 여부를 계산할 것인지 설정. (
+                        전체 폼의 유효성을 계산할지 여부. (구독 대상:
                         <code className={typographyStyles.typeText}>
                           isValid
                         </code>
-                        에 구독 ).
+                        ).
                       </p>
                     </li>
                     <li>
                       이 옵션은 전체 폼의 터치된 필드가 <b>아닌</b> 지정된 필드
-                      수준에서 <code>touchedFields</code>를 업데이트.
+                      레벨에서만 <code>touchedFields</code>를 업데이트.
                     </li>
                   </ul>
                   <CodeArea
@@ -1598,22 +1598,22 @@ replace([{data: 'test'}])
                   <ul>
                     <li>
                       <p>
-                        기본 값과 비교하여 입력이 수정되었는지 여부를 계산할
-                        것인지를 설정 (
+                        기본값과 비교해서 해당 입력이 수정되었는지 판단할지
+                        여부를 결정합니다. (이 값은{" "}
                         <code className={typographyStyles.typeText}>
                           dirtyFields
                         </code>
-                        에 구독 ).
+                        에 구독됩니다.)
                       </p>
                     </li>
                     <li>
                       <p>
-                        기본 값과 비교하여 전체 폼이 수정되었는지 여부를 계산할
-                        것인지를 설정 (
+                        기본값과 비교해서 전체 폼이 수정되었는지 판단할지 여부를
+                        결정합니다. (이 값은
                         <code className={typographyStyles.typeText}>
                           isDirty
                         </code>
-                        에 구독 ).
+                        에 구독됩니다.)
                       </p>
                     </li>
                     <li>
