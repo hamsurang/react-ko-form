@@ -1,9 +1,9 @@
 name: Update origin-src for Translation
 
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *" # 매일 밤 12시 정각
 
 jobs:
   update-origin-src:
@@ -21,60 +21,109 @@ jobs:
       - name: Fetch All Branches
         run: git fetch --all
 
-      - name: Compare origin-src with src from origin/master
+      - name: Configure Git
         run: |
-          # 만약 origin-src 폴더가 없으면 업데이트가 필요한 것으로 간주합니다.
+          git config --global user.name "minchodang"
+          git config --global user.email "minsu910725@gmail.com"
+
+      # 1) origin/master의 src와 현재 repo의 origin-src 폴더 비교
+      - name: Compare origin-src with src from origin/master
+        id: compare
+        run: |
+          # 만약 origin-src 폴더가 없으면 업데이트가 필요한 것으로 간주
           if [ ! -d origin-src ]; then
             echo "CHANGED" > diff_status.txt
           else
-            # 임시 폴더를 만들어 origin/master의 src를 추출합니다.
+            # 임시 폴더를 만들어 origin/master의 src를 추출
             mkdir tmp-src
             git archive origin/master src | tar -x -C tmp-src
-            # origin-src와 tmp-src/src를 재귀적으로 비교합니다.
+            # origin-src와 tmp-src/src 재귀 비교
             diff -r origin-src tmp-src/src > /dev/null || echo "CHANGED" > diff_status.txt
           fi
-          if grep -q "CHANGED" diff_status.txt; then
+
+          # GitHub 환경변수에 반영
+          if [ -f diff_status.txt ]; then
+            echo "pr_needed=true" >> $GITHUB_ENV
             echo "Differences detected between origin-src and origin/master's src."
           else
+            echo "pr_needed=false" >> $GITHUB_ENV
             echo "No differences detected."
           fi
 
-      - name: Update origin-src in master-ko Branch if Needed
+      # 2) pr_needed이면 -> origin-src 갱신
+      - name: Prepare master-ko
+        if: env.pr_needed == 'true'
         run: |
-          if grep -q "CHANGED" diff_status.txt; then
-            BRANCH_NAME=update-origin-src-$(date +%Y%m%d%H%M%S)
-            # master-ko 브랜치가 존재하면 해당 브랜치에서, 없으면 새로 생성합니다.
-            if git rev-parse --verify origin/master-ko; then
-              git checkout -B master-ko origin/master-ko
-            else
-              git checkout -B master-ko
-            fi
-            # 업데이트를 위한 새 브랜치 생성
-            git checkout -b $BRANCH_NAME
-            # 기존 origin-src 폴더 제거
-            rm -rf origin-src
-            # origin/master의 src 디렉토리 내용을 추출하여 origin-src로 복사합니다.
-            git archive origin/master src | tar -x
-            mv src origin-src
-            # 변경사항이 있는 경우 커밋 및 PR 생성
-            if ! git diff --quiet; then
-              git add origin-src
-              git commit -m "Update origin-src with latest changes from origin/master's src"
-              git push origin $BRANCH_NAME
-              curl -X POST \
-                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                -H "Accept: application/vnd.github.v3+json" \
-                https://api.github.com/repos/${{ github.repository }}/pulls \
-                -d '{
-                  "title": "Update origin-src for translation",
-                  "body": "This PR updates the origin-src directory in master-ko with the latest src changes from origin/master.",
-                  "head": "'"${BRANCH_NAME}"'",
-                  "base": "master-ko"
-                }'
-            else
-              echo "No changes to commit after updating origin-src."
-            fi
+          # master-ko 브랜치가 존재하면 체크아웃, 없으면 새로
+          if git rev-parse --verify origin/master-ko; then
+            git checkout -B master-ko origin/master-ko
           else
-            echo "No changes detected. Skipping update."
+            git checkout -B master-ko
           fi
+
+          # 우선, 기존 origin-src 폴더 제거
+          rm -rf origin-src
+          # origin/master의 src 디렉토리 내용을 추출 -> origin-src로 복사
+          git archive origin/master src | tar -x
+          mv src origin-src
+
+          # 변경사항 커밋 (변경이 있으면)
+          if ! git diff --quiet; then
+            git add origin-src
+            git commit -m "Update origin-src with latest changes from origin/master's src"
+          fi
+        shell: bash
+
+      # 3) 만약 pr_needed=true면, 기존 "update-origin-src-" 브랜치가 있는지 확인
+      - name: Check Existing update-origin-src PR
+        id: check-pr
+        if: env.pr_needed == 'true'
+        run: |
+          RESPONSE=$(curl -s \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls")
+          
+          # update-origin-src- 으로 시작하는 head.ref 찾기
+          EXISTING_BRANCHES=$(echo "$RESPONSE" | jq -r '.[] | select(.head.ref | startswith("update-origin-src-")) | .head.ref' | tr '\n' ' ')
+
+          if [[ -n "$EXISTING_BRANCHES" ]]; then
+            # 여러 개가 있을 수도 있지만, 여기서는 첫 번째만 사용 (원하시면 로직 수정 가능)
+            FIRST_BRANCH=$(echo "$EXISTING_BRANCHES" | awk '{print $1}')
+            echo "found_branch=$FIRST_BRANCH" >> $GITHUB_ENV
+            echo "existing_pr_src=true" >> $GITHUB_ENV
+            echo "Existing branch: $FIRST_BRANCH"
+          else
+            echo "existing_pr_src=false" >> $GITHUB_ENV
+            echo "No existing update-origin-src branches."
+          fi
+
+      # 4) 기존 브랜치가 있으면 -> force push 로 갱신(중복 PR 생기지 않음)
+      - name: Force Push to Existing Branch
+        if: env.pr_needed == 'true' && env.existing_pr_src == 'true'
+        run: |
+          BRANCH_NAME=${{ env.found_branch }}
+          echo "Force pushing master-ko -> $BRANCH_NAME"
+          git push origin master-ko:"$BRANCH_NAME" --force
+
+      # 5) 기존 브랜치가 없으면 -> 새 브랜치 & PR 생성
+      - name: Create New PR Branch
+        if: env.pr_needed == 'true' && env.existing_pr_src == 'false'
+        run: |
+          BRANCH_NAME=update-origin-src-$(date +%Y%m%d%H%M%S)
+          git checkout master-ko
+          git checkout -b $BRANCH_NAME
+          git push origin $BRANCH_NAME
+
+          # 새 PR 생성
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls" \
+            -d "{
+              \"title\": \"Update origin-src for translation\",
+              \"body\": \"This PR updates the origin-src directory in master-ko with the latest src changes from origin/master.\",
+              \"head\": \"${BRANCH_NAME}\",
+              \"base\": \"master-ko\"
+            }"
         shell: bash
