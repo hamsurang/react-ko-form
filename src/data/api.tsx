@@ -1538,8 +1538,8 @@ replace([{data: 'test'}])
                 </td>
                 <td>
                   <p>
-                    필드의 값. 이 인자는 필수이며 <code>undefined</code>값은
-                    사용할 수 없습니다.
+                    필드 값. 이 인자는 필수이며 <code>undefined</code>일 수
+                    없습니다.
                   </p>
                 </td>
               </tr>
