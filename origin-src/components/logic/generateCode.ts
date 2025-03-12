@@ -1,4 +1,6 @@
-export default (formData: any) => {
+import type { GlobalState } from "little-state-machine"
+
+export default (formData: GlobalState["formData"]) => {
   return `import React from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -34,19 +36,14 @@ ${
             minLength,
             pattern,
           ].some((value) => {
-            const isBooleanValue = typeof value === "boolean"
-
-            if (isBooleanValue) {
-              return value !== undefined
-            }
-
+            if (typeof value === "boolean") return value
             return Boolean(value)
           })
           const ref = `{...register${
             required ? `("${name}", { required: true })` : `("${name}")`
           }}`
           if (type === "select") {
-            const select = `      <select ${ref}>\n${options
+            const select = `      <select ${ref}>\n${(options || "")
               .split(";")
               .filter(Boolean)
               .reduce((temp, option) => {
@@ -60,15 +57,13 @@ ${
           }
 
           if (type === "radio") {
-            const select = `\n${options
+            const select = `\n${(options || "")
               .split(";")
               .filter(Boolean)
               .reduce((temp, option) => {
                 return (
                   temp +
-                  `      <input ${ref} type="${
-                    type || "text"
-                  }" value="${option}" />\n`
+                  `      <input ${ref} type="${type}" value="${option}" />\n`
                 )
               }, "")}`
 
