@@ -1557,7 +1557,7 @@ replace([{data: 'test'}])
                   <ul>
                     <li>
                       <p>
-                        입력값의 유효성을 계산할지 여부. (구독 대상:
+                        입력값의 유효성을 계산할지 여부. (구독 대상:{" "}
                         <code className={typographyStyles.typeText}>
                           errors
                         </code>
@@ -1566,7 +1566,7 @@ replace([{data: 'test'}])
                     </li>
                     <li>
                       <p>
-                        전체 폼의 유효성을 계산할지 여부. (구독 대상:
+                        전체 폼의 유효성을 계산할지 여부. (구독 대상:{" "}
                         <code className={typographyStyles.typeText}>
                           isValid
                         </code>
@@ -1574,7 +1574,7 @@ replace([{data: 'test'}])
                       </p>
                     </li>
                     <li>
-                      이 옵션은 전체 폼의 터치된 필드가 <b>아닌</b> 지정된 필드
+                      이 옵션은 전체 폼의 터치된 필드가 <b>아닌</b> 특정 필드
                       레벨에서만 <code>touchedFields</code>를 업데이트.
                     </li>
                   </ul>
@@ -1617,8 +1617,8 @@ replace([{data: 'test'}])
                       </p>
                     </li>
                     <li>
-                      이 옵션은 전체 폼의 수정된 필드가 <b>아닌</b> 지정된 필드
-                      수준에서 <code>dirtyFields</code>를 업데이트.
+                      이 옵션은 전체 폼 필드의 레벨이 <b>아닌</b> 특정 필드
+                      레벨에서만 <code>dirtyFields</code>를 업데이트.
                     </li>
                   </ul>
 
@@ -1639,7 +1639,7 @@ replace([{data: 'test'}])
                   <code className={typographyStyles.typeText}>boolean</code>
                 </td>
                 <td>
-                  <p>입력 자체를 터치된 상태로 설정할지 여부.</p>
+                  <p>입력 필드 자체를 터치된 상태로 설정할지 여부.</p>
                   <CodeArea
                     rawData={`setValue('name', 'value', { shouldTouch: true })`}
                     withOutCopy
@@ -1679,7 +1679,7 @@ replace([{data: 'test'}])
               rawData={`setValue('yourDetails.firstName', 'value'); // ✅ 성능이 뛰어남
 setValue('yourDetails', { firstName: 'value' }); // 성능이 떨어짐
 
-register('nestedValue', { value: { test: 'data' } }); // 중첩된 값 입력을 등록(register)
+register('nestedValue', { value: { test: 'data' } }); // 중첩된 입력값을 등록(register)
 setValue('nestedValue.test', 'updatedData'); // ❌ 관련 필드를 찾지 못함
 setValue('nestedValue', { test: 'updatedData' } ); // ✅ setValue가 입력을 찾고 업데이트
 `}
