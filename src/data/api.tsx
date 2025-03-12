@@ -1700,22 +1700,22 @@ setValue('nestedValue', { test: 'updatedData' } ); // ✅ setValue가 입력을 
                 <code>replace</code>
               </Link>
               를 사용하세요. <code>setValue</code>를 사용한 전체 필드 배열
-              업데이트는 다음 메이저 버전에서 제거될 에정입니다.
+              업데이트는 다음 메이저 버전에서 제거될 예정입니다.
             </p>
             <CodeArea
-              rawData={`// you can update an entire Field Array,
+              rawData={`// 전체 필드 배열을 업데이트할 수 있습니다.
 setValue('fieldArray', [{ test: '1' }, { test: '2' }]); // ✅
 
-// you can setValue to a unregistered input
+//등록하지 않은(unregistered) 입력 필드에 setValue를 사용할 수 있습니다.
 setValue('notRegisteredInput', 'value'); // ✅ prefer to be registered
 
-// the following will register a single input (without register invoked)
+// 다음 코드는 단일 입력 필드를 등록(register)합니다. (별도의 등록(register) 호출 없이)
 setValue('resultSingleNestedField', { test: '1', test2: '2' }); // 🤔
 
-// with registered inputs, the setValue will update both inputs correctly.
+// 등록된(registered) 입력 필드가 있는 경우, setValue는 두 개의 입력 필드를 모두 정확히 업데이트 합니다.
 register('notRegisteredInput.test', '1')
 register('notRegisteredInput.test2', '2')
-setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ sugar syntax to setValue twice
+setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 두 번 호출하는 sugar syntax
 `}
               withOutCopy
             />
