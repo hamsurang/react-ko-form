@@ -1,14 +1,21 @@
 import { useRef, useEffect } from "react"
+import clsx from "clsx"
 import searchStyles from "./Search.module.css"
 import useWindowSize from "./utils/useWindowSize"
 import { LARGE_SCREEN } from "../styles/breakpoints"
 
-const Search = ({ focus, setFocus }: { focus: boolean; setFocus }) => {
+const Search = ({
+  focus,
+  setFocus,
+}: {
+  focus: boolean
+  setFocus: (value: boolean) => void
+}) => {
   const { width } = useWindowSize()
-  const searchRef = useRef<HTMLInputElement>(null)
+  const searchRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
-    window?.docsearch?.({
+    window.docsearch?.({
       appId: "Z2CKVVT2QA",
       apiKey: "c56a3f265ffbf85c2c654f865cb09164",
       indexName: "react-hook-form",
@@ -33,16 +40,18 @@ const Search = ({ focus, setFocus }: { focus: boolean; setFocus }) => {
     <>
       <form className={searchStyles.searchForm}>
         <input
-          className={`${searchStyles.searchBar} ${
-            focus ? searchStyles.searchBarOpen : null
-          }`}
+          className={clsx(searchStyles.searchBar, {
+            [searchStyles.searchBarOpen]: focus,
+          })}
           spellCheck="false"
           type="search"
           placeholder="Search..."
           aria-label="search input"
           id="algolia-doc-search"
           ref={searchRef}
-          onFocus={() => setFocus(true)}
+          onFocus={() => {
+            setFocus(true)
+          }}
           onBlur={() => {
             if (LARGE_SCREEN > width) {
               setFocus(false)
@@ -55,4 +64,5 @@ const Search = ({ focus, setFocus }: { focus: boolean; setFocus }) => {
     </>
   )
 }
+
 export default Search

@@ -20,7 +20,7 @@ export const GeneralObserver: FunctionComponent<IGeneralObserverProps> = ({
   onEnter,
   placeholder,
 }) => {
-  const ref = useRef<HTMLElement>(null)
+  const ref = useRef<HTMLElement | null>(null)
   const [isChildVisible, setIsChildVisible] = useState(false)
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export const GeneralObserver: FunctionComponent<IGeneralObserverProps> = ({
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsChildVisible(true)
-          onEnter && onEnter()
+          onEnter?.()
         }
       },
       {
@@ -36,11 +36,13 @@ export const GeneralObserver: FunctionComponent<IGeneralObserverProps> = ({
         threshold: [1],
       }
     )
-    if (ref && ref.current) {
+    if (ref.current) {
       observer.observe(ref.current)
     }
 
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+    }
   }, [ref, onEnter])
 
   let slot = children

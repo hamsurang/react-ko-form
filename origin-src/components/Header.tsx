@@ -1,6 +1,5 @@
 import { Animate, AnimateGroup } from "react-simple-animate"
 import { useRouter } from "next/router"
-// import Bday from "./Bday"
 import home from "../data/home"
 import typographyStyles from "../styles/typography.module.css"
 import buttonStyles from "../styles/button.module.css"
@@ -136,7 +135,7 @@ export default function Header({
                     router.push("get-started")
                   }}
                 >
-                  {home.getStarted} &nbsp;<span>▶</span>
+                  {home.getStarted}
                 </button>
               </div>
             )}
@@ -156,20 +155,15 @@ export default function Header({
               duration={0.4}
               easeType="ease-in"
               render={({ style }) => (
-                <video
+                <iframe
                   className={styles.video}
-                  id="tabPanel-1"
-                  aria-labelledby="tabPanel-1"
-                  controls
-                  playsInline
-                  muted
                   style={style}
-                >
-                  <source
-                    src="/video/react-hook-form-demo-video.mp4"
-                    type="video/mp4"
-                  />
-                </video>
+                  width="560"
+                  height="315"
+                  src="https://www.youtube.com/embed/7ytK2qU9ac8?si=itv-Hocfih4pnRE4"
+                  title="YouTube video player"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                />
               )}
             />
           </div>
@@ -179,19 +173,14 @@ export default function Header({
           className={isWeb ? styles.videoWrapperHide : styles.videoWrapperShow}
         >
           <h4 className={styles.videoHeading}>React Native</h4>
-          <video
+          <iframe
             className={styles.video}
-            id="tabPanel-2"
-            aria-labelledby="tabPanel-2"
-            controls
-            playsInline
-            muted
-          >
-            <source
-              src="/video/react-hook-form-native-demo-video.mp4"
-              type="video/mp4"
-            />
-          </video>
+            width="560"
+            height="315"
+            src="https://www.youtube.com/embed/rIKMY5azC3A?si=fYwKNYewKAlv6hoW"
+            title="YouTube video player"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          />
         </div>
 
         <div
