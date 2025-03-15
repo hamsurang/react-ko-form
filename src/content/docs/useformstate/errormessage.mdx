@@ -1,12 +1,12 @@
 ---
 title: ErrorMessage
-description: An error message component to handle errors
+description: 오류를 처리하는 에러 메시지 컴포넌트
 sidebar: apiLinks
 ---
 
 ## \</> `ErrorMessage:` <TypeText>Component</TypeText>
 
-A simple component to render associated input's error message.
+해당 입력 필드의 에러 메시지를 렌더링하는 간단한 컴포넌트입니다.
 
 ```bash
 npm install @hookform/error-message
@@ -16,13 +16,13 @@ npm install @hookform/error-message
 
 ---
 
-| Name      | Type                                                                                        | Required | Description                                                                                                                                                                                   |
-| --------- | ------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`    | <TypeText>string</TypeText>                                                                 | ✓        | Name of the field.                                                                                                                                                                            |
-| `errors`  | <TypeText>object</TypeText>                                                                 |          | `errors` object from React Hook Form. Optional if you are using `FormProvider`.                                                                                                               |
-| `message` | <TypeText>string \| React.ReactElement</TypeText>                                           |          | Inline error message.                                                                                                                                                                         |
-| `as`      | <TypeText>React.ElementType \| string</TypeText>                                            |          | Wrapper component or HTML tag. For example: `as="span"` or `as={<Text />}`                                                                                                                    |
-| `render`  | <TypeText>`({ message: string \| React.ReactElement, messages?: Object}) => any`</TypeText> |          | This is a [render prop](https://reactjs.org/docs/render-props.html) for rendering error message or messages.<br/><br/>**Note:** you need to set `criteriaMode` to 'all' for using `messages`. |
+| Name      | Type                                                                                        | Required | Description                                                                                                                                                                                     |
+| --------- | ------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`    | <TypeText>string</TypeText>                                                                 | ✓        | 필드의 이름.                                                                                                                                                                                    |
+| `errors`  | <TypeText>object</TypeText>                                                                 |          | React Hook Form에서 제공하는 `errors` 객체. `FormProvider`를 사용 중이라면 선택 사항.                                                                                                           |
+| `message` | <TypeText>string \| React.ReactElement</TypeText>                                           |          | 인라인 에러 메시지.                                                                                                                                                                             |
+| `as`      | <TypeText>React.ElementType \| string</TypeText>                                            |          | 래퍼 컴포넌트 혹은 HTML 태그. 예: `as="span"` 또는 `as={<Text />}`                                                                                                                              |
+| `render`  | <TypeText>`({ message: string \| React.ReactElement, messages?: Object}) => any`</TypeText> |          | 에러 메시지 또는 여러 메시지를 렌더링하기 위한 [render prop](https://reactjs.org/docs/render-props.html). <br/><br/>**참고:** `messages`를 사용하려면 `criteriaMode`를 'all'로 설정해야 합니다. |
 
 **Examples:**
 
