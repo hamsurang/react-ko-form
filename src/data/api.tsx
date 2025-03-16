@@ -1707,8 +1707,8 @@ setValue('nestedValue', { test: 'updatedData' } ); // ✅ setValue가 입력을 
 setValue('fieldArray', [{ test: '1' }, { test: '2' }]); // ✅
 
 //등록하지 않은(unregistered) 입력 필드에 setValue를 사용할 수 있습니다.
-setValue('notRegisteredInput', 'value'); // ✅ prefer to be registered
-
+setValue('notRegisteredInput', 'value'); // ✅ 등록(registered) 권장
+              
 // 다음 코드는 단일 입력 필드를 등록(register)합니다. (별도의 등록(register) 호출 없이)
 setValue('resultSingleNestedField', { test: '1', test2: '2' }); // 🤔
 
