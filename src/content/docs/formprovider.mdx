@@ -1,24 +1,24 @@
 ---
 title: FormProvider
-description: A component to provide React Context
+description: React 컨텍스트를 제공하는 컴포넌트
 sidebar: apiLinks
 ---
 
-This component will host context object and allow consuming component to subscribe to context and use [useForm](/docs/useform) props and methods.
+이 컴포넌트는 컨텍스트 객체를 제공하고, 컨텍스트를 사용하는 컴포넌트가 컨텍스트를 구독하여 [useForm](/docs/useform)의 props와 메서드를 사용할 수 있도록 합니다.
 
 ### Props
 
 ---
 
-This following table applied to `FormProvider`, `useFormContext` accepts no argument.
+다음 테이블은 `FormProvider`에 적용되며, `useFormContext`는 인자를 받지 않습니다.
 
-| Name       | Type                        | Description                                    |
-| ---------- | --------------------------- | ---------------------------------------------- |
-| `...props` | <TypeText>Object</TypeText> | `FormProvider` requires all `useForm` methods. |
+| Name       | Type                        | Description                                             |
+| ---------- | --------------------------- | ------------------------------------------------------- |
+| `...props` | <TypeText>Object</TypeText> | `FormProvider`는 모든 `useForm` 메서드를 필요로 합니다. |
 
 <Admonition type="important" title="Rules">
 
-- Avoid using nested FormProvider
+- FormProvider를 중첩해서 사용하는 것을 피하세요
 
 </Admonition>
 
@@ -38,7 +38,7 @@ export default function App() {
 
   return (
     <FormProvider {...methods}>
-      // pass all methods into the context
+      // 모든 메서드를 컨텍스트에 전달
       <form onSubmit={methods.handleSubmit(onSubmit)}>
         <NestedInput />
         <input type="submit" />
@@ -48,7 +48,7 @@ export default function App() {
 }
 
 function NestedInput() {
-  const { register } = useFormContext() // retrieve all hook methods
+  const { register } = useFormContext() // 모든 훅 메서드를 가져옴
 
   return <input {...register("test")} />
 }
