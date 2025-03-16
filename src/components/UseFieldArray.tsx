@@ -12,7 +12,7 @@ export default function UseFieldArray() {
       <h1 className={typographyStyles.headingWithTopMargin} id="main">
         useFieldArray
       </h1>
-      <p className={typographyStyles.subHeading}>React hooks for Field Array</p>
+      <p className={typographyStyles.subHeading}>필드 배열을 위한 React 훅</p>
 
       <div className={containerStyles.wrapper}>
         <Menu pages={apiLinks} />
