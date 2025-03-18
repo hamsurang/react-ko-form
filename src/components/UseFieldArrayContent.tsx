@@ -48,9 +48,9 @@ export default function UseFieldArrayContent({ api }: { api: any }) {
       <ul>
         <li>
           <p>
-            <code>useFieldArray</code> automatically generates a unique
-            identifier named <code>id</code> which is used for <code>key</code>{" "}
-            prop. For more information why this is required:{" "}
+            <code>useFieldArray</code>는 <code>key</code> prop으로 사용되는
+            고유한 식별자인 <code>id</code>를 자동으로 생성합니다. 왜 이 기능이
+            필요한지에 대한 자세한 내용은 아래 링크를 참고하세요:{" "}
             <a
               href="https://react.dev/learn/rendering-lists#keeping-list-items-in-order-with-key"
               target="_blank"
@@ -60,8 +60,9 @@ export default function UseFieldArrayContent({ api }: { api: any }) {
             </a>
           </p>
           <p>
-            The <code>field.id</code> (and not <code>index</code>) must be added
-            as the component key to prevent re-renders breaking the fields:
+            <code>field.id</code>(그리고 <code>index</code>가 아니라)이 반드시
+            컴포넌트의 key로 추가되어야 합니다. 그렇지 않으면 리렌더링 시 필드가
+            깨질 수 있습니다:
             <CodeArea
               withOutCopy
               rawData={`// ✅ correct:
@@ -74,7 +75,7 @@ export default function UseFieldArrayContent({ api }: { api: any }) {
           </p>
         </li>
         <li>
-          <p>It's recommended to not stack actions one after another.</p>
+          <p>동작을 연달아 여러 번 실행하는 것은 권장되지 않습니다.</p>
           <CodeArea
             withOutCopy
             rawData={`
@@ -83,7 +84,7 @@ onClick={() => {
   remove(0);
 }}
             
-// ✅ Better solution: the remove action is happened after the second render
+// ✅ 더 나은 해결책: remove 동작은 두 번째 렌더링 후에 실행됩니다.
 React.useEffect(() => {
   remove(0);
 }, [remove])
@@ -96,26 +97,26 @@ onClick={() => {
         </li>
         <li>
           <p>
-            Each <code>useFieldArray</code> is unique and has its own state
-            update, which means you should not have multiple useFieldArray with
-            the same <code>name</code>.
+            각 <code>useFieldArray</code>는 고유하며 자체적인 상태 업데이트를
+            가집니다. 즉, 동일한 <code>name</code>을 가진 useFieldArray를 여러
+            개 사용해서는 안 됩니다.
           </p>
         </li>
         <li>
           <p>
-            Each input name needs to be unique, if you need to build checkbox or
-            radio with the same name then use it with <code>useController</code>{" "}
-            or <code>Controller</code>.
+            각 입력 필드의 name 값은 고유해야 합니다. 만약 같은 name을 사용하는
+            체크박스나 라디오 버튼을 만들어야 한다면, <code>useController</code>{" "}
+            또는 <code>Controller</code>와 함께 사용하세요.
           </p>
         </li>
         <li>
-          <p>Does not support flat field array.</p>
+          <p>평면 필드 배열(flat field array)은 지원되지 않습니다.</p>
         </li>
         <li>
           <p>
-            When you append, prepend, insert and update the field array, the obj
-            can't be empty object <code>{}</code> rather need to supply all your
-            input's defaultValues.
+            append, prepend, insert, update를 사용할 때, 필드 배열에 빈 객체{" "}
+            <code>{}</code>를 추가할 수 없습니다. 모든 입력 필드의
+            defaultValues를 제공해야 합니다.
           </p>
           <CodeArea
             withOutCopy
@@ -131,8 +132,8 @@ append({ firstName: 'bill', lastName: 'luo' }); ✅`}
       <ul>
         <li>
           <p>
-            when register input <code>name</code>, you will have to cast them as{" "}
-            <code>const</code>
+            입력 필드를 <code>register</code>할 때, <code>name</code> 값을{" "}
+            <code>const</code>로 캐스팅해야 합니다.
           </p>
           <CodeArea
             withOutCopy
@@ -141,7 +142,7 @@ append({ firstName: 'bill', lastName: 'luo' }); ✅`}
         </li>
         <li>
           <p>
-            we do not support circular reference. Refer to this{" "}
+            순환 참조(circular reference)는 지원되지 않습니다. 자세한 내용은 이{" "}
             <a
               href="https://github.com/react-hook-form/react-hook-form/issues/4055"
               target="_blank"
@@ -149,13 +150,13 @@ append({ firstName: 'bill', lastName: 'luo' }); ✅`}
             >
               Github issue
             </a>{" "}
-            for more detail.
+            를 참고하세요.
           </p>
         </li>
         <li>
           <p>
-            for nested field array, you will have to cast the field array by its
-            name.
+            중첩된 필드 배열(nested field array)을 사용할 경우, 필드 배열을
+            name으로 캐스팅해야 합니다.
           </p>
           <CodeArea
             withOutCopy
@@ -195,8 +196,7 @@ append({ firstName: 'bill', lastName: 'luo' }); ✅`}
 
       <h2 className={typographyStyles.subTitle}>Video</h2>
       <p>
-        The following video explains the basic usage of{" "}
-        <code>useFieldArray</code>.
+        다음 영상에서 <code>useFieldArray</code>의 기본 사용 방법을 설명합니다.
       </p>
 
       <iframe
@@ -212,10 +212,11 @@ append({ firstName: 'bill', lastName: 'luo' }); ✅`}
       <h2 className={typographyStyles.subTitle}>Tips</h2>
       <h4 className={typographyStyles.questionTitle}>Custom Register</h4>
       <p>
-        You can also <code>register</code> inputs at <code>Controller</code>{" "}
-        without the actual input. This makes <code>useFieldArray</code> quick
-        and flexible to use with complex data structure or the actual data is
-        not stored inside an input.
+        실제 입력 필드가 없어도 <code>Controller</code>에서 입력을{" "}
+        <code>register</code>할 수 있습니다. 이를 통해{" "}
+        <code>useFieldArray</code>를 복잡한 데이터 구조에서도 빠르고 유연하게
+        활용할 수 있으며, 실제 데이터가 입력 필드 내부에 저장되지 않는 경우에도
+        사용할 수 있습니다..
       </p>
 
       <CodeArea
@@ -260,8 +261,8 @@ function App() {
       <h4 className={typographyStyles.questionTitle}>Controlled Field Array</h4>
 
       <p>
-        There will be cases where you want to control the entire field array,
-        which means each onChange reflects on the <code>fields</code> object.
+        필드 배열 전체를 제어해야 하는 경우가 있을 수 있으며, 이때 각 onChange
+        이벤트는 <code>fields</code> 객체에 반영됩니다.
       </p>
 
       <CodeArea
