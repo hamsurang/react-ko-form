@@ -17,7 +17,7 @@ const SetValue = () => {
       <h1 className={typographyStyles.headingWithTopMargin} id="main">
         setValue
       </h1>
-      <p className={typographyStyles.subHeading}>Update field value</p>
+      <p className={typographyStyles.subHeading}>필드 값 업데이트</p>
 
       <div className={containerStyles.wrapper}>
         <Menu pages={apiLinks} />
@@ -56,8 +56,8 @@ const SetValue = () => {
             <h2 className={typographyStyles.subTitle}>Video</h2>
 
             <p>
-              The following video tutorial demonstrates <code>setValue</code>{" "}
-              API in detail.
+              다음 동영상 튜토리얼에서는 <code>setValue</code> API에 대해 자세히
+              설명합니다.
             </p>
 
             <iframe

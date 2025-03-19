@@ -1447,10 +1447,9 @@ clearErrors('test.firstName'); // for clear single input error
     description: (
       <>
         <p>
-          This function allows you to dynamically set the value of a{" "}
-          <strong>registered</strong> field and have the options to validate and
-          update the form state. At the same time, it tries to avoid unnecessary
-          rerender.
+          이 함수는 <strong>등록된(registered)</strong> 필드의 값을 동적으로
+          설정하고, 유효성 검사 및 폼 상태 업데이트와 관련된 옵션을 제공합니다.
+          동시에 불필요한 리렌더링을 방지합니다.
         </p>
 
         <h2 className={typographyStyles.subTitle}>Props</h2>
@@ -1475,33 +1474,33 @@ clearErrors('test.firstName'); // for clear single input error
                 <td>
                   <ul>
                     <li>
-                      <p>Target a single field by name.</p>
+                      <p>이름으로 단일 필드를 타겟.</p>
                     </li>
                     <li>
-                      <p>When used with field array.</p>
+                      <p>필드 배열과 함께 사용하는 경우.</p>
                       <ul>
                         <li>
                           <p>
-                            You can use methods such as{" "}
+                            필드 배열에{" "}
                             <Link href="/docs/usefieldarray#replace">
                               <code>replace</code>
-                            </Link>{" "}
-                            or{" "}
+                            </Link>
+                            나{" "}
                             <Link href="/docs/usefieldarray#update">
                               <code>update</code>
                             </Link>{" "}
-                            for field array, however, they will cause the
-                            component to unmount and remount for the targeted
-                            field array.
+                            와 같은 메서드를 사용할 수 있지만, 이 메서드들은
+                            대상 필드 배열의 컴포넌트를 언마운트하고 다시
+                            마운트하게 합니다.
                           </p>
 
                           <CodeArea
                             rawData={`const { update } = useFieldArray({ name: 'array' });
                             
-// unmount fields and remount with updated value
+// 필드를 언마운트하고 업데이트된 값으로 다시 마운트
 update(0, { test: '1', test1: '2' }) 
 
-// will directly update input value
+// 입력 값을 직접 업데이트
 setValue('array.0.test1', '1');
 setValue('array.0.test2', '2');
 `}
@@ -1509,17 +1508,17 @@ setValue('array.0.test2', '2');
                         </li>
                         <li>
                           <p>
-                            It will not create a new field when targeting a
-                            non-existing field.
+                            존재하지 않는 필드를 대상으로 할 때는 새로운 필드를
+                            생성하지 않습니다.
                           </p>
 
                           <CodeArea
                             rawData={`const { replace } = useFieldArray({ name: 'test' })
                           
-// ❌ doesn't create new input  
+// ❌ 새로운 입력 필드를 생성하지 않음
 setValue('test.101.data') 
 
-// ✅ work on refresh entire field array
+// ✅ 전체 필드 배열을 새로 고침
 replace([{data: 'test'}]) 
 `}
                           />
@@ -1539,8 +1538,8 @@ replace([{data: 'test'}])
                 </td>
                 <td>
                   <p>
-                    The value for the field. This argument is required and can
-                    not be <code>undefined</code>.
+                    필드 값. 이 인자는 필수이며 <code>undefined</code>일 수
+                    없습니다.
                   </p>
                 </td>
               </tr>
@@ -1558,8 +1557,7 @@ replace([{data: 'test'}])
                   <ul>
                     <li>
                       <p>
-                        Whether to compute if your input is valid or not
-                        (subscribed to{" "}
+                        입력값의 유효성을 계산할지 여부. (구독 대상:{" "}
                         <code className={typographyStyles.typeText}>
                           errors
                         </code>
@@ -1568,8 +1566,7 @@ replace([{data: 'test'}])
                     </li>
                     <li>
                       <p>
-                        Whether to compute if your entire form is valid or not
-                        (subscribed to{" "}
+                        전체 폼의 유효성을 계산할지 여부. (구독 대상:{" "}
                         <code className={typographyStyles.typeText}>
                           isValid
                         </code>
@@ -1577,9 +1574,8 @@ replace([{data: 'test'}])
                       </p>
                     </li>
                     <li>
-                      This option will update <code>touchedFields</code> at the
-                      specified field level <b>not</b> the entire form touched
-                      fields.
+                      이 옵션은 전체 폼의 터치된 필드가 <b>아닌</b> 특정 필드
+                      레벨에서만 <code>touchedFields</code>를 업데이트.
                     </li>
                   </ul>
                   <CodeArea
@@ -1602,28 +1598,27 @@ replace([{data: 'test'}])
                   <ul>
                     <li>
                       <p>
-                        Whether to compute if your input is dirty or not against
-                        your defaultValues (subscribed to{" "}
+                        기본값과 비교해서 해당 입력이 수정되었는지 판단할지
+                        여부를 결정합니다. (이 값은{" "}
                         <code className={typographyStyles.typeText}>
                           dirtyFields
                         </code>
-                        ).
+                        에 구독됩니다.)
                       </p>
                     </li>
                     <li>
                       <p>
-                        Whether to compute if your entire form is dirty or not
-                        against your defaultValues (subscribed to{" "}
+                        기본값과 비교해서 전체 폼이 수정되었는지 판단할지 여부를
+                        결정합니다. (이 값은
                         <code className={typographyStyles.typeText}>
                           isDirty
                         </code>
-                        ).
+                        에 구독됩니다.)
                       </p>
                     </li>
                     <li>
-                      This option will update <code>dirtyFields</code> at the
-                      specified field level <b>not</b> the entire form dirty
-                      fields.
+                      이 옵션은 전체 폼 필드의 레벨이 <b>아닌</b> 특정 필드
+                      레벨에서만 <code>dirtyFields</code>를 업데이트.
                     </li>
                   </ul>
 
@@ -1644,7 +1639,7 @@ replace([{data: 'test'}])
                   <code className={typographyStyles.typeText}>boolean</code>
                 </td>
                 <td>
-                  <p>Whether to set the input itself to be touched.</p>
+                  <p>입력 필드 자체를 터치된 상태로 설정할지 여부.</p>
                   <CodeArea
                     rawData={`setValue('name', 'value', { shouldTouch: true })`}
                     withOutCopy
@@ -1661,64 +1656,66 @@ replace([{data: 'test'}])
 
         <ul>
           <li>
-            <p>Only the following conditions will trigger a re-render:</p>
+            <p>다음 조건에서만 리렌더링이 트리거됩니다:</p>
             <ul>
               <li>
-                <p>When an error is triggered or corrected by a value update</p>
+                <p>값 업데이트로 인해 에러가 발생하거나 수정된 경우.</p>
               </li>
               <li>
                 <p>
-                  When setValue cause state update, such as dirty and touched.
+                  setValue가 dirty나 touched와 같은 상태 업데이트를 유발하는
+                  경우.
                 </p>
               </li>
             </ul>
           </li>
           <li>
             <p>
-              It's recommended to target the field's name rather than make the
-              second argument a nested object.
+              두 번째 인자를 중첩된 객체로 만드는 것보다 필드 이름을 대상으로
+              설정하는 것이 좋습니다.
             </p>
 
             <CodeArea
-              rawData={`setValue('yourDetails.firstName', 'value'); // ✅ performant
-setValue('yourDetails', { firstName: 'value' }); // less performant
+              rawData={`setValue('yourDetails.firstName', 'value'); // ✅ 성능이 뛰어남
+setValue('yourDetails', { firstName: 'value' }); // 성능이 떨어짐
 
-register('nestedValue', { value: { test: 'data' } }); // register a nested value input
-setValue('nestedValue.test', 'updatedData'); // ❌ failed to find the relevant field
-setValue('nestedValue', { test: 'updatedData' } ); // ✅ setValue find input and update
+register('nestedValue', { value: { test: 'data' } }); // 중첩된 입력값을 등록(register)
+setValue('nestedValue.test', 'updatedData'); // ❌ 관련 필드를 찾지 못함
+setValue('nestedValue', { test: 'updatedData' } ); // ✅ setValue가 입력을 찾고 업데이트
 `}
               withOutCopy
             />
           </li>
           <li>
             <p>
-              It's recommended to register the input's name before invoking{" "}
-              <code>setValue</code>. To update the entire Field Array, make sure
-              the <code>useFieldArray</code> hook is being executed first.
+              <code>setValue</code>를 호출하기 전에 입력의 이름을 등록하는 것이
+              좋습니다. 전체 필드 배열을 업데이트하려면{" "}
+              <code>useFieldArray</code> 훅이 먼저 실행되고 있는지 확인하세요.
             </p>
             <p>
-              <b className={typographyStyles.note}>Important: </b> use{" "}
+              <b className={typographyStyles.note}>중요: </b> 전체 필드 배열을
+              업데이트할 때는 <code>setValue</code> 대신{" "}
+              <code>useFieldArray</code>의
               <Link href="/docs/usefieldarray#replace">
                 <code>replace</code>
-              </Link>{" "}
-              from <code>useFieldArray</code> instead, update entire field array
-              with <code>setValue</code> will be removed in the next major
-              version.
+              </Link>
+              를 사용하세요. <code>setValue</code>를 사용한 전체 필드 배열
+              업데이트는 다음 메이저 버전에서 제거될 예정입니다.
             </p>
             <CodeArea
-              rawData={`// you can update an entire Field Array,
+              rawData={`// 전체 필드 배열을 업데이트할 수 있습니다.
 setValue('fieldArray', [{ test: '1' }, { test: '2' }]); // ✅
 
-// you can setValue to a unregistered input
-setValue('notRegisteredInput', 'value'); // ✅ prefer to be registered
-
-// the following will register a single input (without register invoked)
+//등록하지 않은(unregistered) 입력 필드에 setValue를 사용할 수 있습니다.
+setValue('notRegisteredInput', 'value'); // ✅ 등록(registered) 권장
+              
+// 다음 코드는 단일 입력 필드를 등록(register)합니다. (별도의 등록(register) 호출 없이)
 setValue('resultSingleNestedField', { test: '1', test2: '2' }); // 🤔
 
-// with registered inputs, the setValue will update both inputs correctly.
+// 등록된(registered) 입력 필드가 있는 경우, setValue는 두 개의 입력 필드를 모두 정확히 업데이트 합니다.
 register('notRegisteredInput.test', '1')
 register('notRegisteredInput.test2', '2')
-setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ sugar syntax to setValue twice
+setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 두 번 호출하는 sugar syntax
 `}
               withOutCopy
             />
