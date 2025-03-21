@@ -55,7 +55,7 @@ export default function ApiGallery() {
         API
       </h1>
       <p className={typographyStyles.subHeading}>
-        React Hook Form's API overview
+        React Hook Form의 API 전체 구조에 대한 개요
       </p>
 
       <main className={styles.root}>
@@ -66,11 +66,11 @@ export default function ApiGallery() {
                 <code>{`</>`}</code>useForm
               </h3>
               <p>
-                A powerful custom hook to validate your form with minimal
-                re-renders.
+                최소한의 리렌더링으로 폼을 검증할 수 있는 강력한 커스텀
+                훅입니다.
               </p>
               <Link href="/docs/useform" aria-label="read more about useForm">
-                Read More ▸
+                더 알아보기 ▸
               </Link>
             </div>
           </li>
@@ -80,14 +80,14 @@ export default function ApiGallery() {
                 <code>{`</>`}</code>useController
               </h3>
               <p>
-                For Controlled components: interface with the useForm methods
-                and isolate its re-render.
+                제어 컴포넌트(Controlled Components)를 위한 기능으로, useForm
+                메서드와 연결되고 리렌더링을 독립적으로 분리합니다.
               </p>
               <Link
                 href="/docs/usecontroller"
                 aria-label="read more about useController"
               >
-                Read More ▸
+                더 알아보기 ▸
               </Link>
             </div>
           </li>
@@ -97,15 +97,14 @@ export default function ApiGallery() {
                 <code>{`</>`}</code>useFormContext
               </h3>
               <p>
-                Access your useForm methods and properties from nested
-                components. Great for building larger forms and shared
-                components!
+                중첩된 컴포넌트에서 useForm의 메서드와 속성에 접근할 수
+                있습니다. 큰 규모의 폼이나 공용 컴포넌트를 구축할 때 유용합니다.
               </p>
               <Link
                 href="/docs/useformcontext"
                 aria-label="read more about useformcontext"
               >
-                Read More ▸
+                더 알아보기 ▸
               </Link>
             </div>
           </li>
@@ -115,11 +114,11 @@ export default function ApiGallery() {
                 <code>{`</>`}</code>useWatch
               </h3>
               <p>
-                Subscribe to individual form input changes without impacting the
-                root component's render.
+                루트 컴포넌트의 리렌더링 없이 개별 입력값 변경에만 구독할 수
+                있습니다.
               </p>
               <Link href="/docs/usewatch" aria-label="read more about usewatch">
-                Read More ▸
+                더 알아보기 ▸
               </Link>
             </div>
           </li>
@@ -129,14 +128,14 @@ export default function ApiGallery() {
                 <code>{`</>`}</code>useFormState
               </h3>
               <p>
-                Subscribe to individual form state updates and isolating
-                re-renders at the hook level.
+                개별 폼 상태 업데이트를 구독하고, 훅 수준에서 리렌더링을 분리할
+                수 있습니다.
               </p>
               <Link
                 href="/docs/useformstate"
                 aria-label="read more about useformstate"
               >
-                Read More ▸
+                더 알아보기 ▸
               </Link>
             </div>
           </li>
@@ -146,14 +145,15 @@ export default function ApiGallery() {
                 <code>{`</>`}</code>useFieldArray
               </h3>
               <p>
-                Manage dynamically generated fields on the fly, shuffle, remove
-                and append fields. Ideal for complex CRUD data entry scenarios.
+                동적으로 생성된 필드를 실시간으로 관리할 수 있으며, 필드를
+                섞거나 제거하고 추가할 수 있습니다. 복잡한 CRUD 데이터 입력
+                시나리오에 적합합니다.
               </p>
               <Link
                 href="/docs/usefieldarray"
                 aria-label="read more about usefieldarray"
               >
-                Read More ▸
+                더 알아보기 ▸
               </Link>
             </div>
           </li>
