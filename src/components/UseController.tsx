@@ -13,7 +13,7 @@ export default function UseController() {
         useController
       </h1>
       <p className={typographyStyles.subHeading}>
-        React hooks for controlled component
+        제어 컴포넌트를 위한 리액트 훅
       </p>
 
       <div className={containerStyles.wrapper}>

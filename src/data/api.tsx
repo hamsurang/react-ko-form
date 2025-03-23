@@ -2339,7 +2339,7 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
             </Link>
           </td>
           <td>✓</td>
-          <td>Unique name of your input.</td>
+          <td>입력 필드의 고유한 이름.</td>
         </tr>
         <tr>
           <td>control</td>
@@ -2349,12 +2349,10 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
             </Link>
           </td>
           <td></td>
-          <td>
+          <td> <code>useForm</code>을 호출하여 제공된 
             <Link href="/docs/useform/control">
               <code>control</code>
-            </Link>{" "}
-            object is from invoking <code>useForm</code>. Optional when using{" "}
-            <code>FormProvider</code>.
+            </Link> 객체. <code>FormProvider</code>를 사용할 때는 선택사항.
           </td>
         </tr>
         <tr>
@@ -2437,7 +2435,7 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
           <td></td>
           <td>
             <p>
-              <b className={typographyStyles.note}>Important:</b> Can not apply{" "}
+              <b className={typographyStyles.note}>중요:</b> Can not apply{" "}
               <code>undefined</code> to <code>defaultValue</code> or{" "}
               <code>defaultValues</code> at <code>useForm</code>.
             </p>
@@ -2708,7 +2706,7 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
             </Link>
           </td>
           <td>✓</td>
-          <td>Unique name of your input.</td>
+          <td>입력 필드의 고유한 이름.</td>
         </tr>
         <tr>
           <td>
@@ -2721,11 +2719,11 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
           </td>
           <td></td>
           <td>
+          <code>useForm</code>을 호출하여 제공된{" "}
             <Link href="/docs/useform/control">
               <code>control</code>
-            </Link>{" "}
-            object provided by invoking <code>useForm</code>. Optional when
-            using <code>FormProvider</code>.
+            </Link> 객체. <code>FormProvider</code>을 사용할 때에는 선택사항.
+    
           </td>
         </tr>
         <tr>
@@ -2738,24 +2736,20 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
           <td></td>
           <td>
             <p>
-              <b className={typographyStyles.note}>Important:</b> Can not apply{" "}
-              <code>undefined</code> to <code>defaultValue</code> or{" "}
-              <code>defaultValues</code> at <code>useForm</code>.
+              <b className={typographyStyles.note}>중요: </b><code>useForm</code>의 <code>defaultValue</code> 또는 {" "}
+              <code>defaultValues</code>에 <code>undefined</code> 를 적용할 수 없습니다.
             </p>
             <ul>
               <li>
                 <p>
-                  You need to either set <code>defaultValue</code> at the
-                  field-level or <code>useForm</code>'s{" "}
-                  <code>defaultValues</code>. <code>undefined</code> is not a
-                  valid value.
+                  필드 레벨에서 <code>defaultValue</code>를 설정하거나 <code>useForm</code>의 <code>defaultValues</code>를 사용해야 합니다.
+                  {" "}<code>undefined</code>는 사용할 수 없습니다. 
                 </p>
               </li>
               <li>
                 <p>
-                  If your form will invoke <code>reset</code> with default
-                  values, you will need to provide <code>useForm</code> with{" "}
-                  <code>defaultValues</code>.
+                  폼이 기본값으로 <code>reset</code>를 호출하는 경우, <code>useForm</code>에{" "}
+                  <code>defaultValues</code>를 제공해야 합니다.
                 </p>
               </li>
             </ul>
@@ -2771,8 +2765,7 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
           <td></td>
           <td>
             <p>
-              Validation rules in the same format for <code>register</code>,
-              which includes:
+              <code>register</code>에서 사용하는 것과 동일한 형식의 유효성 검사 규칙으로, 다음을 포함합니다: 
             </p>
             <p>required, min, max, minLength, maxLength, pattern, validate</p>
             <CodeArea
@@ -2792,13 +2785,11 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
           <td></td>
           <td>
             <p>
-              Input will be unregistered after unmount and defaultValues will be
-              removed as well.
+              입력 필드가 언마운트된 후에는 등록이 해제(unregistered)되며 기본값도 제거됩니다. 
             </p>
             <p>
-              <b>Note:</b> this prop should be avoided when using with{" "}
-              <code>useFieldArray</code> as <code>unregister</code> function
-              gets called after input unmount/remount and reorder.
+              <b>참고:</b> 이 prop는 <code>useFieldArray</code>와 함께 사용하지 않아야 합니다. 
+              입력 필드가 언마운트/리마운트되거나 재정렬된 후에 <code>unregister</code> 함수가 호출되기 때문입니다. 
             </p>
           </td>
         </tr>
@@ -2812,9 +2803,8 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
           <td></td>
           <td>
             <p>
-              <code>disabled</code> prop will be returned from `field` prop.
-              Controlled input will be disabled and its value will be omitted
-              from the submission data.
+              <code>disabled</code> 속성은 `field` 속성에서 반환됩니다.
+              제어 입력 필드는 비활성화되며, 이 값은 제출(submission) 데이터에서 제외됩니다.
             </p>
           </td>
         </tr>
@@ -2827,44 +2817,40 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
         <ul>
           <li>
             <p>
-              It's important to be aware of each prop's responsibility when
-              working with external controlled components, such as MUI, AntD,
-              Chakra UI. Its job is to spy on the input, report, and set its
-              value.
+            MUI, AntD, Chakra UI와 같은 외부 제어 컴포넌트를 사용할 때 각 prop의 역할을 이해하는 것이 중요합니다.
+            이 props의 역할은 입력값을 감지, 보고하고 이를 설정하는 것입니다. 
             </p>
 
             <ul>
               <li>
                 <p>
-                  <b>onChange</b>: send data back to hook form
+                  <b>onChange</b>: hook form으로 다시 데이터 전달.
                 </p>
               </li>
               <li>
                 <p>
-                  <b>onBlur</b>: report input has been interacted (focus and
-                  blur)
+                  <b>onBlur</b>: 입력이 상호작용되었음을 보고(focus 및 blur).
                 </p>
               </li>
               <li>
                 <p>
-                  <b>value</b>: set up input initial and updated value
+                  <b>value</b>: 입력 필드의 초기 값 및 변경된 값을 설정.
                 </p>
               </li>
               <li>
                 <p>
-                  <b>ref</b>: allow input to be focused with error
+                  <b>ref</b>: 에러 발생 시 해당 입력 필드로 포커스를 이동할 수 있도록 함.
                 </p>
               </li>
               <li>
                 <p>
-                  <b>name</b>: give input an unique name
+                  <b>name</b>: 입력 필드에 고유한 이름을 부여.
                 </p>
               </li>
             </ul>
 
             <p>
-              It's fine to host your state and combined with{" "}
-              <code>useController</code>.
+              <code>useController</code>와 함께 상태를 관리해도 괜찮습니다.
             </p>
 
             <CodeArea
@@ -2873,31 +2859,29 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
 const [value, setValue] = useState(field.value);
 
 onChange={(event) => {
-  field.onChange(parseInt(event.target.value)) // data send back to hook form
-  setValue(event.target.value) // UI state
+  field.onChange(parseInt(event.target.value)) // hook form으로 다시 데이터 전달
+  setValue(event.target.value) // UI 상태
 }}
 `}
             />
           </li>
           <li>
             <p>
-              Do not <code>register</code> input again. This custom hook is
-              designed to take care of the registration process.
+              입력을 다시 등록(<code>register</code>)하지 마세요. 이 커스텀 훅은 등록(registration)과정을 처리하도록 설계되었습니다.
             </p>
             <CodeArea
               rawData={`const { field } = useController({ name: 'test' })
 
 <input {...field} /> // ✅
-<input {...field} {...register('test')} /> // ❌ double up the registration
+<input {...field} {...register('test')} /> // ❌ 등록(registration) 중복
 `}
             />
           </li>
           <li>
             <p>
-              It's ideal to use a single <code>useController</code> per
-              component. If you need to use more than one, make sure you rename
-              the prop. May want to consider using <code>Controller</code>{" "}
-              instead.
+              하나의 컴포넌트당 하나의 <code>useController</code>를 사용하는 것이 이상적입니다.
+              만약 여러 개를 사용해야 한다면, prop의 이름을 변경하는 것을 권장합니다.{" "}
+              <code>Controller</code>를 사용하는 것도 고려해보세요.            
             </p>
             <CodeArea
               rawData={`const { field: input } = useController({ name: 'test' })
@@ -2914,13 +2898,12 @@ const { field: checkbox } = useController({ name: 'test1' })
     description: (
       <>
         <p>
-          This custom hook powers{" "}
+          이 커스텀 훅은{" "}
           <Link href="/docs/usecontroller/controller">
             <code>Controller</code>
           </Link>
-          . Additionally, it shares the same props and methods as{" "}
-          <code>Controller</code>. It's useful for creating reusable Controlled
-          input.
+          를 구동합니다.
+          또한 <code>Controller</code>와 동일한 props와 메서드를 공유합니다. 재사용 가능한 제어 입력 필드를 만드는데 유용합니다. 
         </p>
       </>
     ),

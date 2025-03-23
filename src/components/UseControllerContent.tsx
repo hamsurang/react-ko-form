@@ -32,8 +32,7 @@ export default function UseControllerContent({ api }: { api: any }) {
       {api.useController.description}
       <h2 className={typographyStyles.subTitle}>Props</h2>
       <p>
-        The following table contains information about the arguments for{" "}
-        <code>useController</code>.
+        다음 표는 <code>useController</code>의 인자에 대한 정보를 담고 있습니다.
       </p>
       <div className={tableStyles.tableWrapper}>
         <table className={tableStyles.table}>

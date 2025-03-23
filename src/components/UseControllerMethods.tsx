@@ -13,8 +13,7 @@ const UseControllerMethods = ({
     <>
       <h2 className={typographyStyles.subTitle}>Return</h2>
       <p>
-        The following table contains information about properties which{" "}
-        <code>{isController ? "Controller" : "useController"}</code> produces.
+        다음 표는 <code>{isController ? "Controller" : "useController"}</code>가 제공하는 프로퍼티에 대한 정보를 포함하고 있습니다.
       </p>
       <table className={tableStyles.table}>
         <thead>
@@ -39,33 +38,30 @@ const UseControllerMethods = ({
               </code>
             </td>
             <td>
-              <p>A function which sends the input's value to the library.</p>
+              <p>입력값을 라이브러리에 전송하는 함수.</p>
               <ul>
                 <li>
-                  It should be assigned to the <code>onChange</code> prop of the
-                  input and value should{" "}
+                  이 함수는 입력 필드의 <code>onChange</code> prop에 할당되어야 하며,
                   <b>
-                    not be <code>undefined</code>
-                  </b>
-                  .
+                    <code>undefined</code> 가 아니어야</b> 합니다. 
                 </li>
                 <li>
                   <p>
-                    This prop update{" "}
+                    이 prop은 {" "}
                     <Link
                       href="/docs/useform/formstate"
                       aria-label="read more about formstate"
                     >
                       formState
                     </Link>{" "}
-                    and you should avoid manually invoke{" "}
+                    를 업데이트 하므로,{" "}
                     <Link
                       href="/docs/useform/setvalue"
                       aria-label="read more about setValue"
                     >
                       setValue
                     </Link>{" "}
-                    or other API related to field update.
+                    또는 필드 업데이트와 관련된 다른 API를 호출하지 않아야 합니다.
                   </p>
                 </li>
               </ul>
@@ -83,8 +79,8 @@ const UseControllerMethods = ({
             </td>
             <td>
               <p>
-                A function which sends the input's onBlur event to the library.
-                It should be assigned to the input's <code>onBlur</code> prop.
+                입력 필드의 onBlur 이벤트를 라이브러리로 전달하는 함수입니다. 
+                이 함수는 입력 필드의 <code>onBlur</code> prop에 할당되어야 합니다. 
               </p>
             </td>
           </tr>
@@ -99,7 +95,7 @@ const UseControllerMethods = ({
               <code className={typographyStyles.typeText}>unknown</code>
             </td>
             <td>
-              <p>The current value of the controlled component.</p>
+              <p>제어 컴포넌트의 현재 값.</p>
             </td>
           </tr>
           <tr>
@@ -113,7 +109,7 @@ const UseControllerMethods = ({
               <code className={typographyStyles.typeText}>boolean</code>
             </td>
             <td>
-              <p>The disabled state of the input.</p>
+              <p>입력 필드의 비활성화 상태.</p>
             </td>
           </tr>
           <tr>
@@ -127,7 +123,7 @@ const UseControllerMethods = ({
               <code className={typographyStyles.typeText}>string</code>
             </tr>
             <td>
-              <p>Input's name being registered.</p>
+              <p>등록(registered)된 입력 필드의 이름.</p>
             </td>
           </tr>
           <tr>
@@ -142,9 +138,8 @@ const UseControllerMethods = ({
             </tr>
             <td>
               <p>
-                A ref used to connect hook form to the input. Assign{" "}
-                <code>ref</code> to component's input ref to allow hook form to
-                focus the error input.
+                hook form을 입력 필드와 연결하는데 사용하는 ref. 이{" "}
+                <code>ref</code>를 컴포넌트 입력 필드의 ref에 할당하여 hook form이 에러가 있는 인풋 필드에 포커스를 맞출 수 있도록 합니다.
               </p>
             </td>
           </tr>
@@ -159,7 +154,7 @@ const UseControllerMethods = ({
               <code className={typographyStyles.typeText}>boolean</code>
             </td>
             <td>
-              <p>Invalid state for current input.</p>
+              <p>현재 입력 필드의 유효하지 않은 상태.</p>
             </td>
           </tr>
           <tr>
@@ -173,7 +168,7 @@ const UseControllerMethods = ({
               <code className={typographyStyles.typeText}>boolean</code>
             </td>
             <td>
-              <p>Touched state for current controlled input.</p>
+              <p>현재 제어 입력 필드의 터치된 상태.</p>
             </td>
           </tr>
           <tr>
@@ -187,7 +182,7 @@ const UseControllerMethods = ({
               <code className={typographyStyles.typeText}>boolean</code>
             </td>
             <td>
-              <p>Dirty state for current controlled input.</p>
+              <p>현재 제어 입력 필드의 변경된 상태.</p>
             </td>
           </tr>
           <tr>
@@ -201,7 +196,7 @@ const UseControllerMethods = ({
               <code className={typographyStyles.typeText}>object</code>
             </td>
             <td>
-              <p>error for this specific input.</p>
+              <p>특정 입력 필드에 대한 에러.</p>
             </td>
           </tr>
           <FormStateApi columnIndent />
