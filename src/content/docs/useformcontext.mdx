@@ -19,11 +19,11 @@ const methods = useForm()
 
 <FormProvider {...methods} /> // useForm이 반환하는 모든 props
 
-const methods = useFormContext() // 그 props를 가져옴
+const methods = useFormContext() // 해당 props를 가져옴
 ```
 
 <Admonition type="important" title="Rules">
-  `useFormContext`를 제대로 사용하려면, 먼저 폼을
+  `useFormContext`가 제대로 작동하려면, 먼저 폼을
   [`FormProvider`](/docs/formprovider) 컴포넌트로 감싸야 합니다.
 </Admonition>
 
