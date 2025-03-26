@@ -6,7 +6,7 @@ sidebar: apiLinks
 
 ## \</> `useWatch:` <TypeText>`({ control?: Control, name?: string, defaultValue?: unknown, disabled?: boolean }) => object`</TypeText>
 
-`watch` API와 유사하게 동작하지만, 이 훅은 리렌더링을 커스텀 훅 수준에서 격리하여 애플리케이션의 성능을 향상시킬 수 있습니다.
+`watch` API와 유사하게 동작하지만, 이 훅은 리렌더링을 커스텀 훅 레벨에서 격리하여 애플리케이션의 성능을 향상시킬 수 있습니다.
 
 ### Props
 
@@ -33,7 +33,7 @@ sidebar: apiLinks
 <Admonition type="important" title="Rules">
 
 - `useWatch`의 초기 반환 값은 항상 `defaultValue` 또는 `useForm`의 `defaultValues`에 있는 값을 반환합니다.
-- `useWatch`와 `watch`의 유일한 차이점은 루트([`useForm`](/docs/useform)) 레벨 또는 커스텀 훅 수준에서의 업데이트에 있습니다.
+- `useWatch`와 `watch`의 유일한 차이점은 루트([`useForm`](/docs/useform)) 레벨 또는 커스텀 훅 레벨에서의 업데이트에 있습니다.
 - `useWatch`의 실행 순서는 중요합니다. 즉, 구독이 설정되기 전에 폼 값을 업데이트 하면, 업데이트된 값이 무시됩니다.
 
   ```javascript copy
