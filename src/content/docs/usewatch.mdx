@@ -34,7 +34,7 @@ sidebar: apiLinks
 
 - `useWatch`의 초기 반환 값은 항상 `defaultValue` 또는 `useForm`의 `defaultValues`에 있는 값을 반환합니다.
 - `useWatch`와 `watch`의 유일한 차이점은 루트([`useForm`](/docs/useform)) 레벨 또는 커스텀 훅 레벨에서의 업데이트에 있습니다.
-- `useWatch`의 실행 순서는 중요합니다. 즉, 구독이 설정되기 전에 폼 값을 업데이트 하면, 업데이트된 값이 무시됩니다.
+- `useWatch`의 실행 순서는 중요합니다. 즉, 구독이 설정되기 전에 폼 값을 업데이트 하면, 해당 변경 사항이 무시됩니다.
 
   ```javascript copy
   setValue("test", "data")
