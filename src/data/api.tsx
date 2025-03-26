@@ -2349,10 +2349,13 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
             </Link>
           </td>
           <td></td>
-          <td> <code>useForm</code>을 호출하여 제공된 
+          <td>
+            {" "}
+            <code>useForm</code>을 호출하여 제공된
             <Link href="/docs/useform/control">
               <code>control</code>
-            </Link> 객체. <code>FormProvider</code>를 사용할 때는 선택사항.
+            </Link>{" "}
+            객체. <code>FormProvider</code>를 사용할 때는 선택사항.
           </td>
         </tr>
         <tr>
@@ -2719,11 +2722,11 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
           </td>
           <td></td>
           <td>
-          <code>useForm</code>을 호출하여 제공된{" "}
+            <code>useForm</code>을 호출하여 제공된{" "}
             <Link href="/docs/useform/control">
               <code>control</code>
-            </Link> 객체. <code>FormProvider</code>을 사용할 때에는 선택사항.
-    
+            </Link>{" "}
+            객체. <code>FormProvider</code>을 사용할 때에는 선택사항.
           </td>
         </tr>
         <tr>
@@ -2736,20 +2739,24 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
           <td></td>
           <td>
             <p>
-              <b className={typographyStyles.note}>중요: </b><code>useForm</code>의 <code>defaultValue</code> 또는 {" "}
-              <code>defaultValues</code>에 <code>undefined</code> 를 적용할 수 없습니다.
+              <b className={typographyStyles.note}>중요: </b>
+              <code>useForm</code>의 <code>defaultValue</code> 또는{" "}
+              <code>defaultValues</code>에 <code>undefined</code> 를 적용할 수
+              없습니다.
             </p>
             <ul>
               <li>
                 <p>
-                  필드 레벨에서 <code>defaultValue</code>를 설정하거나 <code>useForm</code>의 <code>defaultValues</code>를 사용해야 합니다.
-                  {" "}<code>undefined</code>는 사용할 수 없습니다. 
+                  필드 레벨에서 <code>defaultValue</code>를 설정하거나{" "}
+                  <code>useForm</code>의 <code>defaultValues</code>를 사용해야
+                  합니다. <code>undefined</code>는 사용할 수 없습니다.
                 </p>
               </li>
               <li>
                 <p>
-                  폼이 기본값으로 <code>reset</code>를 호출하는 경우, <code>useForm</code>에{" "}
-                  <code>defaultValues</code>를 제공해야 합니다.
+                  폼이 기본값으로 <code>reset</code>를 호출하는 경우,{" "}
+                  <code>useForm</code>에 <code>defaultValues</code>를 제공해야
+                  합니다.
                 </p>
               </li>
             </ul>
@@ -2765,7 +2772,8 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
           <td></td>
           <td>
             <p>
-              <code>register</code>에서 사용하는 것과 동일한 형식의 유효성 검사 규칙으로, 다음을 포함합니다: 
+              <code>register</code>에서 사용하는 것과 동일한 형식의 유효성 검사
+              규칙으로, 다음을 포함합니다:
             </p>
             <p>required, min, max, minLength, maxLength, pattern, validate</p>
             <CodeArea
@@ -2785,11 +2793,13 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
           <td></td>
           <td>
             <p>
-              입력 필드가 언마운트된 후에는 등록이 해제(unregistered)되며 기본값도 제거됩니다. 
+              입력 필드가 언마운트된 후에는 등록이 해제(unregistered)되며
+              기본값도 제거됩니다.
             </p>
             <p>
-              <b>참고:</b> 이 prop는 <code>useFieldArray</code>와 함께 사용하지 않아야 합니다. 
-              입력 필드가 언마운트/리마운트되거나 재정렬된 후에 <code>unregister</code> 함수가 호출되기 때문입니다. 
+              <b>참고:</b> 이 prop는 <code>useFieldArray</code>와 함께 사용하지
+              않아야 합니다. 입력 필드가 언마운트/리마운트되거나 재정렬된 후에{" "}
+              <code>unregister</code> 함수가 호출되기 때문입니다.
             </p>
           </td>
         </tr>
@@ -2803,8 +2813,9 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
           <td></td>
           <td>
             <p>
-              <code>disabled</code> 속성은 `field` 속성에서 반환됩니다.
-              제어 입력 필드는 비활성화되며, 이 값은 제출(submission) 데이터에서 제외됩니다.
+              <code>disabled</code> prop은 `field` prop에서 반환됩니다. 제어
+              입력 필드는 비활성화되며, 이 값은 제출(submission) 데이터에서
+              제외됩니다.
             </p>
           </td>
         </tr>
@@ -2817,8 +2828,9 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
         <ul>
           <li>
             <p>
-            MUI, AntD, Chakra UI와 같은 외부 제어 컴포넌트를 사용할 때 각 prop의 역할을 이해하는 것이 중요합니다.
-            이 props의 역할은 입력값을 감지, 보고하고 이를 설정하는 것입니다. 
+              MUI, AntD, Chakra UI와 같은 외부 제어 컴포넌트를 사용할 때 각
+              prop의 역할을 이해하는 것이 중요합니다. 이 props는 입력값을
+              감지하고, 보고하며 설정하는 역할을 합니다.
             </p>
 
             <ul>
@@ -2829,7 +2841,8 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
               </li>
               <li>
                 <p>
-                  <b>onBlur</b>: 입력이 상호작용되었음을 보고(focus 및 blur).
+                  <b>onBlur</b>: 입력 필드에서 사용자의 상호작용(focus 및
+                  blur)이 있었음을 보고.
                 </p>
               </li>
               <li>
@@ -2839,7 +2852,8 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
               </li>
               <li>
                 <p>
-                  <b>ref</b>: 에러 발생 시 해당 입력 필드로 포커스를 이동할 수 있도록 함.
+                  <b>ref</b>: 에러 발생 시 해당 입력 필드로 포커스를 이동할 수
+                  있도록 함.
                 </p>
               </li>
               <li>
@@ -2850,7 +2864,8 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
             </ul>
 
             <p>
-              <code>useController</code>와 함께 상태를 관리해도 괜찮습니다.
+              상태를 직접 관리하면서 <code>useController</code>를 함께 사용하는
+              것도 괜찮습니다.
             </p>
 
             <CodeArea
@@ -2867,7 +2882,8 @@ onChange={(event) => {
           </li>
           <li>
             <p>
-              입력을 다시 등록(<code>register</code>)하지 마세요. 이 커스텀 훅은 등록(registration)과정을 처리하도록 설계되었습니다.
+              입력을 다시 등록(<code>register</code>)하지 마세요. 이 커스텀 훅은
+              등록(registration)과정을 처리하도록 설계되었습니다.
             </p>
             <CodeArea
               rawData={`const { field } = useController({ name: 'test' })
@@ -2879,9 +2895,9 @@ onChange={(event) => {
           </li>
           <li>
             <p>
-              하나의 컴포넌트당 하나의 <code>useController</code>를 사용하는 것이 이상적입니다.
-              만약 여러 개를 사용해야 한다면, prop의 이름을 변경하는 것을 권장합니다.{" "}
-              <code>Controller</code>를 사용하는 것도 고려해보세요.            
+              컴포넌트당 하나의 <code>useController</code>를 사용하는 것이
+              이상적입니다. 만약 여러 개를 사용해야 한다면, name prop을 변경해야
+              합니다. <code>Controller</code>를 사용하는 것도 고려해보세요.
             </p>
             <CodeArea
               rawData={`const { field: input } = useController({ name: 'test' })
@@ -2902,8 +2918,8 @@ const { field: checkbox } = useController({ name: 'test1' })
           <Link href="/docs/usecontroller/controller">
             <code>Controller</code>
           </Link>
-          를 구동합니다.
-          또한 <code>Controller</code>와 동일한 props와 메서드를 공유합니다. 재사용 가능한 제어 입력 필드를 만드는데 유용합니다. 
+          를 구동합니다. 또한 <code>Controller</code>와 동일한 props와 메서드를
+          공유합니다. 재사용 가능한 제어 입력 필드를 만드는데 유용합니다.
         </p>
       </>
     ),
