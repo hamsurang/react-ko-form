@@ -38,21 +38,21 @@ sidebar: apiLinks
 
   ```javascript copy
   setValue("test", "data")
-  useWatch({ name: "test" }) // ❌ 값이 업데이트 된 후 구독이 발생하고, 업데이트가 무시됨
-  useWatch({ name: "example" }) // ✅ 입력 값 업데이트가 반영되고, 리렌더링이 트리거됨
+  useWatch({ name: "test" }) // ❌ 값이 업데이트 된 후 구독이 발생하고, 변경 사항이 반영되지 않음
+  useWatch({ name: "example" }) // ✅ 입력 값 변경이 반영되고, 리렌더링이 트리거됨
   setValue("example", "data")
   ```
 
-  위 문제는 간단한 커스텀 훅을 사용하여 해결할 수 있습니다:
+  위 문제는 다음과 같은 간단한 커스텀 훅을 사용하여 해결할 수 있습니다:
 
   ```javascript copy
   const useFormValues = () => {
     const { getValues } = useFormContext()
 
     return {
-      ...useWatch(), // 폼 값 업데이트를 구독하세요.
+      ...useWatch(), // 폼 값 업데이트를 구독합니다.
 
-      ...getValues(), // 항상 최신 폼 값과 병합하세요.
+      ...getValues(), // 항상 최신 폼 값과 병합합니다.
     }
   }
   ```
@@ -81,11 +81,11 @@ interface FormInputs {
 function FirstNameWatched({ control }: { control: Control<FormInputs> }) {
   const firstName = useWatch({
     control,
-    name: "firstName", // 이름을 제공하지 않으면 전체 폼을 감시하게 되고,['firstName', 'lastName']을 사용하면 둘다 감시할 수 있습니다.
+    name: "firstName", // 이름을 지정하지 않으면 전체 폼을 감지하며,['firstName', 'lastName']을 사용하면 둘 다 감지할 수 있습니다.
     defaultValue: "default", // 렌더링 전 기본값
   })
 
-  return <p>Watch: {firstName}</p> // firstName이 변경될 때만 커스텀 훅 레벨에서 리렌더링하세요.
+  return <p>Watch: {firstName}</p> // firstName이 변경될 때만 커스텀 훅 레벨에서 리렌더링
 }
 
 function App() {
@@ -166,7 +166,7 @@ export const Calc = ({ control, setValue }) => {
   const results = useWatch({ control, name: "test" })
   const output = totalCal(results)
 
-  // 필드 배열을 사용하여 결과를 계산하기 위해 독립적인 리렌더링
+  // 필드 배열로 결과를 계산하기 위해 독립적인 리렌더링
   console.log(results)
 
   setValue("total", output)
