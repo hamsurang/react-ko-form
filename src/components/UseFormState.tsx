@@ -44,7 +44,7 @@ const UseFormState = () => {
             <h2 className={typographyStyles.subTitle}>Props</h2>
 
             <p>
-              다음 표는 <code>useFormState</code>의 인수에 대한 정보를 포함하고
+              다음 표는 <code>useFormState</code>의 인자에 대한 정보를 포함하고
               있습니다.
             </p>
             <div className={tableStyles.tableWrapper}>
