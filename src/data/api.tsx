@@ -1997,7 +1997,7 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ sugar syntax t
                 </td>
                 <td />
                 <td>
-                  <p>필드 배열이 언마운트될 때 등록 해제될지 여부.</p>
+                  <p>필드 배열이 언마운트된 후, 등록 해제될 지 여부.</p>
                 </td>
               </tr>
               <tr>
@@ -2010,9 +2010,9 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ sugar syntax t
                 <td></td>
                 <td>
                   <p>
-                    자동 생성된 식별자를 사용할 속성의 이름. <code>key</code>{" "}
-                    prop으로 사용됩니다. 이 prop은 더 이상 필수 항목이 아니며,
-                    다음 주요 버전에서 제거될 예정입니다.
+                    자동 생성된 식별자를 <code>key</code> prop으로 사용하기 위한
+                    속성의 이름. 이 prop은 더 이상 필수 항목이 아니며, 다음 주요
+                    버전에서 제거될 예정입니다.
                   </p>
                 </td>
               </tr>
@@ -2027,8 +2027,8 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ sugar syntax t
                 <td>
                   <p>
                     <Link href="/docs/useform/register">register</Link>와 동일한
-                    검증 <code>rules</code> API를 사용하며, 포함되는 규칙은
-                    다음과 같습니다:
+                    유효성 검사 <code>rules</code> API를 사용하며, 포함되는
+                    규칙은 다음과 같습니다:
                   </p>
                   <p>required, minLength, maxLength, validate</p>
                   <CodeArea
@@ -2040,7 +2040,7 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ sugar syntax t
 `}
                   />
                   <p>
-                    만약 검증 오류가 발생하면, <code>root</code> 속성이{" "}
+                    만약 유효성 검사 에러가 발생하면, <code>root</code> 속성이{" "}
                     <code>formState.errors?.fieldArray?.root</code>에 추가되며,
                     이는{" "}
                     <Link href="/ts/#FieldError">
@@ -2095,7 +2095,7 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ sugar syntax t
           <td>
             <p>
               입력 필드를 기존 필드의 끝에 추가하고 포커스를 이동합니다. 이
-              과정에서 입력 값이 등록됩니다
+              과정에서 입력 값이 등록(registered)됩니다
             </p>
             <p>
               <b className={typographyStyles.note}>중요: </b>추가할 데이터는
@@ -2115,7 +2115,7 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ sugar syntax t
           <td>
             <p>
               입력 필드를 기존 필드의 시작 부분에 추가하고 포커스를 이동합니다.
-              이 과정에서 입력 값이 등록됩니다.
+              이 과정에서 입력 값이 등록(registered)됩니다.
             </p>
             <p>
               <b className={typographyStyles.note}>중요: </b>추가할 데이터는
@@ -2181,7 +2181,6 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ sugar syntax t
             <p>
               입력 필드를 특정 위치에서 업데이트하면, 변경된 필드는
               언마운트되었다가 다시 마운트됩니다. 이 동작을 원하지 않는 경우,
-              대신{" "}
               <Link href="/docs/useform/setvalue">
                 <code>setValue</code>
               </Link>{" "}

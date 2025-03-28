@@ -3,7 +3,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 
 function App() {
   const { register, control, handleSubmit, reset, trigger, setError } = useForm({
-    // defaultValues: {}; 이 속성을 사용하여 필드에 값을 채울 수 있습니다.이 속성을 사용하여 필드에 값을 채울 수 있습니다.
+    // defaultValues: {}; 이 속성을 사용하여 필드에 값을 채울 수 있습니다.
   });
   const { fields, append, remove } = useFieldArray({
     control,

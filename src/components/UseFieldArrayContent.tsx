@@ -50,7 +50,7 @@ export default function UseFieldArrayContent({ api }: { api: any }) {
           <p>
             <code>useFieldArray</code>는 <code>key</code> prop으로 사용되는
             고유한 식별자인 <code>id</code>를 자동으로 생성합니다. 왜 이 기능이
-            필요한지에 대한 자세한 내용은 아래 링크를 참고하세요:{" "}
+            필요한지에 대한 자세한 내용은 다음 링크를 참고하세요:{" "}
             <a
               href="https://react.dev/learn/rendering-lists#keeping-list-items-in-order-with-key"
               target="_blank"
