@@ -80,8 +80,8 @@ export default function ApiGallery() {
                 <code>{`</>`}</code>useController
               </h3>
               <p>
-                제어 컴포넌트(Controlled Components)를 위한 기능으로, useForm
-                메서드와 연결되고 리렌더링을 독립적으로 분리합니다.
+                제어 컴포넌트를 위한 훅으로, useForm 메서드와 연결되고
+                리렌더링을 독립적으로 분리합니다.
               </p>
               <Link
                 href="/docs/usecontroller"
@@ -97,8 +97,9 @@ export default function ApiGallery() {
                 <code>{`</>`}</code>useFormContext
               </h3>
               <p>
-                중첩된 컴포넌트에서 useForm의 메서드와 속성에 접근할 수
-                있습니다. 큰 규모의 폼이나 공용 컴포넌트를 구축할 때 유용합니다.
+                중첩된 컴포넌트에서 useForm의 메서드와 속성(properties)에 접근할
+                수 있습니다. 큰 규모의 폼이나 공용 컴포넌트를 구축할 때
+                유용합니다.
               </p>
               <Link
                 href="/docs/useformcontext"
@@ -114,8 +115,8 @@ export default function ApiGallery() {
                 <code>{`</>`}</code>useWatch
               </h3>
               <p>
-                루트 컴포넌트의 리렌더링 없이 개별 입력값 변경에만 구독할 수
-                있습니다.
+                개별 폼 입력 필드의 변경 사항을 구독하되, 루트 컴포넌트의
+                렌더링에는 영향을 주지 않습니다.
               </p>
               <Link href="/docs/usewatch" aria-label="read more about usewatch">
                 더 알아보기 ▸
