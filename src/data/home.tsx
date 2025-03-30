@@ -5,7 +5,7 @@ export default {
   description: "번거롭지 않은 폼 밸리데이션을 위한 React hook",
 
   slogan:
-    "성능이 좋고, 유연하며 확장 가능한 폼에 사용하기 쉬운 밸리데이션 기능이 포함되어 있어요.",
+    "성능이 좋고, 유연하며 확장 가능한 폼에 사용하기 쉬운 유효성 검사 기능이 포함되어 있어요.",
   getStarted: "시작하기",
   demo: "데모",
   findInteresting: {
