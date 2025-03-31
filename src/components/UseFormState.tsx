@@ -17,9 +17,7 @@ const UseFormState = () => {
       <h1 className={typographyStyles.headingWithTopMargin} id="main">
         useFormState
       </h1>
-      <p className={typographyStyles.subHeading}>
-        Subscribe to form state update
-      </p>
+      <p className={typographyStyles.subHeading}>폼 상태 업데이트를 구독</p>
 
       <div className={containerStyles.wrapper}>
         <Menu pages={apiLinks} />
@@ -36,18 +34,18 @@ const UseFormState = () => {
             </code>
 
             <p>
-              This custom hook allows you to subscribe to each form state, and
-              isolate the re-render at the custom hook level. It has its scope
-              in terms of form state subscription, so it would not affect other
-              useFormState and useForm. Using this hook can reduce the re-render
-              impact on large and complex form application.
+              이 커스텀 훅을 사용하면 개별 폼 상태를 구독하고, 해당 커스텀 훅
+              수준에서 리렌더링을 격리할 수 있습니다. 이 훅은 폼 상태 구독과
+              관련하여 자체적인 범위를 가지므로, 다른 useFormState 나 useForm 에
+              영향을 주지 않습니다. 이 훅을 활용하면 규모가 크고 복잡한 폼
+              애플리케이션에서 리렌더링 영향을 줄일 수 있습니다.
             </p>
 
             <h2 className={typographyStyles.subTitle}>Props</h2>
 
             <p>
-              The following table contains information about the arguments for{" "}
-              <code>useFormState</code>.
+              다음 표는 <code>useFormState</code>의 인자에 대한 정보를 포함하고
+              있습니다.
             </p>
             <div className={tableStyles.tableWrapper}>
               <table className={tableStyles.table}>
@@ -67,11 +65,12 @@ const UseFormState = () => {
                       <code className={typographyStyles.typeText}>object</code>
                     </td>
                     <td>
+                      <code>useForm</code>이 제공하는{" "}
                       <Link href="/docs/useform/control">
                         <code>control</code>
                       </Link>{" "}
-                      object provided by <code>useForm</code>. It's optional if
-                      you are using <code>FormProvider</code>.
+                      객체. <code>FormProvider</code>를 사용하고 있다면 선택
+                      사항입니다.
                     </td>
                   </tr>
                   <tr>
@@ -84,8 +83,9 @@ const UseFormState = () => {
                       </code>
                     </td>
                     <td>
-                      Provide a single input name, an array of them, or
-                      subscribe to all inputs' formState update.
+                      단일 입력 필드의 이름을 지정하거나, 여러 입력 필드의 경우
+                      배열로 제공할 수 있으며, 모든 입력 필드의 formState
+                      업데이트를 구독할 수도 있습니다.
                     </td>
                   </tr>
                   <tr>
@@ -98,7 +98,7 @@ const UseFormState = () => {
                       </code>
                     </td>
                     <td>
-                      <p>Option to disable the subscription.</p>
+                      <p>구독을 비활성화할 수 있는 옵션.</p>
                     </td>
                   </tr>
                   <tr>
@@ -112,8 +112,8 @@ const UseFormState = () => {
                     </td>
                     <td>
                       <p>
-                        This prop will enable an exact match for input name
-                        subscriptions.
+                        이 prop을 사용하면 입력 필드 이름 구독 시 정확히
+                        일치하는 항목만 구독할 수 있습니다.
                       </p>
                     </td>
                   </tr>
@@ -128,15 +128,15 @@ const UseFormState = () => {
             </h2>
 
             <p>
-              Returned <code>formState</code> is wrapped with Proxy to improve
-              render performance and skip extra computation if specific state is
-              not subscribed, so make sure you deconstruct or read it before
-              render in order to enable the subscription.
+              반환된 <code>formState</code> 는 Proxy 로 감싸져 있어, 특정 상태가
+              구독되지 않은 경우 불필요한 연산을 건너뛰어 렌더링 성능을
+              향상시킵니다. 따라서 구독을 활성화하려면 formState 를 렌더링 전에
+              반드시 구조 분해하거나 읽어야 합니다.
             </p>
 
             <CodeArea
               rawData={`const { isDirty } = useFormState(); // ✅
-const formState = useFormState(); // ❌ should deconstruct the formState      
+const formState = useFormState(); // ❌ formState를 구조 분해해야 합니다.     
 `}
             />
 
