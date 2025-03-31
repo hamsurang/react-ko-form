@@ -1,30 +1,30 @@
 ---
 title: useFormContext
-description: React Context API for hook form
+description: 훅 폼을 위한 React Context API
 sidebar: apiLinks
 ---
 
 ## \</> `useFormContext:` <TypeText>Function</TypeText>
 
-This custom hook allows you to access the form context. `useFormContext` is intended to be used in deeply nested structures, where it would become inconvenient to pass the context as a prop.
+이 커스텀 훅은 폼 컨텍스트에 접근할 수 있게 해줍니다. `useFormContext`는 깊게 중첩된 구조에서 컨텍스트를 props로 전달하는 것이 불편할 때 사용하도록 설계되었습니다.
 
 ### Return
 
 ---
 
-This hook will return all the useForm return methods and props.
+이 훅은 useForm이 반환하는 모든 메서드와 props를 반환합니다.
 
 ```javascript
 const methods = useForm()
 
-<FormProvider {...methods} /> // all the useForm return props
+<FormProvider {...methods} /> // useForm이 반환하는 모든 props
 
-const methods = useFormContext() // retrieve those props
+const methods = useFormContext() // 해당 props를 가져옴
 ```
 
 <Admonition type="important" title="Rules">
-  You need to wrap your form with the [`FormProvider`](/docs/formprovider)
-  component for `useFormContext` to work properly.
+  `useFormContext`가 제대로 작동하려면, 먼저 폼을
+  [`FormProvider`](/docs/formprovider) 컴포넌트로 감싸야 합니다.
 </Admonition>
 
 **Example:**
@@ -39,7 +39,7 @@ export default function App() {
 
   return (
     <FormProvider {...methods}>
-      // pass all methods into the context
+      // 모든 메서드를 컨텍스트에 전달
       <form onSubmit={methods.handleSubmit(onSubmit)}>
         <NestedInput />
         <input type="submit" />
@@ -49,7 +49,7 @@ export default function App() {
 }
 
 function NestedInput() {
-  const { register } = useFormContext() // retrieve all hook methods
+  const { register } = useFormContext() // 모든 훅 메서드를 가져옴
   return <input {...register("test")} />
 }
 ```
