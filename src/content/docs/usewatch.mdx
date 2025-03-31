@@ -1,24 +1,24 @@
 ---
 title: useWatch
-description: React Hook for subscribing to input changes
+description: 입력의 변경을 구독하기 위한 React 훅
 sidebar: apiLinks
 ---
 
 ## \</> `useWatch:` <TypeText>`({ control?: Control, name?: string, defaultValue?: unknown, disabled?: boolean }) => object`</TypeText>
 
-Behaves similarly to the `watch` API, however, this will isolate re-rendering at the custom hook level and potentially result in better performance for your application.
+`watch` API와 유사하게 동작하지만, 이 훅은 리렌더링을 커스텀 훅 레벨에서 격리하여 애플리케이션의 성능을 향상시킬 수 있습니다.
 
 ### Props
 
 ---
 
-| Name           | Type                                                 | Description                                                                                                                                                 |
-| -------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`         | <TypeText>string \| string[] \| undefined</TypeText> | Name of the field.                                                                                                                                          |
-| `control`      | <TypeText>Object</TypeText>                          | [`control`](/docs/useform/control) object provided by `useForm`. It's optional if you are using `FormProvider`.                                             |
-| `defaultValue` | <TypeText>unknown</TypeText>                         | default value for `useWatch` to return before the initial render.<br/><br/>**Note:** the first render will always return `defaultValue` when it's supplied. |
-| `disabled`     | <TypeText>boolean = false</TypeText>                 | Option to disable the subscription.                                                                                                                         |
-| `exact`        | <TypeText>boolean = false</TypeText>                 | This prop will enable an exact match for input name subscriptions.                                                                                          |
+| Name           | Type                                                 | Description                                                                                                                                        |
+| -------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`         | <TypeText>string \| string[] \| undefined</TypeText> | 필드의 이름.                                                                                                                                       |
+| `control`      | <TypeText>Object</TypeText>                          | `useForm`이 제공하는 [`control`](/docs/useform/control) 객체. `FormProvider`를 사용하는 경우, 이 props는 선택 사항입니다.                          |
+| `defaultValue` | <TypeText>unknown</TypeText>                         | 초기 렌더링 전에 `useWatch`가 반환할 기본 값.<br/><br/>**참고:** `defaultValue`가 제공되면 첫 번째 렌더링 시에는 항상 `defaultValue`을 반환합니다. |
+| `disabled`     | <TypeText>boolean = false</TypeText>                 | 구독을 비활성화하는 옵션.                                                                                                                          |
+| `exact`        | <TypeText>boolean = false</TypeText>                 | 이 prop은 입력 필드의 이름 구독에 대한 정확한 일치가 가능하도록 합니다.                                                                            |
 
 ### Return
 
@@ -32,32 +32,32 @@ Behaves similarly to the `watch` API, however, this will isolate re-rendering at
 
 <Admonition type="important" title="Rules">
 
-- The initial return value from `useWatch` will always return what's inside of `defaultValue` or `defaultValues` from `useForm`.
-- The only difference between `useWatch` and `watch` is at the root ([`useForm`](/docs/useform)) level or the custom hook level update.
-- `useWatch`'s execution order matters, which means if you update a form value before the subscription is in place, then the value updated will be ignored.
+- `useWatch`의 초기 반환 값은 항상 `defaultValue` 또는 `useForm`의 `defaultValues`에 있는 값을 반환합니다.
+- `useWatch`와 `watch`의 유일한 차이점은 루트([`useForm`](/docs/useform)) 레벨 또는 커스텀 훅 레벨에서의 업데이트에 있습니다.
+- `useWatch`의 실행 순서는 중요합니다. 즉, 구독이 설정되기 전에 폼 값을 업데이트 하면, 해당 변경 사항이 무시됩니다.
 
   ```javascript copy
   setValue("test", "data")
-  useWatch({ name: "test" }) // ❌ subscription is happened after value update, no update received
-  useWatch({ name: "example" }) // ✅ input value update will be received and trigger re-render
+  useWatch({ name: "test" }) // ❌ 값이 업데이트 된 후 구독이 발생하고, 변경 사항이 반영되지 않음
+  useWatch({ name: "example" }) // ✅ 입력 값 변경이 반영되고, 리렌더링이 트리거됨
   setValue("example", "data")
   ```
 
-  You can overcome the above issue with a simple custom hook as below:
+  위 문제는 다음과 같은 간단한 커스텀 훅을 사용하여 해결할 수 있습니다:
 
   ```javascript copy
   const useFormValues = () => {
     const { getValues } = useFormContext()
 
     return {
-      ...useWatch(), // subscribe to form value updates
+      ...useWatch(), // 폼 값 업데이트를 구독합니다.
 
-      ...getValues(), // always merge with latest form values
+      ...getValues(), // 항상 최신 폼 값과 병합합니다.
     }
   }
   ```
 
-- `useWatch`'s result is optimised for render phase instead of `useEffect`'s deps, to detect value updates you may want to use an external custom hook for value comparison.
+- `useWatch`의 결과는 `useEffect`의 의존성 배열 대신 렌더 단계(render phase)에 최적화되어 있습니다. 값의 변화를 감지하려면 값 비교를 위한 외부 커스텀 훅을 사용하는 것이 좋습니다.
 
 </Admonition>
 
@@ -65,7 +65,7 @@ Behaves similarly to the `watch` API, however, this will isolate re-rendering at
 
 ---
 
-**Form**
+**폼**
 
 <TabGroup buttonLabels={["TS", "JS"]} >
 
@@ -81,11 +81,11 @@ interface FormInputs {
 function FirstNameWatched({ control }: { control: Control<FormInputs> }) {
   const firstName = useWatch({
     control,
-    name: "firstName", // without supply name will watch the entire form, or ['firstName', 'lastName'] to watch both
-    defaultValue: "default", // default value before the render
+    name: "firstName", // 이름을 지정하지 않으면 전체 폼을 감지하며,['firstName', 'lastName']을 사용하면 둘 다 감지할 수 있습니다.
+    defaultValue: "default", // 렌더링 전 기본값
   })
 
-  return <p>Watch: {firstName}</p> // only re-render at the custom hook level, when firstName changes
+  return <p>Watch: {firstName}</p> // firstName이 변경될 때만 커스텀 훅 레벨에서 리렌더링
 }
 
 function App() {
@@ -139,7 +139,7 @@ function App() {
 
 </TabGroup>
 
-**Advanced Field Array**
+**고급 필드 배열**
 
 ```javascript copy sandbox="https://codesandbox.io/s/watchusewatch-calc-4tpnh"
 import React from "react"
@@ -166,7 +166,7 @@ export const Calc = ({ control, setValue }) => {
   const results = useWatch({ control, name: "test" })
   const output = totalCal(results)
 
-  // isolated re-render to calc the result with Field Array
+  // 필드 배열로 결과를 계산하기 위해 독립적인 리렌더링
   console.log(results)
 
   setValue("total", output)
