@@ -2180,7 +2180,7 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ sugar syntax t
           <td>
             <p>
               입력 필드를 특정 위치에서 업데이트하면, 변경된 필드는
-              언마운트되었다가 다시 마운트됩니다. 이 동작을 원하지 않는 경우,
+              언마운트되었다가 다시 마운트됩니다. 이 동작을 원하지 않는 경우,{" "}
               <Link href="/docs/useform/setvalue">
                 <code>setValue</code>
               </Link>{" "}
