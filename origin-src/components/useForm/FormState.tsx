@@ -15,7 +15,7 @@ const FormState = () => {
       <h1 className={typographyStyles.headingWithTopMargin} id="main">
         formState
       </h1>
-      <p className={typographyStyles.subHeading}>State of the form</p>
+      <p className={typographyStyles.subHeading}>폼의 상태</p>
 
       <div className={containerStyles.wrapper}>
         <Menu pages={apiLinks} />

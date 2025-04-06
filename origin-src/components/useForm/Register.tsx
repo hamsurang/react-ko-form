@@ -13,7 +13,7 @@ const Register = () => {
         register
       </h1>
       <p className={typographyStyles.subHeading}>
-        Register uncontrolled/controlled inputs
+        비제어/제어 입력 필드 등록(register)
       </p>
 
       <div className={containerStyles.wrapper}>
