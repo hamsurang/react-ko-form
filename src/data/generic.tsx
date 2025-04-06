@@ -46,11 +46,11 @@ export default {
   liveDemo: "라이브 데모",
   control: (
     <>
+      <code>useForm</code>에서 제공하는{" "}
       <Link href="/docs/useform/control">
         <code>control</code>
       </Link>{" "}
-      object provided by <code>useForm</code>. It's optional if you are using
-      FormProvider.
+      객체. FormProvider를 사용하고 있다면 선택 사항입니다.
     </>
   ),
 }
