@@ -1,14 +1,14 @@
 import { memo } from "react"
 import { Animate } from "react-simple-animate"
 import { useStateMachine } from "little-state-machine"
-import FormFields from "./FormFields"
-import goToBuilder from "./utils/goToBuilder"
-import { FieldValues, UseFormReturn } from "react-hook-form"
+import type { FieldValues, UseFormReturn } from "react-hook-form"
 import home from "../data/home"
 import generic from "../data/generic"
 import buttonStyles from "../styles/button.module.css"
 import containerStyles from "../styles/container.module.css"
 import typographyStyles from "../styles/typography.module.css"
+import FormFields from "./FormFields"
+import goToBuilder from "./utils/goToBuilder"
 import styles from "./Form.module.css"
 
 const animationProps = {
@@ -29,16 +29,16 @@ function Form({
   methods,
   devTool,
 }: {
-  onSubmit: (data: any) => void
-  submitData: any
+  onSubmit: (data: Record<string, unknown>) => void
+  submitData: Record<string, unknown>
   toggleBuilder: (state: boolean) => void
   formUpdated: boolean
-  methods: UseFormReturn<FieldValues, any, undefined>
+  methods: UseFormReturn<FieldValues, Record<string, unknown>>
   devTool?: boolean
 }) {
   const { register, handleSubmit, watch, formState, reset } = methods
 
-  const touched = Object.keys(formState.touchedFields || {})
+  const touched = Object.keys(formState.touchedFields)
   const {
     state: { formData },
   } = useStateMachine()
@@ -71,12 +71,13 @@ function Form({
       )}
 
       <div className={styles.wrapper}>
+        {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
         <form className={styles.demoForm} onSubmit={handleSubmit(onSubmit)}>
           <h2 className={typographyStyles.title} style={{ marginTop: 40 }}>
             Example
           </h2>
 
-          <FormFields {...{ formData, errors, register }} />
+          <FormFields formData={formData} errors={errors} register={register} />
 
           <button className={buttonStyles.pinkButton}>
             {home.liveDemo.submit}
@@ -136,8 +137,9 @@ function Form({
                 <pre className={styles.code}>
                   {Object.keys(errors).length > 0 &&
                     JSON.stringify(
-                      Object.entries(errors).reduce(
+                      Object.entries(errors).reduce<Record<string, unknown>>(
                         // @ts-expect-error needed for previous
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
                         (previous, [key, { ref, ...rest }]) => {
                           previous[key] = rest
                           return previous
