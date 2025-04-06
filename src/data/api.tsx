@@ -2754,7 +2754,7 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
               </li>
               <li>
                 <p>
-                  폼이 기본값으로 <code>reset</code>를 호출하는 경우,{" "}
+                  폼이 기본값으로 <code>reset</code>을 호출하는 경우,{" "}
                   <code>useForm</code>에 <code>defaultValues</code>를 제공해야
                   합니다.
                 </p>
