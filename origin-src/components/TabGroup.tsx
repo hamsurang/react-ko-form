@@ -1,7 +1,14 @@
 import { useState } from "react"
+import type { ReactNode } from "react"
 import styles from "./TabGroup.module.css"
 
-const TabGroup = ({ children, buttonLabels }) => {
+const TabGroup = ({
+  children,
+  buttonLabels,
+}: {
+  children: ReactNode[]
+  buttonLabels: string[]
+}) => {
   const [index, setIndex] = useState(0)
 
   return (
@@ -17,7 +24,9 @@ const TabGroup = ({ children, buttonLabels }) => {
               ...(currentIndex === index ? { cursor: "default" } : {}),
             }}
             disabled={currentIndex === index}
-            onClick={() => setIndex(currentIndex)}
+            onClick={() => {
+              setIndex(currentIndex)
+            }}
           >
             {label}
           </button>
