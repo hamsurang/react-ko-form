@@ -13,12 +13,14 @@ jobs:
       pull-requests: write
 
     steps:
+      # ============= master 동기화 =============
+
       - name: Checkout Fork
         uses: actions/checkout@v3
         with:
           repository: ${{ github.repository }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0  # 모든 히스토리 가져오기
+          fetch-depth: 0 # 모든 히스토리 가져오기
 
       - name: Configure Git
         run: |
@@ -42,9 +44,14 @@ jobs:
           # 업스트림 변경을 우선으로(충돌 발생 시 upstream/master 변경사항 사용)
           git merge upstream/master -X theirs --no-edit
 
-          # .github 디렉토리 하위 모든 파일 삭제
-          git rm -r --cached .github || true
-          rm -rf .github
+          # 1) .github / .vscode 디렉토리 삭제
+          for DIR in .github .vscode; do
+            git rm -r --cached "$DIR" || true
+            rm -rf "$DIR"
+          done
+
+          # 2) .gitignore 는 **우리(master) 버전** 그대로 유지
+          git checkout --ours .gitignore || true
 
           # 변경 사항 스테이징
           git add .
@@ -54,21 +61,21 @@ jobs:
           git diff --cached --name-only
 
           # 변경 사항이 있을 경우에만 커밋
-          git commit -m "Sync with upstream (removing .github directory)" || echo "No changes to commit"
+          git commit -m "Sync with upstream (remove .github & .vscode, keep local .gitignore)" || echo "No changes to commit"
         shell: bash
 
       - name: Check for Changes
         id: changes
         run: |
-          # .github 디렉토리 제외한 변경 사항 확인
-          git diff upstream/master master -- . ':(exclude).github' > changes.diff
+          # .github / .vscode / .gitignore 제외한 변경 사항 확인
+          git diff upstream/master master -- . ':(exclude).github' ':(exclude).vscode' ':(exclude).gitignore' > changes.diff
           if [ -s changes.diff ]; then
             echo "changes=true" >> $GITHUB_ENV
           else
             echo "changes=false" >> $GITHUB_ENV
           fi
-          echo "Changes detected (excluding .github):"
-          cat changes.diff
+          echo "Changes detected (excluding .github, .vscode, .gitignore):"
+          cat changes.diff || true
         shell: bash
 
       - name: Check Existing PRs for Master Sync
@@ -88,70 +95,33 @@ jobs:
           echo "Existing PRs for master sync: $EXISTING_PR"
         shell: bash
 
-      - name: Compare Changes with Existing PRs for Master Sync
-        id: compare-changes
-        if: env.existing_pr == 'true' && env.changes == 'true'
+      - name: Update Existing master sync PR Branch
+        if: env.existing_pr == 'true'
         run: |
-          ALL_EXISTING_INCLUDED=true
-          for pr_ref in ${{ env.existing_pr_ref }}
-          do
-            echo "Fetching branch: $pr_ref"
-            git fetch origin "$pr_ref:$pr_ref-branch"
-
-            echo "Comparing with upstream/master excluding .github"
-            if ! git diff --quiet upstream/master "$pr_ref-branch" -- . ':(exclude).github'; then
-              ALL_EXISTING_INCLUDED=false
-              break
-            fi
-          done
-
-          if [ "$ALL_EXISTING_INCLUDED" = true ]; then
-            echo "diff=false" >> $GITHUB_ENV
-          else
-            echo "diff=true" >> $GITHUB_ENV
-
-            # 기존 PR 닫기
-            for pr_ref in ${{ env.existing_pr_ref }}
-            do
-              PR_NUMBER=$(curl -s \
-                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                -H "Accept: application/vnd.github.v3+json" \
-                https://api.github.com/repos/${{ github.repository }}/pulls \
-                | jq -r '.[] | select(.head.ref=="'$pr_ref'") | .number')
-              echo "Closing PR #$PR_NUMBER"
-              curl -X PATCH \
-                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                -H "Accept: application/vnd.github.v3+json" \
-                https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER \
-                -d '{"state":"closed"}'
-            done
-          fi
+          BRANCH=$(echo "${{ env.existing_pr_ref }}" | awk '{print $1}')
+          echo "Force‑pushing latest master to existing branch: $BRANCH"
+          git push origin master:"$BRANCH" --force-with-lease
         shell: bash
 
       - name: Create Pull Request for Master Sync
-        if: env.diff == 'true' || env.existing_pr == 'false'
+        if: env.existing_pr == 'false'
         run: |
-          # 새로운 브랜치 생성
           BRANCH_NAME=sync-upstream-$(date +%Y%m%d%H%M%S)
           git checkout -b $BRANCH_NAME
-
-          # 브랜치 푸시
           git push origin $BRANCH_NAME
-
-          # PR 생성
           curl -X POST \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/${{ github.repository }}/pulls \
             -d '{
-              "title": "Sync with upstream (removing .github directory)",
-              "body": "This PR syncs the repository with upstream changes and removes the entire .github directory.",
+              "title": "Sync with upstream (remove .github & .vscode, keep .gitignore)",
+              "body": "This PR syncs the repository with upstream changes, removes the .github and .vscode directories, and preserves the local .gitignore.",
               "head": "'"${BRANCH_NAME}"'",
               "base": "master"
             }'
         shell: bash
 
-      # ===== master-ko 업데이트 파트 =====
+      # ============= master-ko 업데이트 =============
 
       - name: Check Existing PRs for master-ko Update
         id: existing-prs-ko
@@ -172,13 +142,11 @@ jobs:
 
       - name: Prepare master-ko Update
         run: |
-          # 최신 master 브랜치 체크아웃
           git checkout master
-          # 원격의 master-ko 브랜치가 있으면 가져오고, 없으면 새로 생성
           git fetch origin master-ko || true
           git checkout -B master-ko origin/master-ko || git checkout -B master-ko
 
-          # master 브랜치의 모든 파일을 가져오되, src는 제외하고 master-ko의 기존 src 유지
+          # master의 모든 파일 복사 (src 제외)
           git checkout master -- . ":(exclude)src"
 
           git add .
@@ -195,8 +163,8 @@ jobs:
           do
             echo "Fetching branch: $pr_ref"
             git fetch origin "$pr_ref:$pr_ref-branch"
-            echo "Comparing updated master-ko with existing PR branch (excluding src)"
-            if ! git diff --quiet master-ko "$pr_ref-branch" -- . ':(exclude)src'; then
+            echo "Comparing updated master-ko with existing PR branch (excluding src & .gitignore)"
+            if ! git diff --quiet master-ko "$pr_ref-branch" -- . ':(exclude)src' ':(exclude).gitignore'; then
               ALL_INCLUDED=false
               EXISTING_BRANCH=$pr_ref
               break
@@ -226,7 +194,6 @@ jobs:
       - name: Update Existing master-ko PR Branch
         if: env.existing_pr_ko == 'true' && env.ko_diff == 'false'
         run: |
-          # 기존 PR 브랜치(첫번째 값)를 사용하여 업데이트
           EXISTING_BRANCH=$(echo "${{ env.existing_pr_ko_ref }}" | awk '{print $1}')
           echo "Pushing updated changes to existing master-ko branch: $EXISTING_BRANCH"
           git push origin master-ko:"$EXISTING_BRANCH" --force
