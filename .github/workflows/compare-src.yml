@@ -13,78 +13,81 @@ jobs:
       pull-requests: write
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - run: git config --global user.name "minchodang"
-      - run: git config --global user.email "minsu910725@gmail.com"
-
-      - run: |
-          git remote add upstream https://github.com/react-hook-form/documentation.git || true
-          git fetch upstream --prune
-          git fetch origin --prune
-
-      - run: |
-          git checkout -B master origin/master
-          git merge --ff-only upstream/master
-          git push origin master
-
-      - id: compare
+      - name: Set git identity
         run: |
-          rm -f diff_status.txt
-          if [ ! -d origin-src ]; then
-            echo CHANGED > diff_status.txt
-          else
-            mkdir -p tmp-src
-            git archive origin/master src | tar -x -C tmp-src
-            diff -qr origin-src tmp-src/src || echo CHANGED > diff_status.txt
-          fi
-          if [ -f diff_status.txt ]; then
-            echo "pr_needed=true" >> $GITHUB_ENV
+          git config --global user.name  "minchodang"
+          git config --global user.email "minsu910725@gmail.com"
+
+      - name: Extract src from origin/master
+        id: extract
+        shell: bash
+        run: |
+          rm -rf tmp-src
+          mkdir -p tmp-src
+          git archive origin/master src | tar -x -C tmp-src
+          mv tmp-src/src tmp-src/master-src   # → tmp-src/master-src/...
+
+      - name: Detect changes between origin-src and master-src
+        id: compare
+        shell: bash
+        run: |
+          mkdir -p origin-src                 # first run may not exist
+          # -a archive, -n dry‑run, -i itemize, -c checksum, --delete detect deletions
+          CHANGES=$(rsync -anic --delete tmp-src/master-src/ origin-src/ | tail -n +2)
+          if [ -n "$CHANGES" ]; then
+            echo "pr_needed=true"  >> $GITHUB_ENV
+            echo "$CHANGES"        # optional log
           else
             echo "pr_needed=false" >> $GITHUB_ENV
           fi
-        shell: bash
 
-      - if: env.pr_needed == 'true'
+      - name: Update origin-src content
+        if: ${{ env.pr_needed == 'true' }}
+        shell: bash
         run: |
           if git show-ref --quiet refs/remotes/origin/master-ko; then
             git checkout -B master-ko origin/master-ko
           else
             git checkout -B master-ko
           fi
-          rm -rf origin-src
-          git archive origin/master src | tar -x
-          mv src origin-src
+          rsync -a --delete tmp-src/master-src/ origin-src/
           git add -A origin-src
-          if ! git diff --cached --quiet; then
-            git commit -m "Update origin-src with latest src from origin/master"
-          fi
-        shell: bash
+          git commit -m "Sync origin-src with latest origin/master/src (auto)"
 
-      - if: env.pr_needed == 'true'
-        id: check-pr
-        run: |
-          existing=$(gh pr list --json headRefName --jq '.[] | select(.headRefName | startswith("update-origin-src-")) | .headRefName' | head -n1)
-          if [ -n "$existing" ]; then
-            echo "branch=$existing" >> $GITHUB_OUTPUT
-          fi
+      - name: Find existing update-origin-src PR
+        if: ${{ env.pr_needed == 'true' }}
+        id: pr-branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
+        run: |
+          branch=$(gh pr list --json headRefName \
+                     --jq '.[] | select(.headRefName | startswith("update-origin-src-")) | .headRefName' \
+                     | head -n1)
+          echo "branch=$branch" >> $GITHUB_OUTPUT
 
-      - if: env.pr_needed == 'true' && steps.check-pr.outputs.branch != ''
-        run: git push origin master-ko:${{ steps.check-pr.outputs.branch }} --force
+      - name: Force‑push to existing branch
+        if: ${{ env.pr_needed == 'true' && steps.pr-branch.outputs.branch != '' }}
+        shell: bash
+        run: |
+          git push origin master-ko:${{ steps.pr-branch.outputs.branch }} --force
 
-      - if: env.pr_needed == 'true' && steps.check-pr.outputs.branch == ''
+      - name: Create new PR
+        if: ${{ env.pr_needed == 'true' && steps.pr-branch.outputs.branch == '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
           new_branch=update-origin-src-${{ github.run_id }}
           git checkout -b "$new_branch"
           git push origin "$new_branch"
-          gh pr create --title "Update origin-src for translation" \
-                       --body "Sync origin-src with the latest src changes from origin/master." \
-                       --head "$new_branch" --base master-ko
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
+          gh pr create \
+            --title "Update origin-src for translation" \
+            --body  "Auto‑sync **origin-src** with the latest **src** directory from **origin/master**." \
+            --head  "$new_branch" \
+            --base  master-ko
