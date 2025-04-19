@@ -23,12 +23,12 @@ jobs:
       - run: |
           git remote add upstream https://github.com/react-hook-form/documentation.git || true
           git fetch upstream --prune
+          git fetch origin --prune
 
       - run: |
-          git checkout master
+          git checkout -B master origin/master
           git merge --ff-only upstream/master
           git push origin master
-          git fetch --all --prune
 
       - id: compare
         run: |
