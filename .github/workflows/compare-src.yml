@@ -13,105 +13,78 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Fetch All Branches
-        run: git fetch --all --prune
+      - run: git config --global user.name "minchodang"
+      - run: git config --global user.email "minsu910725@gmail.com"
 
-      - name: Configure Git
+      - run: |
+          git remote add upstream https://github.com/react-hook-form/documentation.git || true
+          git fetch upstream --prune
+
+      - run: |
+          git checkout master
+          git merge --ff-only upstream/master
+          git push origin master
+          git fetch --all --prune
+
+      - id: compare
         run: |
-          git config --global user.name  "minchodang"
-          git config --global user.email "minsu910725@gmail.com"
-
-      - name: Compare origin-src with src from origin/master
-        id: compare
-        shell: bash
-        run: |
-          set -eo pipefail
-
-          # diff 결과를 저장할 플래그 파일 초기화
           rm -f diff_status.txt
-
           if [ ! -d origin-src ]; then
-            echo "CHANGED" > diff_status.txt
+            echo CHANGED > diff_status.txt
           else
-            # origin/master 의 src 추출 → tmp-src/src
             mkdir -p tmp-src
             git archive origin/master src | tar -x -C tmp-src
-
-            # 차이 검사 (삭제 포함)
-            diff -qr origin-src tmp-src/src || echo "CHANGED" > diff_status.txt
+            diff -qr origin-src tmp-src/src || echo CHANGED > diff_status.txt
           fi
-
           if [ -f diff_status.txt ]; then
-            echo "pr_needed=true"  >> "$GITHUB_ENV"
-            echo "Differences detected."
+            echo "pr_needed=true" >> $GITHUB_ENV
           else
-            echo "pr_needed=false" >> "$GITHUB_ENV"
-            echo "No differences detected."
+            echo "pr_needed=false" >> $GITHUB_ENV
           fi
-
-      - name: Prepare master-ko
-        if: env.pr_needed == 'true'
         shell: bash
-        run: |
-          set -eo pipefail
 
-          # master-ko 체크아웃 (없으면 새로)
+      - if: env.pr_needed == 'true'
+        run: |
           if git show-ref --quiet refs/remotes/origin/master-ko; then
             git checkout -B master-ko origin/master-ko
           else
             git checkout -B master-ko
           fi
-
-          # origin-src 디렉터리 재구성
           rm -rf origin-src
           git archive origin/master src | tar -x
           mv src origin-src
-
-          # 전체 변경(삭제 포함) 스테이지 & 커밋
           git add -A origin-src
           if ! git diff --cached --quiet; then
             git commit -m "Update origin-src with latest src from origin/master"
           fi
+        shell: bash
 
-      - name: Check Existing update-origin-src PR
-        if: env.pr_needed == 'true'
+      - if: env.pr_needed == 'true'
         id: check-pr
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
         run: |
-          existing_branch=$(gh pr list --json headRefName \
-                          --jq '.[] | select(.headRefName | startswith("update-origin-src-")) | .headRefName' | head -n1)
-          if [ -n "$existing_branch" ]; then
-            echo "found_branch=$existing_branch"   >> "$GITHUB_ENV"
-            echo "existing_pr_src=true"            >> "$GITHUB_ENV"
-          else
-            echo "existing_pr_src=false"           >> "$GITHUB_ENV"
+          existing=$(gh pr list --json headRefName --jq '.[] | select(.headRefName | startswith("update-origin-src-")) | .headRefName' | head -n1)
+          if [ -n "$existing" ]; then
+            echo "branch=$existing" >> $GITHUB_OUTPUT
           fi
-
-      - name: Force Push to Existing Branch
-        if: env.pr_needed == 'true' && env.existing_pr_src == 'true'
-        shell: bash
-        run: |
-          git push origin master-ko:${{ env.found_branch }} --force
-
-      - name: Create New PR Branch & Pull Request
-        if: env.pr_needed == 'true' && env.existing_pr_src == 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
-        run: |
-          BRANCH_NAME=update-origin-src-$(date +%Y%m%d%H%M%S)
-          git checkout -b "$BRANCH_NAME"
-          git push origin "$BRANCH_NAME"
 
-          gh pr create \
-            --title "Update origin-src for translation" \
-            --body  "Sync origin-src with the latest src changes from origin/master." \
-            --head  "$BRANCH_NAME" \
-            --base  "master-ko"
+      - if: env.pr_needed == 'true' && steps.check-pr.outputs.branch != ''
+        run: git push origin master-ko:${{ steps.check-pr.outputs.branch }} --force
+
+      - if: env.pr_needed == 'true' && steps.check-pr.outputs.branch == ''
+        run: |
+          new_branch=update-origin-src-${{ github.run_id }}
+          git checkout -b "$new_branch"
+          git push origin "$new_branch"
+          gh pr create --title "Update origin-src for translation" \
+                       --body "Sync origin-src with the latest src changes from origin/master." \
+                       --head "$new_branch" --base master-ko
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
