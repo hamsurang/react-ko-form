@@ -16,9 +16,21 @@
 
 단, 공식 문서 업데이트 및 changes 발생 시에는, 그에 맞춰 업데이트될 예정입니다. 관련 사항이 발생하면, Issue 탭에서 공유됩니다.
 
-## 설치
+## 위키
 
-    yarn && yarn start
+현재 react ko form에서 저희 내부적으로 공통화 된 번역 위키 룰(https://github.com/hamsurang/react-ko-form/wiki/react%E2%80%90ko%E2%80%90form%EC%9D%98-%EB%B2%88%EC%97%AD-%EA%B7%9C%EC%B9%99
+)입니다. 
+
+작업 전, 꼭 참고해 주시기 바랍니다. 
+
+감사합니다. 
+
+
+## 설치 및 실행
+
+    pnpm install 
+    pnpm run dev(dev 서버 실행)
+
 
 ## 기여자
 
