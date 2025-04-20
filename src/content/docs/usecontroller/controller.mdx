@@ -210,7 +210,7 @@ export default function App() {
   <Controller
     name="test"
     render={({ field }) => {
-      // return <input {...field} {...register('test')} />; ❌ double up the registration
+      // return <input {...field} {...register('test')} />; ❌ 등록(registration)이 중복됩니다.
       return <input {...field} /> // ✅
     }}
   />
@@ -221,7 +221,7 @@ export default function App() {
   <Controller
     name="test"
     render={({ field }) => {
-      // sending integer instead of string.
+      // 문자열 대신 정수가 전달됩니다.
       return (
         <input
           {...field}

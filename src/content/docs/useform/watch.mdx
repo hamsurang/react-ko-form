@@ -83,7 +83,7 @@ function App() {
       <form onSubmit={handleSubmit(onSubmit)}>
         <input {...register("name", { required: true, maxLength: 50 })} />
         <input type="checkbox" {...register("showAge")} />
-        {/* based on yes selection to display Age Input*/}
+        {/*예(yes)를 선택하면 나이 입력란을 표시합니다*/}
         {watchShowAge && (
           <input type="number" {...register("age", { min: 50 })} />
         )}

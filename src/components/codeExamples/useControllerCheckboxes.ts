@@ -15,13 +15,13 @@ const Checkboxes = ({ options, control, name }) => {
           onChange={(e) => {
             const valueCopy = [...value];
 
-            // update checkbox value
+            // 체크박스 값을 업데이트
             valueCopy[index] = e.target.checked ? e.target.value : null;
 
-            // send data to react hook form
+            // react hook form에 데이터 전달
             field.onChange(valueCopy);
 
-            // update local state
+            // 로컬 상태 업데이트
             setValue(valueCopy);
           }}
           key={option}

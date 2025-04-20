@@ -546,7 +546,7 @@ const App = () => {
           <p>
             필드를 수동으로 등록(register)하고 싶다면,{" "}
             <Link href="/docs/useform/setvalue">setValue</Link>를 사용하여 입력
-            값을 업데이트해야 합니다..
+            값을 업데이트해야 합니다.
           </p>
 
           <CodeArea
@@ -566,7 +566,7 @@ const App = () => {
           </p>
 
           <CodeArea
-            rawData={`// not working, because ref is not assigned
+            rawData={`// ref가 할당되지 않았기 때문에 작동하지 않습니다.
 <TextInput {...register('test')} />
 
 const firstName = register('firstName', { required: true })
@@ -574,10 +574,10 @@ const firstName = register('firstName', { required: true })
   name={firstName.name}
   onChange={firstName.onChange}
   onBlur={firstName.onBlur}
-  inputRef={firstName.ref} // you can achieve the same for different ref name such as innerRef
+  inputRef={firstName.ref} //innerRef 같은 다른 ref 이름에도 동일한 방식을 적용할 수 있습니다.
 />
 
-// correct way to forward input's ref
+// 입력 필드의 ref를 올바르게 전달하는 방법.
 const Select = React.forwardRef(({ onChange, onBlur, name, label }, ref) => (
   <select name={name} ref={ref} onChange={onChange} onBlur={onBlur}>
     <option value="20">20</option>
@@ -2299,7 +2299,7 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
               rawData={`<Controller
   name="test"
   render={({ field }) => {
-    // return <input {...field} {...register('test')} />; ❌ double up the registration
+    // return <input {...field} {...register('test')} />; ❌ 등록(registration)이 중복됩니다. 
     return <input {...field} />; // ✅
   }}
 />
@@ -2315,7 +2315,7 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
               rawData={`<Controller
   name="test"
   render={({ field }) => {
-    // sending integer instead of string.
+    // 문자열 대신 정수가 전송됩니다.
     return <input {...field} onChange={(e) => field.onChange(parseInt(e.target.value))} />;
   }}
 />
