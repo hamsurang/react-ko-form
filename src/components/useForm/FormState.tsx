@@ -36,9 +36,7 @@ const FormState = () => {
             />
 
             <h2 className={typographyStyles.subTitle}>Video</h2>
-            <p>
-              The following video will explain in detail different form states.
-            </p>
+            <p>다음 동영상은 다양한 폼 상태에 대해 자세히 설명합니다.</p>
 
             <iframe
               width="100%"

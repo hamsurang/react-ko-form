@@ -546,7 +546,7 @@ const App = () => {
           <p>
             필드를 수동으로 등록(register)하고 싶다면,{" "}
             <Link href="/docs/useform/setvalue">setValue</Link>를 사용하여 입력
-            값을 업데이트해야 합니다..
+            값을 업데이트해야 합니다.
           </p>
 
           <CodeArea
@@ -574,10 +574,10 @@ const firstName = register('firstName', { required: true })
   name={firstName.name}
   onChange={firstName.onChange}
   onBlur={firstName.onBlur}
-  inputRef={firstName.ref} //innerRef 같은 다른 ref 이름에도 동일한 방식을 적용할 수 있음.
+  inputRef={firstName.ref} //innerRef 같은 다른 ref 이름에도 동일한 방식을 적용할 수 있습니다.
 />
 
-// 입력 필드의 ref를 전달하는 올바른 방법
+// 입력 필드의 ref를 전달하는 올바른 방법.
 const Select = React.forwardRef(({ onChange, onBlur, name, label }, ref) => (
   <select name={name} ref={ref} onChange={onChange} onBlur={onBlur}>
     <option value="20">20</option>
