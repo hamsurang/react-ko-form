@@ -2299,7 +2299,7 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
               rawData={`<Controller
   name="test"
   render={({ field }) => {
-    // return <input {...field} {...register('test')} />; ❌ double up the registration
+    // return <input {...field} {...register('test')} />; ❌ 등록(registration)이 중복됩니다. 
     return <input {...field} />; // ✅
   }}
 />
@@ -2315,7 +2315,7 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
               rawData={`<Controller
   name="test"
   render={({ field }) => {
-    // sending integer instead of string.
+    // 문자열 대신 정수가 전송됩니다.
     return <input {...field} onChange={(e) => field.onChange(parseInt(e.target.value))} />;
   }}
 />
