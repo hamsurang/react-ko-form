@@ -36,7 +36,8 @@ React-Ko-Form 레포지토리는 **React Hook Form**의 공식 문서(https://re
    - 애매한 용어는 영어로 그대로 적습니다.
    - 다만, 애매한 부분에 있어서는 PR을 올리실 때, description에 설명해 주시기 바랍니다.
    - 이 부분은 메인테이너가 리뷰 후 반영하겠습니다.
-   - 추후 고도화 진행 시, Wiki로 추가 반영할 예정입니다.
+   - 해당 위키 링크(https://github.com/hamsurang/react-ko-form/wiki/react%E2%80%90ko%E2%80%90form%EC%9D%98-%EB%B2%88%EC%97%AD-%EA%B7%9C%EC%B9%99
+)를 꼭 참조해 주세요.  
 
 ## 4. Pull Requests
 
