@@ -566,7 +566,7 @@ const App = () => {
           </p>
 
           <CodeArea
-            rawData={`// 동작하지 않음. ref가 할당되지 않았기 때문.
+            rawData={`// ref가 할당되지 않았기 때문에 작동하지 않습니다.
 <TextInput {...register('test')} />
 
 const firstName = register('firstName', { required: true })
@@ -577,7 +577,7 @@ const firstName = register('firstName', { required: true })
   inputRef={firstName.ref} //innerRef 같은 다른 ref 이름에도 동일한 방식을 적용할 수 있습니다.
 />
 
-// 입력 필드의 ref를 전달하는 올바른 방법.
+// 입력 필드의 ref를 올바르게 전달하는 방법.
 const Select = React.forwardRef(({ onChange, onBlur, name, label }, ref) => (
   <select name={name} ref={ref} onChange={onChange} onBlur={onBlur}>
     <option value="20">20</option>

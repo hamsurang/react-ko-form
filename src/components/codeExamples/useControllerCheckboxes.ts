@@ -18,7 +18,7 @@ const Checkboxes = ({ options, control, name }) => {
             // 체크박스 값을 업데이트
             valueCopy[index] = e.target.checked ? e.target.value : null;
 
-            // react hook form에 데이터 전송
+            // react hook form에 데이터 전달
             field.onChange(valueCopy);
 
             // 로컬 상태 업데이트
