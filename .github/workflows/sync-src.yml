@@ -1,0 +1,94 @@
+name: Sync src from upstream (exclude Korean translations)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  sync-src:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set git identity
+        run: |
+          git config --global user.name "minchodang"
+          git config --global user.email "minsu910725@gmail.com"
+
+      - name: Extract src from origin/master
+        shell: bash
+        run: |
+          rm -rf tmp-src
+          mkdir -p tmp-src
+          git archive origin/master src | tar -x -C tmp-src
+          mv tmp-src/src tmp-src/master-src
+
+      - name: Build exclude list (files containing Korean chars)
+        shell: bash
+        run: |
+          >$GITHUB_WORKSPACE/exclude.lst
+          cd tmp-src/master-src
+          find . -type f -print0 | while IFS= read -r -d '' f; do
+            grep -qP '[\x{AC00}-\x{D7A3}]' "$f" && echo "${f#./}" >>$GITHUB_WORKSPACE/exclude.lst
+          done
+
+      - name: Detect changes between local src and upstream src
+        id: compare
+        shell: bash
+        run: |
+          mkdir -p src
+          CHANGES=$(rsync -anic --delete --exclude-from=$GITHUB_WORKSPACE/exclude.lst tmp-src/master-src/ src/ | tail -n +2)
+          if [ -n "$CHANGES" ]; then
+            echo "pr_needed=true" >>$GITHUB_ENV
+            echo "$CHANGES"
+          else
+            echo "pr_needed=false" >>$GITHUB_ENV
+          fi
+
+      - name: Update src content
+        if: ${{ env.pr_needed == 'true' }}
+        shell: bash
+        run: |
+          if git show-ref --quiet refs/remotes/origin/master-ko; then
+            git checkout -B master-ko origin/master-ko
+          else
+            git checkout -B master-ko
+          fi
+          rsync -a --delete --exclude-from=$GITHUB_WORKSPACE/exclude.lst tmp-src/master-src/ src/
+          git add -A src
+          git commit -m "Sync src with latest origin/master (exclude Korean translations)"
+
+      - name: Find existing sync-src PR
+        if: ${{ env.pr_needed == 'true' }}
+        id: pr-branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          branch=$(gh pr list --json headRefName --jq '.[] | select(.headRefName | startswith("sync-src-")) | .headRefName' | head -n1)
+          echo "branch=$branch" >> $GITHUB_OUTPUT
+
+      - name: Force-push to existing branch
+        if: ${{ env.pr_needed == 'true' && steps.pr-branch.outputs.branch != '' }}
+        shell: bash
+        run: |
+          git push origin master-ko:${{ steps.pr-branch.outputs.branch }} --force
+
+      - name: Create new PR
+        if: ${{ env.pr_needed == 'true' && steps.pr-branch.outputs.branch == '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          new_branch=sync-src-${{ github.run_id }}
+          git checkout -b "$new_branch"
+          git push origin "$new_branch"
+          gh pr create --title "Sync src with upstream (exclude translated files)" --body "This PR auto-updates **src/** with the latest changes from **origin/master**, excluding files that already contain Korean translations." --head "$new_branch" --base master-ko
