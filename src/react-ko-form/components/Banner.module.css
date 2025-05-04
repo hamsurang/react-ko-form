@@ -1,0 +1,12 @@
+.container {
+  background-color: #000;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.link {
+  color: #fff;
+  text-decoration: none;
+}
