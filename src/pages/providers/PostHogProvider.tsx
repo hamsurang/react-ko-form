@@ -7,7 +7,7 @@ interface PostHogProviderProps {
   children: React.ReactNode
 }
 
-export const PostHogProvider = ({ children }: PostHogProviderProps) => {
+const PostHogProvider = ({ children }: PostHogProviderProps) => {
   useEffect(() => {
     posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY as string, {
       api_host:
@@ -28,3 +28,5 @@ export const PostHogProvider = ({ children }: PostHogProviderProps) => {
   }, [])
   return <PostHogProviderBase client={posthog}>{children}</PostHogProviderBase>
 }
+
+export default PostHogProvider

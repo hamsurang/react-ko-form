@@ -5,7 +5,7 @@ import formData from "../state/formData"
 import { ThemeProvider } from "next-themes"
 import { useEffect } from "react"
 import "../components/layout.css"
-import { PostHogProvider } from "./providers/PostHogProvider"
+import PostHogProvider from "./providers/PostHogProvider"
 
 createStore(
   {
