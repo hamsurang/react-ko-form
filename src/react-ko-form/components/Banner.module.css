@@ -1,12 +1,39 @@
 .container {
-  background-color: #000;
-  height: 60px;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: #000;
+  padding: 8px 16px;
+  height: 60px;
 }
 
 .link {
+  display: block;
+  margin: 0 auto;
+  max-width: calc(100% - 267px);
   color: #fff;
   text-decoration: none;
+  text-align: center;
+  white-space: normal;
+  word-break: break-word;
+  overflow: hidden;
+}
+
+@media (max-width: 767px) {
+  .container {
+    position: static;
+    margin-top: 60px;
+    height: auto;
+    padding: 8px 16px;
+  }
+
+  .link {
+    position: static;
+    transform: none;
+    left: auto;
+    max-width: none;
+    white-space: normal;
+    word-break: break-word;
+  }
 }
