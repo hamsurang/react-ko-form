@@ -1,4 +1,5 @@
 import { useEffect } from "react"
+import type { MouseEventHandler } from "react"
 import Link from "next/link"
 import Footer from "./Footer"
 import typographyStyles from "../styles/typography.module.css"
@@ -10,8 +11,10 @@ import { useRouter } from "next/router"
 export default function ApiGallery() {
   const router = useRouter()
 
-  const onChange = (e) => {
-    const version = parseInt(e.target.value)
+  const onChange: MouseEventHandler<HTMLButtonElement> = (e) => {
+    const version = parseInt(
+      (e.target as HTMLElement).getAttribute("value") as string
+    )
 
     if (version !== 7) {
       router.push(`https://legacy.react-hook-form.com/v${version}/api`)
@@ -151,6 +154,24 @@ export default function ApiGallery() {
               </p>
               <Link
                 href="/docs/usefieldarray"
+                aria-label="read more about usefieldarray"
+              >
+                Read More ▸
+              </Link>
+            </div>
+          </li>
+          <li>
+            <div>
+              <h3>
+                <code>{`</>`}</code>createFormControl
+              </h3>
+              <p className={styles.beta}>BETA @v7.55.0-next.3</p>
+              <p>
+                Create form control object and subscribe form state outside of
+                React component, access methods without context.
+              </p>
+              <Link
+                href="/docs/createFormControl"
                 aria-label="read more about usefieldarray"
               >
                 Read More ▸
