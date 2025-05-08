@@ -5,7 +5,6 @@ import formData from "../state/formData"
 import { ThemeProvider } from "next-themes"
 import { useEffect } from "react"
 import "../components/layout.css"
-import PostHogProvider from "./providers/PostHogProvider"
 
 createStore(
   {
@@ -20,16 +19,14 @@ createStore(
 function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
     try {
-      if (window.navigator && navigator.serviceWorker) {
-        navigator.serviceWorker
-          .getRegistrations()
-          .then(function (registrations) {
-            if (Array.isArray(registrations)) {
-              for (const registration of registrations) {
-                registration.unregister()
-              }
+      if ("serviceWorker" in window.navigator) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          if (Array.isArray(registrations)) {
+            for (const registration of registrations) {
+              ;(registration as ServiceWorkerRegistration).unregister()
             }
-          })
+          }
+        })
       }
     } catch {}
   }, [])
@@ -49,9 +46,6 @@ function App({ Component, pageProps }: AppProps) {
         enableColorScheme={false}
       >
         <StateMachineProvider>
-          <PostHogProvider>
-            <Component {...pageProps} />
-          </PostHogProvider>
           <Component {...pageProps} />
         </StateMachineProvider>
       </ThemeProvider>
