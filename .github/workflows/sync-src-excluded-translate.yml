@@ -49,8 +49,7 @@ jobs:
             >> $GITHUB_WORKSPACE/exclude.lst
           cd $GITHUB_WORKSPACE
 
-          sort -u -o exclude.lst exclude.lst
-          mv exclude.lst $GITHUB_WORKSPACE/exclude.lst
+          sort -u -o $GITHUB_WORKSPACE/exclude.lst $GITHUB_WORKSPACE/exclude.lst
 
       - name: Detect changes
         id: compare
