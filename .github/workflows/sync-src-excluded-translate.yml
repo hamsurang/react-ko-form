@@ -35,10 +35,19 @@ jobs:
         shell: bash
         run: |
           : > $GITHUB_WORKSPACE/exclude.lst
-          for root in src tmp-src/master-src; do
-            [ -d "$root" ] || continue
-            (cd "$root" && LC_ALL=C grep -Ilr --exclude-dir=.git -e '[가-힣]' | sort -u) >> $GITHUB_WORKSPACE/exclude.lst
-          done
+
+          # (1) 커스텀 보존할 파일/패턴 — src/ 접두사 제거
+          echo "pages/_app.tsx"                  >> $GITHUB_WORKSPACE/exclude.lst
+          echo "providers/PostHogProvider.tsx"    >> $GITHUB_WORKSPACE/exclude.lst
+          echo "components/layout.tsx"            >> $GITHUB_WORKSPACE/exclude.lst
+          echo "react-ko-form/components/Banner*" >> $GITHUB_WORKSPACE/exclude.lst
+
+          # (2) 로컬 src 에 남아 있는 모든 한글(번역) 파일 보존
+          grep -IPlr --exclude-dir=.git '\p{Hangul}' src/ \
+            | sed 's|^src/||' \
+            >> $GITHUB_WORKSPACE/exclude.lst
+
+          # 중복 제거
           sort -u -o $GITHUB_WORKSPACE/exclude.lst $GITHUB_WORKSPACE/exclude.lst
 
       - name: Detect changes
@@ -46,12 +55,10 @@ jobs:
         shell: bash
         run: |
           mkdir -p src
-          # -a: archive, -i: itemize changes, -n: dry-run
-          # 첫 줄 'sending incremental file list' 제거 뒤 한 줄이라도 남으면 변경 있음
-          if rsync -ain --delete \
-               --exclude-from="$GITHUB_WORKSPACE/exclude.lst" \
-               tmp-src/master-src/ src/ \
-               | tail -n +2 | grep -q .; then
+          changes=$(rsync -ain --delete \
+                    --exclude-from="$GITHUB_WORKSPACE/exclude.lst" \
+                    tmp-src/master-src/ src/ | tail -n +2)
+          if [ -n "$changes" ]; then
             echo "pr_needed=true" >> $GITHUB_ENV
           else
             echo "pr_needed=false" >> $GITHUB_ENV
@@ -77,7 +84,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          branch=$(gh pr list --json headRefName --jq '.[] | select(.headRefName | startswith("sync-src-")) | .headRefName' | head -n1)
+          branch=$(gh pr list --json headRefName --jq \
+            '.[] | select(.headRefName | startswith("sync-src-")) | .headRefName' \
+            | head -n1)
           echo "branch=$branch" >> $GITHUB_OUTPUT
 
       - name: Force push to existing branch
@@ -95,4 +104,8 @@ jobs:
           new_branch=sync-src-${{ github.run_id }}
           git checkout -b "$new_branch"
           git push origin "$new_branch"
-          gh pr create --title "Sync src with upstream (exclude translated files)" --body "Auto-syncs src/ with the latest origin/master, excluding files containing Korean text." --head "$new_branch" --base master-ko
+          gh pr create \
+            --title "Sync src with upstream (exclude translated files)" \
+            --body "Auto-sync src/ with origin/master, excluding Korean translations and preserving custom files." \
+            --head "$new_branch" \
+            --base master-ko
