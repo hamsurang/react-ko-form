@@ -1,4 +1,5 @@
 import { useState } from "react"
+import type React from "react"
 import { useForm } from "react-hook-form"
 import { Animate } from "react-simple-animate"
 import Form from "./Form"
@@ -8,6 +9,7 @@ import CodeArea from "./CodeArea"
 import code from "./codeExamples/devTool"
 import copyClipBoard from "./utils/copyClipBoard"
 import generic from "../data/generic"
+import content from "../data/devtools"
 import typographyStyles from "../styles/typography.module.css"
 import containerStyles from "../styles/container.module.css"
 import buttonStyles from "../styles/button.module.css"
@@ -19,19 +21,16 @@ import type { DevtoolUIProps } from "@hookform/devtools/dist/devToolUI"
 
 const DevTool = dynamic<DevtoolUIProps>(
   () =>
+    // @ts-expect-error no types are available
     import("@hookform/devtools/dist/index.cjs.development").then(
-      (mod) => mod.DevTool
+      (mod) => (mod as { DevTool: React.ElementType<DevtoolUIProps> }).DevTool
     ),
   {
     ssr: false,
   }
 )
 
-interface Props {
-  content: any
-}
-
-export default function DevTools({ content }: Props) {
+export default function DevTools() {
   const methods = useForm({
     mode: "onChange",
   })
@@ -40,7 +39,9 @@ export default function DevTools({ content }: Props) {
 
   const { control } = methods
 
-  const onSubmit = (data) => console.log(data)
+  const onSubmit = (data: unknown) => {
+    console.log(data)
+  }
 
   return (
     <div className={containerStyles.container}>
@@ -68,7 +69,7 @@ export default function DevTools({ content }: Props) {
           )}
         />
 
-        <DevToolFeaturesList isPlayFeature content={content} />
+        <DevToolFeaturesList content={content} />
 
         <div className={containerStyles.centerContent}>
           <h1 className={typographyStyles.h1}>
@@ -83,7 +84,9 @@ export default function DevTools({ content }: Props) {
             npm install -D @hookform/devtools
             <ClipBoard
               className={getStartedStyle.copyButton}
-              onClick={() => copyClipBoard("npm install -D @hookform/devtools")}
+              onClick={() => {
+                copyClipBoard("npm install -D @hookform/devtools")
+              }}
             />
           </pre>
 
@@ -126,16 +129,12 @@ export default function DevTools({ content }: Props) {
         <div className={styles.demo}>
           <div>
             <Form
-              {...{
-                onSubmit,
-                submitData: {},
-                // eslint-disable-next-line @typescript-eslint/no-empty-function
-                toggleBuilder: () => {},
-                // eslint-disable-next-line @typescript-eslint/no-empty-function
-                formUpdated: () => {},
-                methods,
-                devTool: true,
-              }}
+              onSubmit={onSubmit}
+              submitData={{}}
+              toggleBuilder={() => {}}
+              methods={methods}
+              formUpdated
+              devTool
             />
           </div>
           <div>
