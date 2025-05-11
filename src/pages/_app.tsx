@@ -5,6 +5,7 @@ import formData from "../state/formData"
 import { ThemeProvider } from "next-themes"
 import { useEffect } from "react"
 import "../components/layout.css"
+import PostHogProvider from "./providers/PostHogProvider"
 
 createStore(
   {
@@ -48,6 +49,9 @@ function App({ Component, pageProps }: AppProps) {
         enableColorScheme={false}
       >
         <StateMachineProvider>
+          <PostHogProvider>
+            <Component {...pageProps} />
+          </PostHogProvider>
           <Component {...pageProps} />
         </StateMachineProvider>
       </ThemeProvider>
