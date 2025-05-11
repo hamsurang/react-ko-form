@@ -3,6 +3,7 @@ import { getEditLink } from "./logic/getEditLink"
 import Nav from "./Nav"
 import { useEffect, useState, ReactNode } from "react"
 import { useRouter } from "next/router"
+import { Banner } from "@/react-ko-form/components/Banner"
 
 const Layout = ({ children }: { children: ReactNode }) => {
   const router = useRouter()
@@ -42,6 +43,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
       <a className="skip-main" href="#main">
         Skip to content
       </a>
+      <Banner />
       <Nav />
       {children}
       <Animate
