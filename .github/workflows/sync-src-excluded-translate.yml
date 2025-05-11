@@ -36,19 +36,18 @@ jobs:
         run: |
           : > $GITHUB_WORKSPACE/exclude.lst
 
-          # 1) 커스텀 보존할 파일/패턴
-          echo "src/pages/_app.tsx"                   >> $GITHUB_WORKSPACE/exclude.lst
-          echo "src/providers/PostHogProvider.tsx"     >> $GITHUB_WORKSPACE/exclude.lst
-          echo "src/components/layout.tsx"             >> $GITHUB_WORKSPACE/exclude.lst
-          echo "src/react-ko-form/components/Banner*"  >> $GITHUB_WORKSPACE/exclude.lst
+          # (1) 커스텀 보존할 파일/패턴 — src/ 접두사 제거
+          echo "pages/_app.tsx"                  >> $GITHUB_WORKSPACE/exclude.lst
+          echo "providers/PostHogProvider.tsx"    >> $GITHUB_WORKSPACE/exclude.lst
+          echo "components/layout.tsx"            >> $GITHUB_WORKSPACE/exclude.lst
+          echo "react-ko-form/components/Banner*" >> $GITHUB_WORKSPACE/exclude.lst
 
-          # 2) src 전체에서 한글 포함된(=번역된) 모든 파일 보존
-          cd src
-          LC_ALL=C grep -Ilr --exclude-dir=.git -e '[가-힣]' . \
-            | sed 's|^\./|src/|' \
+          # (2) 로컬 src 에 남아 있는 모든 한글(번역) 파일 보존
+          grep -Ilr --exclude-dir=.git -e '[가-힣]' src/ \
+            | sed 's|^src/||' \
             >> $GITHUB_WORKSPACE/exclude.lst
-          cd $GITHUB_WORKSPACE
 
+          # 중복 제거
           sort -u -o $GITHUB_WORKSPACE/exclude.lst $GITHUB_WORKSPACE/exclude.lst
 
       - name: Detect changes
