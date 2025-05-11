@@ -35,11 +35,22 @@ jobs:
         shell: bash
         run: |
           : > $GITHUB_WORKSPACE/exclude.lst
-          for root in src tmp-src/master-src; do
-            [ -d "$root" ] || continue
-            (cd "$root" && LC_ALL=C grep -Ilr --exclude-dir=.git -e '[가-힣]' | sort -u) >> $GITHUB_WORKSPACE/exclude.lst
-          done
-          sort -u -o $GITHUB_WORKSPACE/exclude.lst $GITHUB_WORKSPACE/exclude.lst
+
+          # 1) 커스텀 보존할 파일/패턴
+          echo "src/pages/_app.tsx"                   >> $GITHUB_WORKSPACE/exclude.lst
+          echo "src/providers/PostHogProvider.tsx"     >> $GITHUB_WORKSPACE/exclude.lst
+          echo "src/components/layout.tsx"             >> $GITHUB_WORKSPACE/exclude.lst
+          echo "src/react-ko-form/components/Banner*"  >> $GITHUB_WORKSPACE/exclude.lst
+
+          # 2) src 전체에서 한글 포함된(=번역된) 모든 파일 보존
+          cd src
+          LC_ALL=C grep -Ilr --exclude-dir=.git -e '[가-힣]' . \
+            | sed 's|^\./|src/|' \
+            >> $GITHUB_WORKSPACE/exclude.lst
+          cd $GITHUB_WORKSPACE
+
+          sort -u -o exclude.lst exclude.lst
+          mv exclude.lst $GITHUB_WORKSPACE/exclude.lst
 
       - name: Detect changes
         id: compare
@@ -49,7 +60,6 @@ jobs:
           changes=$(rsync -ain --delete \
                     --exclude-from="$GITHUB_WORKSPACE/exclude.lst" \
                     tmp-src/master-src/ src/ | tail -n +2)
-
           if [ -n "$changes" ]; then
             echo "pr_needed=true" >> $GITHUB_ENV
           else
@@ -76,7 +86,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          branch=$(gh pr list --json headRefName --jq '.[] | select(.headRefName | startswith("sync-src-")) | .headRefName' | head -n1)
+          branch=$(gh pr list --json headRefName --jq \
+            '.[] | select(.headRefName | startswith("sync-src-")) | .headRefName' \
+            | head -n1)
           echo "branch=$branch" >> $GITHUB_OUTPUT
 
       - name: Force push to existing branch
@@ -94,4 +106,8 @@ jobs:
           new_branch=sync-src-${{ github.run_id }}
           git checkout -b "$new_branch"
           git push origin "$new_branch"
-          gh pr create --title "Sync src with upstream (exclude translated files)" --body "Auto-syncs src/ with the latest origin/master, excluding files containing Korean text." --head "$new_branch" --base master-ko
+          gh pr create \
+            --title "Sync src with upstream (exclude translated files)" \
+            --body "Auto-sync src/ with origin/master, excluding Korean translations and preserving custom files." \
+            --head "$new_branch" \
+            --base master-ko
