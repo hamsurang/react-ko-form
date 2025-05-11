@@ -43,7 +43,7 @@ jobs:
           echo "react-ko-form/components/Banner*" >> $GITHUB_WORKSPACE/exclude.lst
 
           # (2) 로컬 src 에 남아 있는 모든 한글(번역) 파일 보존
-          LC_ALL=C.UTF-8 grep -Ilr --exclude-dir=.git -e '[가-힣]' src/ \
+          grep -Ilr --exclude-dir=.git -e '[가-힣]' src/ \
             | sed 's|^src/||' \
             >> $GITHUB_WORKSPACE/exclude.lst
 
