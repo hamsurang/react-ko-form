@@ -34,6 +34,7 @@ jobs:
       - name: Build exclude list
         shell: bash
         run: |
+          export LANG=en_US.UTF-8
           : > $GITHUB_WORKSPACE/exclude.lst
 
           # (1) 커스텀 보존할 파일/패턴 — src/ 접두사 제거
