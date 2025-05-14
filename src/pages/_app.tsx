@@ -52,7 +52,6 @@ function App({ Component, pageProps }: AppProps) {
           <PostHogProvider>
             <Component {...pageProps} />
           </PostHogProvider>
-          <Component {...pageProps} />
         </StateMachineProvider>
       </ThemeProvider>
     </>
