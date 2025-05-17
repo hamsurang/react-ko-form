@@ -19,6 +19,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set git identity
+        shell: bash
         run: |
           git config --global user.name "minchodang"
           git config --global user.email "minsu910725@gmail.com"
@@ -35,19 +36,11 @@ jobs:
         shell: bash
         run: |
           : > $GITHUB_WORKSPACE/exclude.lst
-
-          # (1) 커스텀 보존할 파일/패턴 — src/ 접두사 제거
           echo "pages/_app.tsx"                  >> $GITHUB_WORKSPACE/exclude.lst
           echo "providers/PostHogProvider.tsx"    >> $GITHUB_WORKSPACE/exclude.lst
           echo "components/layout.tsx"            >> $GITHUB_WORKSPACE/exclude.lst
           echo "react-ko-form/components/Banner*" >> $GITHUB_WORKSPACE/exclude.lst
-
-          # (2) 로컬 src 에 남아 있는 모든 한글(번역) 파일 보존
-          grep -IPlr --exclude-dir=.git '\p{Hangul}' src/ \
-            | sed 's|^src/||' \
-            >> $GITHUB_WORKSPACE/exclude.lst
-
-          # 중복 제거
+          grep -IPlr --exclude-dir=.git '\p{Hangul}' src/ | sed 's|^src/||' >> $GITHUB_WORKSPACE/exclude.lst
           sort -u -o $GITHUB_WORKSPACE/exclude.lst $GITHUB_WORKSPACE/exclude.lst
 
       - name: Detect changes
@@ -55,9 +48,9 @@ jobs:
         shell: bash
         run: |
           mkdir -p src
-          changes=$(rsync -ain --delete \
+          changes=$(rsync -rcnc --delete --out-format='%n' \
                     --exclude-from="$GITHUB_WORKSPACE/exclude.lst" \
-                    tmp-src/master-src/ src/ | tail -n +2)
+                    tmp-src/master-src/ src/ | grep -v '^$' || true)
           if [ -n "$changes" ]; then
             echo "pr_needed=true" >> $GITHUB_ENV
           else
@@ -75,10 +68,15 @@ jobs:
           fi
           rsync -a --delete --exclude-from=$GITHUB_WORKSPACE/exclude.lst tmp-src/master-src/ src/
           git add -A src
-          git commit -m "Sync src with origin/master (exclude Korean translations)" || true
+          if ! git diff --cached --quiet; then
+            git commit -m "Sync src with origin/master (exclude Korean translations)"
+            echo "commit_made=true" >> $GITHUB_ENV
+          else
+            echo "commit_made=false" >> $GITHUB_ENV
+          fi
 
       - name: Find existing PR
-        if: ${{ env.pr_needed == 'true' }}
+        if: ${{ env.pr_needed == 'true' && env.commit_made == 'true' }}
         id: pr-branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -90,13 +88,13 @@ jobs:
           echo "branch=$branch" >> $GITHUB_OUTPUT
 
       - name: Force push to existing branch
-        if: ${{ env.pr_needed == 'true' && steps.pr-branch.outputs.branch != '' }}
+        if: ${{ env.pr_needed == 'true' && env.commit_made == 'true' && steps.pr-branch.outputs.branch != '' }}
         shell: bash
         run: |
           git push origin master-ko:${{ steps.pr-branch.outputs.branch }} --force
 
       - name: Create new PR
-        if: ${{ env.pr_needed == 'true' && steps.pr-branch.outputs.branch == '' }}
+        if: ${{ env.pr_needed == 'true' && env.commit_made == 'true' && steps.pr-branch.outputs.branch == '' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
