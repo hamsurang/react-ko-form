@@ -19,6 +19,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set git identity
+        shell: bash
         run: |
           git config --global user.name  "minchodang"
           git config --global user.email "minsu910725@gmail.com"
@@ -27,23 +28,21 @@ jobs:
         id: extract
         shell: bash
         run: |
-          rm -rf tmp-src
-          mkdir -p tmp-src
-          git archive origin/master src | tar -x -C tmp-src
-          mv tmp-src/src tmp-src/master-src   # → tmp-src/master-src/...
+          WORK=$(mktemp -d)
+          git archive origin/master src | tar -x -C "$WORK"
+          mv "$WORK/src" master-src
 
       - name: Detect changes between origin-src and master-src
         id: compare
         shell: bash
         run: |
-          mkdir -p origin-src                 # first run may not exist
-          # -a archive, -n dry‑run, -i itemize, -c checksum, --delete detect deletions
-          CHANGES=$(rsync -anic --delete tmp-src/master-src/ origin-src/ | tail -n +2)
+          mkdir -p origin-src
+          CHANGES=$(rsync -rcnc --delete --out-format='%n' master-src/ origin-src/ | grep -v '^$' || true)
           if [ -n "$CHANGES" ]; then
-            echo "pr_needed=true"  >> $GITHUB_ENV
-            echo "$CHANGES"        # optional log
+            echo "pr_needed=true"  >> "$GITHUB_ENV"
+            printf '%s\n' "$CHANGES"
           else
-            echo "pr_needed=false" >> $GITHUB_ENV
+            echo "pr_needed=false" >> "$GITHUB_ENV"
           fi
 
       - name: Update origin-src content
@@ -55,9 +54,11 @@ jobs:
           else
             git checkout -B master-ko
           fi
-          rsync -a --delete tmp-src/master-src/ origin-src/
+          rsync -a --delete master-src/ origin-src/
           git add -A origin-src
-          git commit -m "Sync origin-src with latest origin/master/src (auto)"
+          if ! git diff --cached --quiet; then
+            git commit -m "Sync origin-src with latest origin/master/src (auto)"
+          fi
 
       - name: Find existing update-origin-src PR
         if: ${{ env.pr_needed == 'true' }}
@@ -67,11 +68,11 @@ jobs:
         shell: bash
         run: |
           branch=$(gh pr list --json headRefName \
-                     --jq '.[] | select(.headRefName | startswith("update-origin-src-")) | .headRefName' \
-                     | head -n1)
-          echo "branch=$branch" >> $GITHUB_OUTPUT
+                   --jq '.[] | select(.headRefName | startswith("update-origin-src-")) | .headRefName' \
+                   | head -n1)
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
 
-      - name: Force‑push to existing branch
+      - name: Force-push to existing branch
         if: ${{ env.pr_needed == 'true' && steps.pr-branch.outputs.branch != '' }}
         shell: bash
         run: |
@@ -88,6 +89,6 @@ jobs:
           git push origin "$new_branch"
           gh pr create \
             --title "Update origin-src for translation" \
-            --body  "Auto‑sync **origin-src** with the latest **src** directory from **origin/master**." \
+            --body  "Auto-sync **origin-src** with the latest **src** directory from **origin/master**." \
             --head  "$new_branch" \
             --base  master-ko
