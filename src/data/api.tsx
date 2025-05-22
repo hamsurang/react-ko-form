@@ -268,7 +268,8 @@ const onSubmit = (data) => {
         <p>
           <b className={typographyStyles.note}>Note:</b> only registered fields
           with a <code>ref</code> will work. Custom registered inputs do not
-          apply. For example: <code>{`register('test') // doesn't work`}</code>{" "}
+          apply. For example:{" "}
+          <code>{`register('test') // doesn't work`}</code>{" "}
         </p>
 
         <p>
@@ -2069,7 +2070,8 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ sugar syntax t
                     </Link>
                     <p>
                       <b className={typographyStyles.note}>Important: </b>This
-                      is only applicable to <strong>built-in</strong> validation.
+                      is only applicable to <strong>built-in</strong>{" "}
+                      validation.
                     </p>
                   </p>
                 </td>
