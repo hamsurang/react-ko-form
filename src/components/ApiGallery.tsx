@@ -1,4 +1,5 @@
 import { useEffect } from "react"
+import type { MouseEventHandler } from "react"
 import Link from "next/link"
 import Footer from "./Footer"
 import typographyStyles from "../styles/typography.module.css"
@@ -10,9 +11,10 @@ import { useRouter } from "next/router"
 export default function ApiGallery() {
   const router = useRouter()
 
-  const onChange = (e) => {
-    const version = parseInt(e.target.value)
-
+  const onChange: MouseEventHandler<HTMLButtonElement> = (e) => {
+    const version = parseInt(
+      (e.target as HTMLElement).getAttribute("value") as string
+    )
     if (version !== 7) {
       router.push(`https://legacy.react-hook-form.com/v${version}/api`)
     } else {
