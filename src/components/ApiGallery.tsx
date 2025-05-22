@@ -160,6 +160,24 @@ export default function ApiGallery() {
               </Link>
             </div>
           </li>
+          <li>
+            <div>
+              <h3>
+                <code>{`</>`}</code>createFormControl
+              </h3>
+              <p className={styles.beta}>BETA @v7.55.0-next.3</p>
+              <p>
+                React 컴포넌트 바깥에서 폼 컨트롤 객체를 생성하고 폼 상태를
+                구독하며, 컨텍스트 없이도 메서드에 접근할 수 있습니다.
+              </p>
+              <Link
+                href="/docs/createFormControl"
+                aria-label="read more about usefieldarray"
+              >
+                Read More ▸
+              </Link>
+            </div>
+          </li>
         </ul>
 
         <div className={styles.versionControl}>
