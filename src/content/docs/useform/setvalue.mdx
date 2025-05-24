@@ -1,71 +1,71 @@
 ---
 title: setValue
-description: Update field value
+description: 필드 값 업데이트
 sidebar: apiLinks
 ---
 
 ## \</> `setValue:` <TypeText>(name: string, value: unknown, config?: SetValueConfig) => void</TypeText>
 
-This function allows you to dynamically set the value of a <strong>registered</strong> field and have the options to validate and update the form state. At the same time, it tries to avoid unnecessary rerender.
+이 함수는 <strong>등록된(registered)</strong> 필드의 값을 동적으로 설정하고, 유효성 검사 및 폼 상태 업데이트와 관련된 옵션을 제공합니다. 동시에 불필요한 리렌더링을 방지합니다.
 
 ### Props
 
 ---
 
-| Name                                     |                                                   | Description                                                                                                                                                                                                                                                                                                                                                                                              |
-| ---------------------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`<br/><TypeText>string</TypeText>   |                                                   | Target a single field or field array by name.                                                                                                                                                                                                                                                                                                                                                            |
-| `value`<br/><TypeText>unknown</TypeText> |                                                   | The value for the field. This argument is required and can not be `undefined`.                                                                                                                                                                                                                                                                                                                           |
-| `options`                                | `shouldValidate`<br/><TypeText>boolean</TypeText> | <ul><li>Whether to compute if your input is valid or not (subscribed to <TypeText>errors</TypeText>).</li><li>Whether to compute if your entire form is valid or not (subscribed to <TypeText>isValid</TypeText>).</li>This option will update `touchedFields` at the specified field level not the entire form touched fields.</ul>                                                                     |
-|                                          | `shouldDirty`<br/><TypeText>boolean</TypeText>    | <ul><li>Whether to compute if your input is dirty or not against your `defaultValues` (subscribed to <TypeText>dirtyFields</TypeText>).</li><li>Whether to compute if your entire form is dirty or not against your `defaultValues` (subscribed to <TypeText>isDirty</TypeText>).</li><li>This option will update `dirtyFields` at the specified field level not the entire form dirty fields.</li></ul> |
-|                                          | `shouldTouch`<br/><TypeText>boolean</TypeText>    | Whether to set the input itself to be touched.                                                                                                                                                                                                                                                                                                                                                           |
+| Name                                     |                                                   | Description                                                                                                                                                                                                                                                                                                                                                              |
+| ---------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `name`<br/><TypeText>string</TypeText>   |                                                   | 이름으로 단일 필드를 타겟.                                                                                                                                                                                                                                                                                                                                               |
+| `value`<br/><TypeText>unknown</TypeText> |                                                   | 필드 값. 이 인자는 필수이며 `undefined`일 수 없습니다.                                                                                                                                                                                                                                                                                                                   |
+| `options`                                | `shouldValidate`<br/><TypeText>boolean</TypeText> | <ul><li>입력값의 유효성을 계산할지 여부. (구독 대상: <TypeText>errors</TypeText>).</li><li>전체 폼의 유효성을 계산할지 여부 (구독 대상: <TypeText>isValid</TypeText>).</li>이 옵션은 전체 폼의 터치된 필드가 아닌 특정 필드 레벨에서만 `touchedFields`를 업데이트.</ul>                                                                                                  |
+|                                          | `shouldDirty`<br/><TypeText>boolean</TypeText>    | <ul><li>`defaultValues`과 비교해서 해당 입력이 수정되었는지 판단할지 여부를 결정. (구독 대상: <TypeText>dirtyFields</TypeText>).</li><li>`defaultValues`과 비교해서 전체 폼이 수정되었는지 판단할지 여부를 결정. (구독 대상: <TypeText>isDirty</TypeText>).</li><li>이 옵션은 전체 폼 필드의 레벨이 아닌 특정 필드 레벨에서만 `dirtyFields`를 업데이트합니다. </li></ul> |
+|                                          | `shouldTouch`<br/><TypeText>boolean</TypeText>    | 입력 필드 자체를 터치된 상태로 설정할지 여부.                                                                                                                                                                                                                                                                                                                            |
 
 <Admonition type="important" title="Rules">
 
-- You can use methods such as [replace](/docs/usefieldarray#replace) or [update](/docs/usefieldarray#update) for field array, however, they will cause the component to unmount and remount for the targeted field array.
+- 필드 배열에 [replace](/docs/usefieldarray#replace)나 [update](/docs/usefieldarray#update)와 같은 메서드를 사용할 수 있지만, 이 메서드들은 대상 필드 배열의 컴포넌트를 언마운트하고 다시 마운트하게 합니다.
 
   ```javascript
   const { update } = useFieldArray({ name: "array" })
 
-  // unmount fields and remount with updated value
+  // 필드를 언마운트하고 업데이트된 값으로 다시 마운트
   update(0, { test: "1", test1: "2" })
 
-  // will directly update input value
+  // 입력 값을 직접 업데이트
   setValue("array.0.test1", "1")
   setValue("array.0.test2", "2")
   ```
 
-- The method will not create a new field when targeting a non-existing field.
+- 존재하지 않는 필드를 대상으로 지정하면 이 메서드는 새 필드를 생성하지 않습니다.
 
   ```javascript
   const { replace } = useFieldArray({ name: "test" })
 
-  // ❌ doesn't create new input
+  // ❌ 새로운 입력 필드를 생성하지 않음
   setValue("test.101.data")
 
-  // ✅ work on refresh entire field array
+  // ✅ 전체 필드 배열을 새로 고침
   replace([{ data: "test" }])
   ```
 
-- Only the following conditions will trigger a re-render:
+- 다음 조건에서만 리렌더링이 트리거됩니다:
 
-  - When an error is triggered or corrected by a value update.
-  - When `setValue` cause state update, such as dirty and touched.
+  - 값 업데이트로 인해 에러가 발생하거나 수정된 경우.
+  - `setValue`가 dirty나 touched와 같은 상태 업데이트를 유발하는 경우.
 
-- It's recommended to target the field's name rather than make the second argument a nested object.
+  - 두 번째 인자를 중첩된 객체로 만드는 것보다 필드 이름을 대상으로 설정하는 것이 좋습니다.
 
   ```javascript
-  setValue("yourDetails.firstName", "value") // ✅ performant
-  setValue("yourDetails", { firstName: "value" }) ❌ // less performant
+  setValue("yourDetails.firstName", "value") // ✅ 성능이 뛰어남
+  setValue("yourDetails", { firstName: "value" }) ❌ // 성능이 떨어짐
 
-  register("nestedValue", { value: { test: "data" } }) // register a nested value input
-  setValue("nestedValue.test", "updatedData") // ❌ failed to find the relevant field
-  setValue("nestedValue", { test: "updatedData" }) // ✅ setValue find input and update
+  register("nestedValue", { value: { test: "data" } }) // 중첩된 입력값을 등록(register)
+  setValue("nestedValue.test", "updatedData") // ❌ 관련 필드를 찾지 못함
+  setValue("nestedValue", { test: "updatedData" }) // ✅ setValue가 입력을 찾고 업데이트
   ```
 
-- It's recommended to register the input's name before invoking `setValue`. To update the entire `FieldArray`, make sure the `useFieldArray` hook is being executed first.
+- `setValue`를 호출하기 전에 입력의 이름을 등록하는 것이 좋습니다. `전체 필드 배열`을 업데이트하려면, `useFieldArray` 훅이 먼저 실행되고 있는지 확인하세요.
 
-  **Important:** use `replace` from `useFieldArray` instead, update entire field array with `setValue` will be removed in the next major version.
+  **중요:** 전체 필드 배열을 업데이트할 때는 `setValue` 대신 `useFieldArray`의 `replace`를 사용하세요. `setValue`를 사용한 전체 필드 배열 업데이트는 다음 메이저 버전에서 제거될 예정입니다.
 
   ```javascript
   // you can update an entire Field Array,
