@@ -1,6 +1,6 @@
 ---
 title: createFormControl
-description: Create form state and ready to be subscribed (BETA)
+description: Create form state and ready to be subscribed
 sidebar: apiLinks
 ---
 
@@ -18,17 +18,18 @@ This function create the entire form state subscription and allow you to subscri
 
 ---
 
-| Name          | Type                           | Description                                                    |
-| ------------- | ------------------------------ | -------------------------------------------------------------- |
-| `formControl` | <TypeText>Object</TypeText>    | control object for `useForm` hook                              |
-| `control`     | <TypeText>Object</TypeText>    | control object for `useController`, `useFormState`, `useWatch` |
-| `...returns`  | <TypeText>Functions</TypeText> | `useForm` return methods                                       |
+| Name          | Type                           | Description                                                                           |
+| ------------- | ------------------------------ | ------------------------------------------------------------------------------------- |
+| `formControl` | <TypeText>Object</TypeText>    | control object for `useForm` hook                                                     |
+| `control`     | <TypeText>Object</TypeText>    | control object for `useController`, `useFormState`, `useWatch`                        |
+| `subscribe`   | <TypeText>Function</TypeText>  | function to [subscribe](/docs/useform/subscribe) for form state update without render |
+| `...returns`  | <TypeText>Functions</TypeText> | `useForm` return methods                                                              |
 
 <Admonition type="important" title="Notes">
-  - This function is published at **v7.55.0-next.3** - This function is
-  completely optional, you can consider to use this instead of `useFormContext`
-  API. - You may find it useful if you would like to subscribe formsState by
-  skipping react re-render.
+  - This function is published at **v7.55.0** - This function is completely
+  optional, you can consider to use this instead of `useFormContext` API. - You
+  may find it useful if you would like to subscribe formsState by skipping react
+  re-render.
 </Admonition>
 
 <Admonition type="important" title="Rules">
