@@ -1,12 +1,12 @@
 ---
 title: register
-description: Register uncontrolled/controlled inputs
+description: 비제어/제어 입력 필드 등록(register)
 sidebar: apiLinks
 ---
 
 ## \</> `register:` <TypeText>`(name: string, options?: RegisterOptions) => ({ ref, name, onChange, onBlur })`</TypeText>
 
-This method allows you to register an input or select element and apply validation rules to React Hook Form. Validation rules are all based on the HTML standard and also allow for custom validation methods.
+이 메서드를 사용하면 입력 또는 선택 요소를 등록(register)하고 React Hook Form에 유효성 검사 규칙을 적용할 수 있습니다. 유효성 검사 규칙은 모두 HTML 표준을 기반으로 하며 사용자 정의 유효성 검사 메서드도 허용합니다.
 
 ### Props
 
@@ -14,23 +14,23 @@ This method allows you to register an input or select element and apply validati
 
 | Name      | Type                                 | Description       |
 | --------- | ------------------------------------ | ----------------- |
-| `name`    | <TypeText>string</TypeText>          | Input's name.     |
-| `options` | <TypeText>RegisterOptions</TypeText> | Input's behavior. |
+| `name`    | <TypeText>string</TypeText>          | 입력 필드의 이름. |
+| `options` | <TypeText>RegisterOptions</TypeText> | 입력 필드의 동작. |
 
 ### Return
 
 ---
 
-| Name       | Type                               | Description                                               |
-| ---------- | ---------------------------------- | --------------------------------------------------------- |
-| `ref`      | <TypeText>React.ref</TypeText>     | React element ref used to connect hook form to the input. |
-| `name`     | <TypeText>string</TypeText>        | Input's name being registered.                            |
-| `onChange` | <TypeText>ChangeHandler</TypeText> | `onChange` prop to subscribe the input change event.      |
-| `onBlur`   | <TypeText>ChangeHandler</TypeText> | `onBlur` prop to subscribe the input blur event.          |
+| Name       | Type                               | Description                                                        |
+| ---------- | ---------------------------------- | ------------------------------------------------------------------ |
+| `ref`      | <TypeText>React.ref</TypeText>     | hook form을 입력 필드에 연결하기 위해 사용하는 React 엘리먼트 ref. |
+| `name`     | <TypeText>string</TypeText>        | 등록(registered)된 입력의 이름.                                    |
+| `onChange` | <TypeText>ChangeHandler</TypeText> | `onChange` 속성은 입력 변경 이벤트를 구독합니다.                   |
+| `onBlur`   | <TypeText>ChangeHandler</TypeText> | `onBlur` 속성은 입력 블러(blur) 이벤트를 구독합니다.               |
 
 <Admonition type="note">
 
-This is how submitted values will look like:
+제출된 값은 다음과 같은 형태로 표시됩니다:
 
 | Input Name                                        | Submit Result                                             |
 | ------------------------------------------------- | --------------------------------------------------------- |
@@ -50,49 +50,49 @@ By selecting the register option, the API table below will get updated.
 
 <div style={{ background: 'var(--color-primary)', padding: 20 }}>
 
-| Name                                                                          | Description                                                                                                                                                                                                                                                                                                                    |
-| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `ref`<TypeText pre>React.Ref</TypeText>                                       | React element `ref`                                                                                                                                                                                                                                                                                                            |
-| `required`<TypeText pre>boolean</TypeText>                                    | Indicates that the input must have a value before the form can be submitted.<br/><br/>**Note:** This config aligns with web constrained API for required input validation, for object or array type of input use validate function instead.                                                                                    |
-| `maxLength`<TypeText pre>number</TypeText>                                    | The maximum length of the value to accept for this input.                                                                                                                                                                                                                                                                      |
-| `minLength`<TypeText pre>number</TypeText>                                    | The minimum length of the value to accept for this input.                                                                                                                                                                                                                                                                      |
-| `max`<TypeText pre>number</TypeText>                                          | The maximum value to accept for this input.                                                                                                                                                                                                                                                                                    |
-| `min`<TypeText pre>number</TypeText>                                          | The minimum value to accept for this input.                                                                                                                                                                                                                                                                                    |
-| `pattern`<TypeText pre>RegExp</TypeText>                                      | The regex pattern for the input.<br/><br/>**Note:** `RegExp` with the `/g` flag keeps track of the last index where a match occurred.                                                                                                                                                                                          |
-| `validate`<TypeText pre>Function \|<br/>`Record<string, Function>`</TypeText> | Validate function will be executed on its own without depending on other validation rules included in the required attribute.<br/><br/>**Note:** for object or array input data, it's recommended to use the validate function for validation as the other rules mostly apply to string, array of strings, number and boolean. |
-| `valueAsNumber`<TypeText pre>boolean</TypeText>                               | Returns `Number` normally. If something goes wrong `NaN` will be returned.<br/><ul><li>`valueAs` process is happening **before** validation.</li><li>Only applies to number input, but without any data manipulation.</li><li>Does not transform `defaultValue` or `defaultValues`.</li></ul>                                  |
-| `valueAsDate`<TypeText pre>boolean</TypeText>                                 | Returns `Date` normally. If something goes wrong `Invalid Date` will be returned.<br/><ul><li>`valueAs` process is happening **before** validation.</li><li>Only applies to input.</li><li>Does not transform `defaultValue` or `defaultValues`.</li></ul>                                                                     |
-| `setValueAs`<TypeText pre>\<T\>(value: any) => T</TypeText>                   | Return input value by running through the function.<br/><ul><li>`valueAs` process is happening **before** validation. Also, `setValueAs` is ignored if either `valueAsNumber` or `valueAsDate` are true.</li><li>Only applies to text input.</li><li>Does not transform `defaultValue` or `defaultValues`.</li></ul>           |
-| `disabled`<TypeText pre>boolean = false</TypeText>                            | Set `disabled` to `true` will lead input value to be `undefined` and input control to be disabled.<br/><ul><li>`disabled` prop will also omit built-in validation rules.</li><li>For schema validation, you can leverage the `undefined` value returned from input or context object.</li></ul>                                |
-| `onChange`<TypeText pre>(e: SyntheticEvent) => void</TypeText>                | `onChange` function event to be invoked in the change event.                                                                                                                                                                                                                                                                   |
-| `onBlur`<TypeText pre>(e: SyntheticEvent) => void</TypeText>                  | `onBlur` function event to be invoked in the blur event.                                                                                                                                                                                                                                                                       |
-| `value`<TypeText pre>unknown</TypeText>                                       | Set up `value` for the registered input. This prop should be utilised inside `useEffect` or invoke once, each re-run will update or overwrite the input value which you have supplied.                                                                                                                                         |
-| `shouldUnregister`<TypeText pre>boolean</TypeText>                            | Input will be unregistered after unmount and `defaultValues` will be removed as well.<br/><br/>**Note:** this prop should be avoided when using with `useFieldArray` as unregister function gets called after input unmount/remount and reorder.                                                                               |
-| `deps`<TypeText pre>string \| string[]</TypeText>                             | Validation will be triggered for the dependent inputs, it only limited to register api not trigger.                                                                                                                                                                                                                            |
+| Name                                                                          | Description                                                                                                                                                                                                                                                                                                       |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ref`<TypeText pre>React.Ref</TypeText>                                       | React 엘리먼트 `ref`                                                                                                                                                                                                                                                                                              |
+| `required`<TypeText pre>boolean</TypeText>                                    | 폼을 제출하기 전에 해당 입력 필드에 값이 있어야 함을 나타냅니다.<br/><br/>**참고:** 이 구성은 필수 입력 유효성 검사를 위한 웹 제한 API와 일치합니다. 객체나 배열 유형의 입력인 경우 validate 함수를 대신 사용하세요.                                                                                              |
+| `maxLength`<TypeText pre>number</TypeText>                                    | 이 입력에서 허용할 값의 최대 길이.                                                                                                                                                                                                                                                                                |
+| `minLength`<TypeText pre>number</TypeText>                                    | 이 입력에서 허용할 값의 최소 길이.                                                                                                                                                                                                                                                                                |
+| `max`<TypeText pre>number</TypeText>                                          | 이 입력에서 허용할 최대값.                                                                                                                                                                                                                                                                                        |
+| `min`<TypeText pre>number</TypeText>                                          | 이 입력에서 허용할 최소값.                                                                                                                                                                                                                                                                                        |
+| `pattern`<TypeText pre>RegExp</TypeText>                                      | 입력에 대한 정규식 패턴.<br/><br/>**참고:** `/g` 플래그를 가진 `RegExp` 객체는 일치가 발생한 마지막 인덱스를 추적합니다.                                                                                                                                                                                          |
+| `validate`<TypeText pre>Function \|<br/>`Record<string, Function>`</TypeText> | Validate 함수는 required 속성에 포함된 다른 유효성 검사 규칙에 의존하지 않고 독립적으로 실행됩니다. <br/><br/>**참고:** 다른 규칙들은 주로 문자열, 문자열 배열(string[]), 숫자 및 boolean 데이터 타입에 적용되기 때문에 객체 또는 배열 입력 데이터의 경우 유효성 검사에 validate 함수를 사용하는 것이 권장됩니다. |
+| `valueAsNumber`<TypeText pre>boolean</TypeText>                               | 보통 숫자를 반환합니다. 문제가 발생하면 `NaN` 이 반환됩니다. <br/><ul><li>`valueAs` 프로세스는 유효성 검사 **전**에 발생합니다.</li><li>숫자 입력 필드에만 적용되며, 데이더 조작 없이 동작합니다.</li><li>`defaultValue`나 `defaultValues`는 변환되지 않습니다.</li></ul>                                         |
+| `valueAsDate`<TypeText pre>boolean</TypeText>                                 | 보통 `Date`객체를 반환합니다. 문제가 발생하면 `Invalid Date`가 반환됩니다. <br/><ul><li>`valueAs` 프로세스는 유효성 검사 **전**에 발생합니다.</li><li>입력 필드에만 적용됩니다.</li><li> `defaultValue`나 `defaultValues`는 변환되지 않습니다.</li></ul>                                                          |
+| `setValueAs`<TypeText pre>\<T\>(value: any) => T</TypeText>                   | 함수를 실행하여 입력값을 반환합니다.<br/><ul><li>`valueAs` 프로세스는 유효성 검사 **전**에 발생합니다. 또한, `valueAsNumber`나 `valueAsDate`가 true인 경우 `setValueAs`는 무시됩니다. </li><li>텍스트 입력 필드에만 적용됩니다.</li><li>`defaultValue`나 `defaultValues`는 변환되지 않습니다.</li></ul>           |
+| `disabled`<TypeText pre>boolean = false</TypeText>                            | `disabled`를 `true`로 설정하면 입력 값이 `undefined`가 되며 입력 컨트롤이 비활성화됩니다. <br/><ul><li>`disabled` 속성은 내장된 유효성 검사 규칙도 제외합니다.</li><li>스키마 유효성 검사를 위해, 입력 또는 컨텍스트 객체에서 반환된 `undefined` 값을 활용할 수 있습니다.</li></ul>                               |
+| `onChange`<TypeText pre>(e: SyntheticEvent) => void</TypeText>                | 변경 이벤트에서 호출될 `onChange` 함수.                                                                                                                                                                                                                                                                           |
+| `onBlur`<TypeText pre>(e: SyntheticEvent) => void</TypeText>                  | 블러(blur) 이벤트에서 호출될 `onBlur` 함수.                                                                                                                                                                                                                                                                       |
+| `value`<TypeText pre>unknown</TypeText>                                       | 등록된(registered) 입력의 값을 설정합니다. 이 속성은 `useEffect` 내부에서 사용하거나 한 번만 호출해야 하며, 재실행할 때마다 입력 값을 업데이트하거나 덮어씁니다.                                                                                                                                                  |
+| `shouldUnregister`<TypeText pre>boolean</TypeText>                            | 입력이 언마운트된 후 등록이 해제되며 `defaultValues`도 제거됩니다.<br/><br/>**참고:** 이 속성은 입력이 언마운트/리마운트 및 재정렬된 후 `unregister` 함수가 호출되므로 `useFieldArray`와 함께 사용할 때 피해야 합니다.                                                                                            |
+| `deps`<TypeText pre>string \| string[]</TypeText>                             | 유효성 검사는 종속 입력에 대해 트리거 됩니다. 이는 trigger가 아닌 register api 에만 제한됩니다.                                                                                                                                                                                                                   |
 
 </div>
 
 <div style={{ background: 'var(--color-primary)', padding: 20 }}>
 
-| Name                                                                                                           | Description                                                                                                                                                                                                                                                                                                                    |
-| -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `ref`<TypeText pre>React.Ref</TypeText>                                                                        | React element `ref`                                                                                                                                                                                                                                                                                                            |
-| `required`<TypeText pre>string \|<br/><PrettyObject value={{value: 'boolean', message: 'string'}}/></TypeText> | Indicates that the input must have a value before the form can be submitted. <br/><br/>**Note:** This config aligns with web constrained API for required input validation, for object or array type of input use validate function instead.                                                                                   |
-| `maxLength`<TypeText pre><PrettyObject value={{value: 'number', message: 'string'}}/></TypeText>               | The maximum length of the value to accept for this input.                                                                                                                                                                                                                                                                      |
-| `minLength`<TypeText pre><PrettyObject value={{value: 'number', message: 'string'}}/></TypeText>               | The minimum length of the value to accept for this input.                                                                                                                                                                                                                                                                      |
-| `max`<TypeText pre><PrettyObject value={{value: 'number', message: 'string'}}/></TypeText>                     | The maximum value to accept for this input.                                                                                                                                                                                                                                                                                    |
-| `min`<TypeText pre><PrettyObject value={{value: 'number', message: 'string'}}/></TypeText>                     | The minimum value to accept for this input.                                                                                                                                                                                                                                                                                    |
-| `pattern`<TypeText pre><PrettyObject value={{value: 'RegExp', message: 'string'}}/></TypeText>                 | The regex pattern for the input.<br/><br/>**Note:** `RegExp` with the `/g` flag keeps track of the last index where a match occurred.                                                                                                                                                                                          |
-| `validate`<TypeText pre>Function \|<br/>`Record<string, Function>`</TypeText>                                  | Validate function will be executed on its own without depending on other validation rules included in the required attribute.<br/><br/>**Note:** for object or array input data, it's recommended to use the validate function for validation as the other rules mostly apply to string, array of strings, number and boolean. |
-| `valueAsNumber`<TypeText pre>boolean</TypeText>                                                                | Returns `Number` normally. If something goes wrong `NaN` will be returned.<br/><ul><li>`valueAs` process is happening **before** validation.</li><li>Only applies to number input, but without any data manipulation.</li><li>Does not transform `defaultValue` or `defaultValues`.</li></ul>                                  |
-| `valueAsDate`<TypeText pre>boolean</TypeText>                                                                  | Returns `Date` normally. If something goes wrong `Invalid Date` will be returned.<br/><ul><li>`valueAs` process is happening **before** validation.</li><li>Only applies to input.</li><li>Does not transform `defaultValue` or `defaultValues`.</li></ul>                                                                     |
-| `setValueAs`<TypeText pre>\<T\>(value: any) => T</TypeText>                                                    | Return input value by running through the function.<br/><ul><li>`valueAs` process is happening **before** validation. Also, `setValueAs` is ignored if either `valueAsNumber` or `valueAsDate` are true.</li><li>Only applies to text input.</li><li>Does not transform `defaultValue` or `defaultValues`.</li></ul>           |
-| `disabled`<TypeText pre>boolean = false</TypeText>                                                             | Set `disabled` to `true` will lead input value to be `undefined` and input control to be disabled.<br/><ul><li>`disabled` prop will also omit built-in validation rules.</li><li>For schema validation, you can leverage the `undefined` value returned from input or context object.</li></ul>                                |
-| `onChange`<TypeText pre>(e: SyntheticEvent) => void</TypeText>                                                 | `onChange` function event to be invoked in the change event.                                                                                                                                                                                                                                                                   |
-| `onBlur`<TypeText pre>(e: SyntheticEvent) => void</TypeText>                                                   | `onBlur` function event to be invoked in the blur event.                                                                                                                                                                                                                                                                       |
-| `value`<TypeText pre>unknown</TypeText>                                                                        | Set up `value` for the registered input. This prop should be utilised inside `useEffect` or invoke once, each re-run will update or overwrite the input value which you have supplied.                                                                                                                                         |
-| `shouldUnregister`<TypeText pre>boolean</TypeText>                                                             | Input will be unregistered after unmount and `defaultValues` will be removed as well.<br/><br/>**Note:** this prop should be avoided when using with `useFieldArray` as unregister function gets called after input unmount/remount and reorder.                                                                               |
-| `deps`<TypeText pre>string \| string[]</TypeText>                                                              | Validation will be triggered for the dependent inputs, it only limited to register api not trigger.                                                                                                                                                                                                                            |
+| Name                                                                                                           | Description                                                                                                                                                                                                                                                                                                       |
+| -------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ref`<TypeText pre>React.Ref</TypeText>                                                                        | React 엘리먼트 `ref`                                                                                                                                                                                                                                                                                              |
+| `required`<TypeText pre>string \|<br/><PrettyObject value={{value: 'boolean', message: 'string'}}/></TypeText> | 폼을 제출하기 전에 해당 입력 필드에 값이 있어야 함을 나타냅니다.<br/><br/>**참고:** 이 구성은 필수 입력 유효성 검사를 위한 웹 제한 API와 일치합니다. 객체나 배열 유형의 입력인 경우 validate 함수를 대신 사용하세요.                                                                                              |
+| `maxLength`<TypeText pre><PrettyObject value={{value: 'number', message: 'string'}}/></TypeText>               | 이 입력에서 허용할 값의 최대 길이.                                                                                                                                                                                                                                                                                |
+| `minLength`<TypeText pre><PrettyObject value={{value: 'number', message: 'string'}}/></TypeText>               | 이 입력에서 허용할 값의 최소 길이.                                                                                                                                                                                                                                                                                |
+| `max`<TypeText pre><PrettyObject value={{value: 'number', message: 'string'}}/></TypeText>                     | 이 입력에서 허용할 최대값.                                                                                                                                                                                                                                                                                        |
+| `min`<TypeText pre><PrettyObject value={{value: 'number', message: 'string'}}/></TypeText>                     | 이 입력에서 허용할 최소값.                                                                                                                                                                                                                                                                                        |
+| `pattern`<TypeText pre><PrettyObject value={{value: 'RegExp', message: 'string'}}/></TypeText>                 | 입력에 대한 정규식 패턴.<br/><br/>**참고:** `/g` 플래그를 가진 `RegExp` 객체는 일치가 발생한 마지막 인덱스를 추적합니다.                                                                                                                                                                                          |
+| `validate`<TypeText pre>Function \|<br/>`Record<string, Function>`</TypeText>                                  | Validate 함수는 required 속성에 포함된 다른 유효성 검사 규칙에 의존하지 않고 독립적으로 실행됩니다. <br/><br/>**참고:** 다른 규칙들은 주로 문자열, 문자열 배열(string[]), 숫자 및 boolean 데이터 타입에 적용되기 때문에 객체 또는 배열 입력 데이터의 경우 유효성 검사에 validate 함수를 사용하는 것이 권장됩니다. |
+| `valueAsNumber`<TypeText pre>boolean</TypeText>                                                                | 보통 숫자를 반환합니다. 문제가 발생하면 `NaN` 이 반환됩니다. <br/><ul><li>`valueAs` 프로세스는 유효성 검사 **전**에 발생합니다.</li><li>숫자 입력 필드에만 적용되며, 데이더 조작 없이 동작합니다.</li><li>`defaultValue`나 `defaultValues`는 변환되지 않습니다.</li></ul>                                         |
+| `valueAsDate`<TypeText pre>boolean</TypeText>                                                                  | 보통 `Date`객체를 반환합니다. 문제가 발생하면 `Invalid Date`가 반환됩니다. <br/><ul><li>`valueAs` 프로세스는 유효성 검사 **전**에 발생합니다.</li><li>입력 필드에만 적용됩니다.</li><li> `defaultValue`나 `defaultValues`는 변환되지 않습니다.</li></ul>                                                          |
+| `setValueAs`<TypeText pre>\<T\>(value: any) => T</TypeText>                                                    | 함수를 실행하여 입력값을 반환합니다.<br/><ul><li>`valueAs` 프로세스는 유효성 검사 **전**에 발생합니다. 또한, `valueAsNumber`나 `valueAsDate`가 true인 경우 `setValueAs`는 무시됩니다. </li><li>텍스트 입력 필드에만 적용됩니다.</li><li>`defaultValue`나 `defaultValues`는 변환되지 않습니다.</li></ul>           |
+| `disabled`<TypeText pre>boolean = false</TypeText>                                                             | `disabled`를 `true`로 설정하면 입력 값이 `undefined`가 되며 입력 컨트롤이 비활성화됩니다. <br/><ul><li>`disabled` 속성은 내장된 유효성 검사 규칙도 제외합니다.</li><li>스키마 유효성 검사를 위해, 입력 또는 컨텍스트 객체에서 반환된 `undefined` 값을 활용할 수 있습니다.</li></ul>                               |
+| `onChange`<TypeText pre>(e: SyntheticEvent) => void</TypeText>                                                 | 변경 이벤트에서 호출될 `onChange` 함수.                                                                                                                                                                                                                                                                           |
+| `onBlur`<TypeText pre>(e: SyntheticEvent) => void</TypeText>                                                   | 블러(blur) 이벤트에서 호출될 `onBlur` 함수.                                                                                                                                                                                                                                                                       |
+| `value`<TypeText pre>unknown</TypeText>                                                                        | 등록된(registered) 입력의 값을 설정합니다. 이 속성은 `useEffect` 내부에서 사용하거나 한 번만 호출해야 하며, 재실행할 때마다 입력 값을 업데이트하거나 덮어씁니다.                                                                                                                                                  |
+| `shouldUnregister`<TypeText pre>boolean</TypeText>                                                             | 입력이 언마운트된 후 등록이 해제되며 `defaultValues`도 제거됩니다.<br/><br/>**참고:** 이 속성은 입력이 언마운트/리마운트 및 재정렬된 후 `unregister` 함수가 호출되므로 `useFieldArray`와 함께 사용할 때 피해야 합니다.                                                                                            |
+| `deps`<TypeText pre>string \| string[]</TypeText>                                                              | 유효성 검사는 종속 입력에 대해 트리거 됩니다. 이는 trigger가 아닌 register api 에만 제한됩니다.                                                                                                                                                                                                                   |
 
 </div>
 
@@ -102,17 +102,14 @@ By selecting the register option, the API table below will get updated.
 
 <ul>
   <li>
-    Name is **required** and **unique** (except native radio and checkbox).
-    Input name supports both dot and bracket syntax, which allows you to easily
-    create nested form fields.
+    이름은 **필수**이며 **고유**해야 합니다(기본 라디오 및 체크박스 제외).
+    입력 이름은 점과 대괄호 구문을 모두 지원하므로 중첩된 폼 필드를 쉽게 만들 수 있습니다.
   </li>
   <li>
-    Name can neither start with a number nor use number as key name. Please
-    avoid special characters as well.
+    이름은 은 숫자로 시작하거나 키 이름으로 숫자를 사용할 수 없습니다. 특수 문자의 사용도 피해야 합니다.
   </li>
   <li>
-    We are using dot syntax only for typescript usage consistency, so bracket `[]`
-    will not work for array form value.
+    TypeScript 사용 시 일관성을 위해 점 구문만을 사용하고 있으므로, 배열 폼 값에는 대괄호 `[]` 를 사용할 수 없습니다.
     
 ```javascript
 register('test.0.firstName'); // ✅
@@ -121,16 +118,16 @@ register('test[0]firstName'); // ❌
 
   </li>
   
-  <li>Disabled input will result in an undefined form value. If you want to prevent users from updating the input, you can use `readOnly` or `disable` the entire `fieldset`. Here is an [example](https://codesandbox.io/s/react-hook-form-disabled-inputs-oihxx).</li>
+  <li>비활성화된 입력은 undefined 폼 값을 결과로 제공합니다. 사용자가 입력을 업데이트하지 못하도록 하려면 `readOnly`를 사용하거나 전체 `fieldset`을 비활성화할 수 있습니다. 다음은 [예제](https://codesandbox.io/s/react-hook-form-disabled-inputs-oihxx)입니다.</li>
   
-  <li>To produce an array of fields, input names should be followed by a dot and number. For example: `test.0.data`</li>
+  <li>필드 배열을 생성하려면 입력 이름 뒤에 점과 숫자를 붙여야 합니다. 예: `test.0.data`</li>
   
-  <li>Changing the name on each render will result in new inputs being registered. It's recommended to keep static names for each registered input.</li>
+  <li>렌더링할 때마다 이름을 변경하면 새로운 입력이 등록(registered)됩니다. 따라서 각 등록된(registered) 입력에 대해 고정된 이름을 사용하는 것이 좋습니다.</li>
   
-  <li>Input value and reference will no longer gets removed based on unmount. You can invoke unregister to remove that value and reference.</li>
+  <li>언마운트에 따라 입력 값과 참조는 더 이상 제거되지 않습니다. 해당 값과 참조를 제거하려면 unregister를 호출할 수 있습니다.</li>
   
   <li>
-  Individual register option can't be removed by `undefined` or `{}`. You can update individual attribute instead.
+  개별 register 옵션은 `undefined`나 `{}`로 제거할 수 없습니다. 대신 개별 속성을 업데이트할 수 있습니다.
   
 ```javascript
 register('test', { required: true });
@@ -141,7 +138,7 @@ register('test', { required: false });  // ✅
   
   </li>
 
-    <li>There are certain keyword which need to avoid before conflicting with type check. They are `ref`, `_f`.</li>
+    <li>타입 검사와 충돌을 피하기 위해 `ref`, `_f`와 같은 키워드는 피해야 합니다.</li>
 
 </ul>
 
@@ -250,27 +247,27 @@ export default function App() {
 
 ---
 
-#### Destructuring assignment
+#### 구조 분해 할당
 
 ```javascript
 const { onChange, onBlur, name, ref } = register('firstName');
-// include type check against field path with the name you have supplied.
+// 지정한 이름에 해당하는 필드 경로에 대해 타입 검사를 포함합니다.
 
 <input
-  onChange={onChange} // assign onChange event
-  onBlur={onBlur} // assign onBlur event
-  name={name} // assign name prop
-  ref={ref} // assign ref prop
+  onChange={onChange} // onChange 이벤트 할당
+  onBlur={onBlur} // onBlur 이벤트 할당
+  name={name} // name 속성 할당
+  ref={ref} // ref 속성 할당
 />
-// same as above
+// 위와 같음
 <input {...register('firstName')} />
 ```
 
-#### Custom Register
+#### 커스텀 Register
 
-You can also register inputs with `useEffect` and treat them as virtual inputs. For controlled components, we provide a custom hook [useController](/docs/usecontroller) and [Controller](/docs/usecontroller/controller) component to take care this process for you.
+`useEffect`를 사용해 입력 필드를 등록하고 가상 입력(virtual inputs)으로 취급할 수도 있습니다. 제어 컴포넌트를 위해, 이 과정을 대신 처리해주는 커스텀 훅인 [useController](/docs/usecontroller)와 [Controller](/docs/usecontroller/controller) 컴포넌트를 제공합니다.
 
-If you choose to manually register fields, you will need to update the input value with [setValue](/docs/useform/setvalue).
+필드를 수동으로 등록(register)한다면, [setValue](/docs/useform/setvalue)를 사용하여 입력 값을 직접 업데이트해야 합니다.
 
 ```javascript
 register('firstName', { required: true, min: 8 });
@@ -278,12 +275,12 @@ register('firstName', { required: true, min: 8 });
 <TextInput onTextChange={(value) => setValue('lastChange', value))} />
 ```
 
-#### How to work with `innerRef`, `inputRef`?
+#### `innerRef`, `inputRef`로 어떻게 작업할까?
 
-When the custom input component didn't expose ref correctly, you can get it working via the following.
+커스텀 입력 컴포넌트가 ref를 올바르게 노출하지 않을 때는, 아래와 같은 방식으로 동작하도록 만들 수 있습니다.
 
 ```javascript
-// not working, because ref is not assigned
+// 동작하지 않음. ref가 할당되지 않았기 때문
 <TextInput {...register('test')} />
 
 const firstName = register('firstName', { required: true })
@@ -291,6 +288,6 @@ const firstName = register('firstName', { required: true })
   name={firstName.name}
   onChange={firstName.onChange}
   onBlur={firstName.onBlur}
-  inputRef={firstName.ref} // you can achieve the same for different ref name such as innerRef
+  inputRef={firstName.ref} // innerRef와 같은 다른 ref 이름에도 동일하게 구현할 수 있습니다.
 />
 ```
