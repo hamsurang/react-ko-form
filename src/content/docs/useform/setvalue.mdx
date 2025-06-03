@@ -17,7 +17,7 @@ sidebar: apiLinks
 | `name`<br/><TypeText>string</TypeText>   |                                                   | 이름으로 단일 필드를 타겟.                                                                                                                                                                                                                                                                                                                                               |
 | `value`<br/><TypeText>unknown</TypeText> |                                                   | 필드 값. 이 인자는 필수이며 `undefined`일 수 없습니다.                                                                                                                                                                                                                                                                                                                   |
 | `options`                                | `shouldValidate`<br/><TypeText>boolean</TypeText> | <ul><li>입력값의 유효성을 계산할지 여부. (구독 대상: <TypeText>errors</TypeText>).</li><li>전체 폼의 유효성을 계산할지 여부 (구독 대상: <TypeText>isValid</TypeText>).</li>이 옵션은 전체 폼의 터치된 필드가 아닌 특정 필드 레벨에서만 `touchedFields`를 업데이트.</ul>                                                                                                  |
-|                                          | `shouldDirty`<br/><TypeText>boolean</TypeText>    | <ul><li>`defaultValues`과 비교해서 해당 입력이 수정되었는지 판단할지 여부를 결정. (구독 대상: <TypeText>dirtyFields</TypeText>).</li><li>`defaultValues`과 비교해서 전체 폼이 수정되었는지 판단할지 여부를 결정. (구독 대상: <TypeText>isDirty</TypeText>).</li><li>이 옵션은 전체 폼 필드의 레벨이 아닌 특정 필드 레벨에서만 `dirtyFields`를 업데이트합니다. </li></ul> |
+|                                          | `shouldDirty`<br/><TypeText>boolean</TypeText>    | <ul><li>`defaultValues`와 비교해서 해당 입력이 수정되었는지 판단할지 여부를 결정. (구독 대상: <TypeText>dirtyFields</TypeText>).</li><li>`defaultValues`과 비교해서 전체 폼이 수정되었는지 판단할지 여부를 결정. (구독 대상: <TypeText>isDirty</TypeText>).</li><li>이 옵션은 전체 폼 필드의 레벨이 아닌 특정 필드 레벨에서만 `dirtyFields`를 업데이트합니다. </li></ul> |
 |                                          | `shouldTouch`<br/><TypeText>boolean</TypeText>    | 입력 필드 자체를 터치된 상태로 설정할지 여부.                                                                                                                                                                                                                                                                                                                            |
 
 <Admonition type="important" title="Rules">
@@ -68,19 +68,19 @@ sidebar: apiLinks
   **중요:** 전체 필드 배열을 업데이트할 때는 `setValue` 대신 `useFieldArray`의 `replace`를 사용하세요. `setValue`를 사용한 전체 필드 배열 업데이트는 다음 메이저 버전에서 제거될 예정입니다.
 
   ```javascript
-  // you can update an entire Field Array,
+  // 전체 필드 배열을 업데이트할 수 있습니다.
   setValue("fieldArray", [{ test: "1" }, { test: "2" }]) // ✅
 
-  // you can setValue to a unregistered input
+  // 등록되지 않은(unregistered) 입력 필드에도 setValue를 설정할 수 있습니다.
   setValue("notRegisteredInput", "value") // ✅ prefer to be registered
 
-  // the following will register a single input (without register invoked)
+  // 다음 코드는 (register를 호출하지 않은 상태에서) 단일 입력 필드를 등록(register)합니다.
   setValue("resultSingleNestedField", { test: "1", test2: "2" }) // 🤔
 
-  // with registered inputs, the setValue will update both inputs correctly.
+  // 등록된(registered) 입력 필드가 있을 경우, setValue가 두 입력을 모두 올바르게 업데이트합니다.
   register("notRegisteredInput.test", "1")
   register("notRegisteredInput.test2", "2")
-  setValue("notRegisteredInput", { test: "1", test2: "2" }) // ✅ sugar syntax to setValue twice
+  setValue("notRegisteredInput", { test: "1", test2: "2" }) // ✅ 두 번 setValue를 호출하는 것과 같은 문법적 설탕(sugar syntax)
   ```
 
 </Admonition>
