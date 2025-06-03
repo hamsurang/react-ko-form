@@ -67,7 +67,7 @@ sidebar: apiLinks
 
   <Form onSubmit={onSubmit} control={control} action="/api/test" method="post">
     <input {...register("test", { required: true })} />
-  </Form  />
+  </Form>
 
   // 렌더
 
@@ -114,7 +114,8 @@ function App() {
         {" "}
         <input {...register("name")} />
         {isSubmitSuccessful && <p>Form submit successful.</p>}
-        {errors?.root?.server && <p>Form submit failed.</p>} <button>submit</button>
+        {errors?.root?.server && <p>Form submit failed.</p>}
+        <button>submit</button>
       </Form>
       // 수동 폼 submission
       <Form
