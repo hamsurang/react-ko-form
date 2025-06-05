@@ -174,7 +174,7 @@ export default function ApiGallery() {
                 href="/docs/createFormControl"
                 aria-label="read more about usefieldarray"
               >
-                Read More ▸
+                더 알아보기 ▸
               </Link>
             </div>
           </li>
