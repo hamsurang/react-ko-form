@@ -4,46 +4,118 @@ description: 입력 변경 사항 구독
 sidebar: apiLinks
 ---
 
-## \</> `watch:` <TypeText>(names?: string | string[] | (data, options) => void) => unknown</TypeText>
+## \</> `watch:` _<TypeText>some overloads</TypeText>_
 
 이 메서드는 지정된 입력을 감시하고 해당 값을 반환합니다. 입력 값을 렌더링하고 조건에 따라 렌더링할 내용을 결정할 때 유용합니다.
 
-### Props
+### Overloads
+
+이 함수는 주로 **두 가지 목적**으로 사용됩니다:
+
+1. 필드의 값을 반환하며 동기화를 유지합니다.
+
+   a. <TypeText>`watch(name: string, defaultValue?): unknown`</TypeText>
+
+   b. <TypeText>`watch(names: string[], defaultValue?): {[key:string]: unknown}`</TypeText>
+
+   c. <TypeText>`watch(): {[key:string]: unknown}`</TypeText>
+
+2. 주어진 콜백 함수로 구독을 시작합니다(`구독 해제` 함수 호출로 중지할 수 있음).
+
+   a. <TypeText>`watch(callback: (data, { name, type }) => void, defaultValues?): { unsubscribe: () => void }`</TypeText>
+
+이 네 가지 오버로드 각각에 대한 설명은 아래와 같습니다.
+
+#### 1-a. 단일 필드 감시하기 <TypeText>`watch(name: string, defaultValue?: unknown): unknown`</TypeText>
 
 ---
 
-| Type                                                                           | Description                                                                             |
-| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
-| <TypeText>string</TypeText>                                                    | 이름으로 입력 값을 감시 (lodash [get](https://lodash.com/docs/4.17.15#get) 함수와 유사) |
-| <TypeText>string[]</TypeText>                                                  | 여러 입력을 감시                                                                        |
-| <TypeText>undefined</TypeText>                                                 | 모든 입력을 감시                                                                        |
-| <TypeText>`(data: unknown, { name: string, type: string }) => void`</TypeText> | 모든 입력을 감시하고 콜백을 호출                                                        |
+렌더링 바깥에서 사용되는 단일 필드를 감시하고 구독합니다.
 
-### Return
+**Params**
+
+| Name           | Type                           | Description                 |
+| -------------- | ------------------------------ | --------------------------- |
+| `name`         | <TypeText>`string`</TypeText>  | 감시할 필드의 이름          |
+| `defaultValue` | <TypeText>`unknown`</TypeText> | _선택 사항_. 필드의 기본 값 |
+
+**Returns** 단일 필드의 값을 반환합니다.
+
+```tsx
+const name = watch("name")
+```
+
+#### 1-b. 여러 필드 감시하기 <TypeText>`watch(names: string[], defaultValue?: {[key:string]: unknown}): unknown[]`</TypeText>
 
 ---
 
-| Example                                                          | Return                                             |
-| ---------------------------------------------------------------- | -------------------------------------------------- |
-| `watch('inputName')`                                             | <TypeText>unknown</TypeText>                       |
-| `watch(['inputName1'])`                                          | <TypeText>unknown[]</TypeText>                     |
-| `watch()`                                                        | <TypeText>`{[key:string]: unknown}`</TypeText>     |
-| `watch((data, { name, type }) => console.log(data, name, type))` | <TypeText>`{ unsubscribe: () => void }`</TypeText> |
+렌더링 바깥에서 사용되는 여러 필드를 감시하고 구독합니다.
 
-<Admonition type="important" title="Rules">
+**Params**
+
+| Name           | Type                                           | Description                |
+| -------------- | ---------------------------------------------- | -------------------------- |
+| `names`        | <TypeText>`string[]`</TypeText>                | 감시할 필드의 이름         |
+| `defaultValue` | <TypeText>`{[key:string]: unknown}`</TypeText> | _선택 사항_. 필드의 기본값 |
+
+**Returns** 필드 값의 배열을 반환합니다.
+
+```tsx
+const [name, name1] = watch(["name", "name1"])
+```
+
+#### 1-c. 전체 폼 감시하기 <TypeText>`watch(): {[key:string]: unknown}`</TypeText>
+
+---
+
+onChange 이벤트를 기반으로 전체 폼의 업데이트 및 변경 사항을 감시하고 구독하며, useForm에서 재렌더링을 수행합니다.
+
+**Params** 없음
+
+**Returns** 전체 폼 값을 반환합니다.
+
+```tsx
+const formValues = watch()
+```
+
+#### 2. 콜백 함수로 감시 시작하기 <TypeText>`watch(callback: (data, { name, type }) => void, defaultValues?: {[key:string]: unknown}): { unsubscribe: () => void }`</TypeText>
+
+---
+
+재렌더링을 트리거하지 않고 필드 업데이트/변경 사항을 구독합니다.
+
+**Params**
+
+| Name            | Type                                                  | Description                                     |
+| --------------- | ----------------------------------------------------- | ----------------------------------------------- |
+| `callback`      | <TypeText>`(data, { name, type }) => void`</TypeText> | 모든 필드의 변경 사항을 구독하기 위한 콜백 함수 |
+| `defaultValues` | <TypeText>`{[key:string]: unknown}`</TypeText>        | _선택 사항_. 폼 전체의 기본값                   |
+
+**Returns** `unsubscribe` 함수를 가진 객체.
+
+```tsx
+useEffect(() => {
+  const { unsubscribe } = watch((value) => {
+    console.log(value)
+  })
+  return () => unsubscribe()
+}, [watch])
+```
+
+### Rules
+
+---
 
 - `defaultValue`가 정의되지 않은 경우, `watch`의 첫 번째 렌더링은 `register` 이전에 호출되기 때문에 `undefined`를 반환합니다. 이 동작을 방지하려면 `useForm`에서 `defaultValues`를 제공하는 것이 좋지만 인라인 `defaultValue`를 두 번째 인수로 설정할 수 있습니다.
 - `defaultValue`와 `defaultValues`를 모두 제공되면 `defaultValue`가 반환됩니다.
 - 이 API는 앱 또는 form의 루트에서 다시 렌더링을 트리거하므로 성능 문제가 발생하는 경우 콜백 또는 [useWatch](/docs/usewatch) API를 사용하는 것이 좋습니다.
 - `watch` 결과는 값 업데이트를 감지하기 위해 `useEffect`의 deps 대신 렌더 단계에 최적화되어 있으므로, 값 비교를 위해 외부 커스텀 훅을 사용하는 것이 좋습니다.
 
-</Admonition>
-
-**Examples:**
+### Examples:
 
 ---
 
-**폼에서의 Watch**
+#### 폼에서의 Watch
 
 <TabGroup buttonLabels={["TS", "JS"]}>
 
@@ -138,7 +210,7 @@ function App() {
 
 </TabGroup>
 
-**필드 배열에서의 Watch**
+#### 필드 배열에서의 Watch
 
 <TabGroup buttonLabels={["TS", "JS"]}>
 
