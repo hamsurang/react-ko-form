@@ -4,6 +4,15 @@ description: 훅 폼을 위한 React Context API
 sidebar: apiLinks
 ---
 
+<SelectNav
+  options={[
+    {
+      label: "FormProvider",
+      value: "/docs/formprovider",
+    },
+  ]}
+/>
+
 ## \</> `useFormContext:` <TypeText>Function</TypeText>
 
 이 커스텀 훅은 폼 컨텍스트에 접근할 수 있게 해줍니다. `useFormContext`는 깊게 중첩된 구조에서 컨텍스트를 props로 전달하는 것이 불편할 때 사용하도록 설계되었습니다.
@@ -36,12 +45,20 @@ import { useForm, FormProvider, useFormContext } from "react-hook-form"
 export default function App() {
   const methods = useForm()
   const onSubmit = (data) => console.log(data)
+  const { register, reset } = methods
+
+  useEffect(() => {
+    reset({
+      name: "data",
+    })
+  }, [reset]) // ❌ 절대로 `methods`를 deps에 넣지 마세요.
 
   return (
     <FormProvider {...methods}>
       // 모든 메서드를 컨텍스트에 전달
       <form onSubmit={methods.handleSubmit(onSubmit)}>
         <NestedInput />
+        <input {...register("name")} />
         <input type="submit" />
       </form>
     </FormProvider>
