@@ -780,7 +780,20 @@ setValue('test', '')
         유효성 검사 중 <code>true</code>로 설정됩니다.
       </>
     ),
-    validatingFields: <>비동기 유효성 검사가 이뤄지는 필드를 캡쳐합니다.</>,
+    validatingFields: <>비동기 유효성 검사가 이뤄지는 필드를 캡처합니다.</>,
+    disabled: (
+      <>
+        비동기 유효성 검사가 이뤄지는 필드를 캡처합니다. 폼이{" "}
+        <code>disabled</code> 속성을 통해{" "}
+        <Link
+          href="/docs/useform#disabled"
+          aria-label="read more about disabled api"
+        >
+          useForm
+        </Link>
+        에서 비활성화되어 있다면 <code>true</code>로 설정합니다.
+      </>
+    ),
   },
   errors: {
     title: "errors",
