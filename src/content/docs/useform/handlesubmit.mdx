@@ -71,7 +71,7 @@ export default function App() {
     console.log(errors)
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onError)}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <input {...register("firstName")} />
       <input {...register("lastName")} />
       <input type="email" {...register("email")} />
