@@ -1,4 +1,5 @@
 import { useEffect } from "react"
+import type { MouseEventHandler } from "react"
 import Link from "next/link"
 import Footer from "./Footer"
 import typographyStyles from "../styles/typography.module.css"
@@ -10,9 +11,10 @@ import { useRouter } from "next/router"
 export default function ApiGallery() {
   const router = useRouter()
 
-  const onChange = (e) => {
-    const version = parseInt(e.target.value)
-
+  const onChange: MouseEventHandler<HTMLButtonElement> = (e) => {
+    const version = parseInt(
+      (e.target as HTMLElement).getAttribute("value") as string
+    )
     if (version !== 7) {
       router.push(`https://legacy.react-hook-form.com/v${version}/api`)
     } else {
@@ -152,6 +154,24 @@ export default function ApiGallery() {
               </p>
               <Link
                 href="/docs/usefieldarray"
+                aria-label="read more about usefieldarray"
+              >
+                더 알아보기 ▸
+              </Link>
+            </div>
+          </li>
+          <li>
+            <div>
+              <h3>
+                <code>{`</>`}</code>createFormControl
+              </h3>
+              <p className={styles.beta}>BETA @v7.55.0-next.3</p>
+              <p>
+                React 컴포넌트 바깥에서 폼 컨트롤 객체를 생성하고 폼 상태를
+                구독하며, 컨텍스트 없이도 메서드에 접근할 수 있습니다.
+              </p>
+              <Link
+                href="/docs/createFormControl"
                 aria-label="read more about usefieldarray"
               >
                 더 알아보기 ▸
