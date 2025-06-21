@@ -1,10 +1,10 @@
 ---
 title: Typescript Support
-description: List of exported Typescript Types.
+description: 내보내기한 Typescript 타입 목록입니다.
 sidebar: tsLinks
 ---
 
-**Important:** Typescript ^4.3 above is the recommended version to work with react hook form.
+**중요:** React Hook Form과 함께 사용하려면 TypeScript ^4.3 이상 버전을 권장합니다.
 
 ## \</> Resolver {#Resolver}
 
@@ -99,12 +99,13 @@ type FormValues = {
 export default function App() {
   const { register, handleSubmit } = useForm<FormValues>()
   const onSubmit: SubmitHandler<FormValues> = (data) => console.log(data)
-  const onError: SubmitErrorHandler<FormValues> = (errors) => console.log(errors);
+  const onError: SubmitErrorHandler<FormValues> = (errors) =>
+    console.log(errors)
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onError)}>
-      <input {...register("firstName"), { required: true }} />
-      <input {...register("lastName"), { minLength: 2 }} />
+      <input {...(register("firstName"), { required: true })} />
+      <input {...(register("lastName"), { minLength: 2 })} />
       <input type="email" {...register("email")} />
 
       <input type="submit" />
@@ -161,7 +162,7 @@ export default function App() {
 export type UseFormReturn<
   TFieldValues extends FieldValues = FieldValues,
   TContext = any,
-  TTransformedValues extends FieldValues | undefined = undefined,
+  TTransformedValues extends FieldValues | undefined = undefined
 > = {
   watch: UseFormWatch<TFieldValues>
   getValues: UseFormGetValues<TFieldValues>
@@ -271,7 +272,7 @@ export default function App() {
 export type UseFormProps<
   TFieldValues extends FieldValues = FieldValues,
   TContext extends object = object,
-  TTransformedValues extends FieldValues | undefined = undefined,
+  TTransformedValues extends FieldValues | undefined = undefined
 > = Partial<{
   mode: Mode
   disabled: boolean
@@ -298,9 +299,8 @@ export type UseFormProps<
 ```typescript copy
 export type UseFieldArrayReturn<
   TFieldValues extends FieldValues = FieldValues,
-  TFieldArrayName extends
-    FieldArrayPath<TFieldValues> = FieldArrayPath<TFieldValues>,
-  TKeyName extends string = "id",
+  TFieldArrayName extends FieldArrayPath<TFieldValues> = FieldArrayPath<TFieldValues>,
+  TKeyName extends string = "id"
 > = {
   swap: UseFieldArraySwap
   move: UseFieldArrayMove
@@ -349,7 +349,7 @@ export type UseFieldArrayProps<
 ```typescript copy
 export type UseControllerReturn<
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 > = {
   field: ControllerRenderProps<TFieldValues, TName>
   formState: UseFormStateReturn<TFieldValues>
@@ -364,7 +364,7 @@ export type UseControllerReturn<
 ```typescript copy
 export type UseControllerProps<
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 > = {
   name: TName
   rules?: Omit<
@@ -425,7 +425,7 @@ export type Field = {
 
 ## \</> FieldPath {#FieldPath}
 
-This type is useful when you define custom component's `name` prop, and it will type check against your field path.
+이 타입은 커스텀 컴포넌트의 `name` 속성을 정의할 때 유용하며, 필드 경로에 대해 타입 검사를 수행합니다.
 
 ```typescript copy
 export type FieldPath<TFieldValues extends FieldValues> = Path<TFieldValues>
@@ -435,7 +435,7 @@ export type FieldPath<TFieldValues extends FieldValues> = Path<TFieldValues>
 
 ## \</> FieldPathByValue {#FieldPathByValue}
 
-This type will return union with all available paths that match the passed value
+이 타입은 전달된 값과 일치하는 사용 가능한 모든 경로의 유니온 타입을 반환합니다.
 
 ```typescript copy
 export type FieldPathByValue<TFieldValues extends FieldValues, TValue> = {
@@ -463,9 +463,8 @@ export type FieldValues = Record<string, any>
 ```typescript copy
 export type FieldArrayWithId<
   TFieldValues extends FieldValues = FieldValues,
-  TFieldArrayName extends
-    FieldArrayPath<TFieldValues> = FieldArrayPath<TFieldValues>,
-  TKeyName extends string = "id",
+  TFieldArrayName extends FieldArrayPath<TFieldValues> = FieldArrayPath<TFieldValues>,
+  TKeyName extends string = "id"
 > = FieldArray<TFieldValues, TFieldArrayName> & Record<TKeyName, string>
 ```
 
@@ -486,7 +485,7 @@ export type Mode = keyof ValidationMode
 ```typescript copy
 export type RegisterOptions<
   TFieldValues extends FieldValues = FieldValues,
-  TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+  TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 > = Partial<{
   required: Message | ValidationRule<boolean>
   min: ValidationRule<number | string>
