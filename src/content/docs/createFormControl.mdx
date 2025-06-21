@@ -1,10 +1,10 @@
 ---
 title: createFormControl
-description: Create form state and ready to be subscribed (BETA)
+description: 폼 상태를 생성하고 구독할 수 있도록 준비합니다. (BETA)
 sidebar: apiLinks
 ---
 
-This function create the entire form state subscription and allow you to subscribe update with or without react component. You can use this function without the need of React Context api.
+이 함수는 전체 폼 상태 구독을 생성하고, 리액트 컴포넌트 유무에 상관없이 업데이트를 구독할 수 있게 합니다. React Context API 없이도 이 함수를 사용할 수 있습니다.
 
 ### Props
 
@@ -18,27 +18,27 @@ This function create the entire form state subscription and allow you to subscri
 
 ---
 
-| Name          | Type                           | Description                                                    |
-| ------------- | ------------------------------ | -------------------------------------------------------------- |
-| `formControl` | <TypeText>Object</TypeText>    | control object for `useForm` hook                              |
-| `control`     | <TypeText>Object</TypeText>    | control object for `useController`, `useFormState`, `useWatch` |
-| `...returns`  | <TypeText>Functions</TypeText> | `useForm` return methods                                       |
+| Name          | Type                           | Description                                                     |
+| ------------- | ------------------------------ | --------------------------------------------------------------- |
+| `formControl` | <TypeText>Object</TypeText>    | `useForm` 훅을 위한 control 객체                                |
+| `control`     | <TypeText>Object</TypeText>    | `useController`, `useFormState`, `useWatch`를 위한 control 객체 |
+| `...returns`  | <TypeText>Functions</TypeText> | `useForm`이 반환하는 메서드들                                   |
 
 <Admonition type="important" title="Notes">
-  - This function is published at **v7.55.0-next.3** - This function is
-  completely optional, you can consider to use this instead of `useFormContext`
-  API. - You may find it useful if you would like to subscribe formsState by
-  skipping react re-render.
+  - 이 함수는 **v7.55.0-next.3** 버전부터 제공됩니다. - 이 함수는 완전히 선택적
+  기능으로, `useFormContext` API 대신 사용하는 것을 고려해볼 수 있습니다. -
+  리액트 리렌더링을 건너뛰어 formsState를 구독하고자 할 때 유용하게 사용할 수
+  있습니다.
 </Admonition>
 
 <Admonition type="important" title="Rules">
- - You should either use this API or context API
+ - 이 API 또는 Context API 중 하나를 사용해야 합니다.
  ```tsx
  const props = createFormControl()
 
-<FormProvider {...props} /> // ❌ You don't need provider
+<FormProvider {...props} /> // ❌ provider가 필요 없습니다.{" "}
 
- <input {...props.register('name')} /> // ✅ Direct use method from createFormControl
+ <input {...props.register('name')} /> // ✅ createFormControl에서 직접 사용하는 메서드입니다
  ```
 </Admonition>
 
@@ -72,13 +72,13 @@ function App() {
 
 function FormState() {
   useFormState({
-    control // no longer need context api
+    control // context api가 더이상 필요하지 않음.
   })
 }
 
 function Controller() {
   useFormState({
-    control // no longer need context api
+    control // context api가 더이상 필요하지 않음.
   })
 }
 ```
