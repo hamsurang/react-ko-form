@@ -37,6 +37,7 @@ jobs:
         run: |
           : > $GITHUB_WORKSPACE/exclude.lst
           echo "pages/_app.tsx"                  >> $GITHUB_WORKSPACE/exclude.lst
+          echo "pages/_document.tsx"              >> $GITHUB_WORKSPACE/exclude.lst
           echo "providers/PostHogProvider.tsx"    >> $GITHUB_WORKSPACE/exclude.lst
           echo "components/layout.tsx"            >> $GITHUB_WORKSPACE/exclude.lst
           echo "react-ko-form/components/Banner*" >> $GITHUB_WORKSPACE/exclude.lst
