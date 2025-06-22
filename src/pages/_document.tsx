@@ -5,6 +5,10 @@ export default function Document() {
   return (
     <Html>
       <Head>
+        <meta
+          name="google-site-verification"
+          content="Br98Vw63VGn49LlO3gRbW25bIEJymXH9JY_W6AjK6HA"
+        />
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css"
