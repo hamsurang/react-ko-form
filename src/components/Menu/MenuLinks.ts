@@ -159,6 +159,10 @@ export const apiLinks: Pages = [
     pathname: "/docs/usefieldarray",
     name: "useFieldArray",
   },
+  {
+    pathname: "/docs/createFormControl",
+    name: "createFormControl",
+  },
 ]
 
 export const tsLinks: Pages = [
@@ -284,6 +288,10 @@ export const getStartedLinks: Pages = [
   {
     name: "Handle errors",
     pathname: "#Handleerrors",
+  },
+  {
+    name: "서비스와 통합",
+    pathname: "#Integratingwithservices",
   },
   {
     name: "스키마 검증",
