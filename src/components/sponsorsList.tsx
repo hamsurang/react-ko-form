@@ -7,13 +7,6 @@ export function SponsorsList() {
 
       <div className={styles.logoGroup}>
         <a
-          href="https://www.casinoreviews.net/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="/images/casinoreviews.png" alt="Casino Reviews" />
-        </a>
-        <a
           href="https://www.beekai.com/"
           target="_blank"
           rel="noopener noreferrer"
@@ -30,11 +23,15 @@ export function SponsorsList() {
         >
           <img src="/images/route4me.png" alt="route4me" />
         </a>
-        <a href="https://twicsy.com/" target="_blank" rel="noopener noreferrer">
+        <a
+          href="https://www.follower24.de/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <img
             className={styles.twicsy}
-            src="/images/twicsy.png"
-            alt="twicsy"
+            src="/images/follower24.png"
+            alt="follower24"
           />
         </a>
         <a
