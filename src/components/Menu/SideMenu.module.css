@@ -39,7 +39,6 @@
     padding: 0;
     overflow-y: auto;
     height: calc(100vh - 190px);
-    overflow-y: auto;
   }
 
   .menu > div > ul > li {
@@ -112,7 +111,7 @@
 
 @media (min-width: 1024px) {
   .menu {
-    margin-top: -130px;
+    margin-top: -19ç0px;
   }
 
   .menu > div > ul {
