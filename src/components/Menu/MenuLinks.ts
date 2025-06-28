@@ -2,47 +2,47 @@ import { Pages } from "../../types/types"
 
 export const advancedLinks: Pages = [
   {
-    name: "Accessibility (A11y)",
+    name: "접근성 (A11y)",
     pathname: "#AccessibilityA11y",
   },
   {
-    name: "Wizard Form / Funnel",
+    name: "단계별 폼(Wizard Form) / 퍼널",
     pathname: "#WizardFormFunnel",
   },
   {
-    name: "Smart Form Component",
+    name: "똑똑한 폼 컴포넌트",
     pathname: "#SmartFormComponent",
   },
   {
-    name: "Error Messages",
+    name: "에러 메세지",
     pathname: "#ErrorMessages",
   },
   {
-    name: "Connect Form",
+    name: "폼 연결하기",
     pathname: "#ConnectForm",
   },
   {
-    name: "FormProvider Performance",
+    name: "FormProvider 성능",
     pathname: "#FormProviderPerformance",
   },
   {
-    name: "Controlled mixed with Uncontrolled Components",
+    name: "제어 컴포넌트와 비제어 컴포넌트의 혼합 사용",
     pathname: "#ControlledmixedwithUncontrolledComponents",
   },
   {
-    name: "Custom Hook with Resolver",
+    name: "Resolver를 활용한 커스텀 훅",
     pathname: "#CustomHookwithResolver",
   },
   {
-    name: "Working with virtualized lists",
+    name: "가상화된(virtualized) 리스트 다루기",
     pathname: "#Workingwithvirtualizedlists",
   },
   {
-    name: "Testing Form",
+    name: "폼 테스트",
     pathname: "#TestingForm",
   },
   {
-    name: "Transform and Parse",
+    name: "변환 및 파싱",
     pathname: "#TransformandParse",
   },
 ]

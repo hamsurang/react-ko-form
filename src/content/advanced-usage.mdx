@@ -1,14 +1,14 @@
 ---
-title: Advanced Usage
-description: Build complex and accessible forms
+title: 고급 사용법
+description: 복잡하면서도 접근성 높은 폼 만들기
 sidebar: advancedLinks
 ---
 
-## Accessibility (A11y) {#AccessibilityA11y}
+## 접근성 (A11y) {#AccessibilityA11y}
 
-React Hook Form has support for native form validation, which lets you validate inputs with your own rules. Since most of us have to build forms with custom designs and layouts, it is our responsibility to make sure those are accessible (A11y).
+React Hook Form은 네이티브 폼 검증을 지원하여, 사용자가 정의한 규칙으로 입력값을 검증할 수 있습니다. 대부분의 경우 우리는 커스텀 디자인과 레이아웃의 폼을 만들어야 하므로, 이러한 폼이 접근성(A11y)을 충분히 갖추도록 하는 것은 우리의 책임입니다.
 
-The following code example works as intended for validation; however, it can be improved for accessibility.
+아래 코드 예제는 유효성 검사 자체는 의도한 대로 작동하지만, 접근성 측면에서는 개선의 여지가 있습니다.
 
 ```javascript copy
 import { useForm } from "react-hook-form"
@@ -40,7 +40,7 @@ export default function App() {
 }
 ```
 
-The following code example is an improved version by leveraging [ARIA](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA).
+다음 코드 예제는 [ARIA](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA)를 활용해 개선된 버전입니다.
 
 ```javascript copy
 import { useForm } from "react-hook-form"
@@ -57,14 +57,14 @@ export default function App() {
     <form onSubmit={handleSubmit(onSubmit)}>
       <label htmlFor="name">Name</label>
 
-      {/* use aria-invalid to indicate field contain error */}
+      {/* 필드에 에러가 있음을 알리기 위해 aria-invalid 속성을 사용 */}
       <input
         id="name"
         aria-invalid={errors.name ? "true" : "false"}
         {...register("name", { required: true, maxLength: 30 })}
       />
 
-      {/* use role="alert" to announce the error message */}
+      {/* 에러 메시지를 제공하기 위해 role="alert" 속성을 사용. */}
       {errors.name && errors.name.type === "required" && (
         <span role="alert">This is required</span>
       )}
@@ -78,15 +78,15 @@ export default function App() {
 }
 ```
 
-After this improvement, the screen reader will say: _“Name, edit, invalid entry, This is required.”_
+이렇게 개선하면 스크린 리더가 다음과 같이 읽어줍니다: _“이름, 편집, 잘못된 입력, 이 필드는 필수입니다.”_
 
 ---
 
-## Wizard Form / Funnel {#WizardFormFunnel}
+## 단계별 폼(Wizard Form) / 퍼널 {#WizardFormFunnel}
 
-It's pretty common to collect user information through different pages and sections. We recommend using a state management library to store user input through different pages or sections. In this example, we are going to use [little state machine](https://github.com/bluebill1049/little-state-machine) as our state management library (you can replace it with [redux](https://github.com/reduxjs/redux) if you are more familiar with it).
+여러 페이지나 섹션에 걸쳐 사용자 정보를 수집하는 것은 매우 일반적인 패턴입니다. 각 페이지나 섹션을 오가며 유저가 입력한 값을 유지하려면 상태 관리 라이브러리를 사용하는 것을 권장합니다. 이 예제에서는 [little state machine](https://github.com/bluebill1049/little-state-machine)을 상태 관리 라이브러리로 사용합니다(만약 redux에 더 친숙하다면, 이를 [redux](https://github.com/reduxjs/redux)로 대체할 수 있습니다).
 
-**Step 1:** Set up your routes and store.
+**1단계:** 라우트(routes)와 스토어(store)를 설정합니다.
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-wizard-form-9pg6j"
 import { BrowserRouter as Router, Route } from "react-router-dom"
@@ -115,7 +115,7 @@ export default function App() {
 }
 ```
 
-**Step 2:** Create your pages, collect and submit the data to the store and push to the next form/page.
+**2단계:** 페이지들을 만들고, 데이터를 수집하고 스토어(store)에 저장한 뒤, 다음 폼/페이지로 이동합니다.
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-wizard-form-9pg6j"
 import { useForm } from "react-hook-form"
@@ -143,7 +143,7 @@ const Step1 = (props) => {
 export default withRouter(Step1)
 ```
 
-**Step 3:** Make your final submission with all the data in the store or display the resulting data.
+**3단계:** 스토어(store)에 쌓인 모든 데이터를 최종 제출하거나, 결과를 화면에 표시합니다.
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-wizard-form-9pg6j"
 import { useStateMachine } from "little-state-machine"
@@ -156,13 +156,13 @@ const Result = (props) => {
 }
 ```
 
-Following the above pattern, you should be able to build a wizard form/funnel to collect user input data from multiple pages.
+위와 같은 흐름을 따르면, 여러 페이지에 걸쳐 사용자 입력 데이터를 모아 처리하는 단계별 폼(Wizard Form)/퍼널을 구현할 수 있습니다.
 
 ---
 
-## Smart Form Component {#SmartFormComponent}
+## 똑똑한 폼 컴포넌트 {#SmartFormComponent}
 
-This idea here is that you can easily compose your form with inputs. We are going to create a `Form` component to automatically collect form data.
+여기서의 아이디어는 입력 컴포넌트를 이용하여 손쉽게 폼을 구성하는 것입니다. 폼 데이터를 자동으로 수집하는 `Form` 컴포넌트를 만들어 보겠습니다.
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-smart-form-component-forked-iq89z"
 import { Form, Input, Select } from "./Components"
@@ -182,11 +182,11 @@ export default function App() {
 }
 ```
 
-Let's have a look what's in each of these components.
+각 컴포넌트가 어떤 역할을 하는지 살펴보겠습니다.
 
 `</> Form`
 
-The `Form` component's responsibility is to inject all `react-hook-form` methods into the child component.
+`Form` 컴포넌트는 react-hook-form의 모든 메서드를 자식 컴포넌트에 주입하는 역할을 합니다.
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-smart-form-component-forked-iq89z"
 import { Children, createElement } from "react"
@@ -216,7 +216,7 @@ export default function Form({ defaultValues, children, onSubmit }) {
 
 `</> Input / Select`
 
-Those input components' responsibility is to register them into `react-hook-form`.
+`Input`/`Select` 컴포넌트는 react-hook-form에 자신을 등록(register)하는 역할을 담당합니다.
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-smart-form-component-forked-iq89z"
 export function Input({ register, name, ...rest }) {
@@ -236,37 +236,37 @@ export function Select({ register, options, name, ...rest }) {
 }
 ```
 
-With the `Form` component injecting `react-hook-form`'s `props` into the child component, you can easily create and compose complex forms in your app.
+`Form` 컴포넌트가 `react-hook-form`의 `속성`(props)을 자식 컴포넌트에게 주입해주기 때문에 앱에서 복잡한 폼도 손쉽게 생성하고 조합할 수 있습니다.
 
 ---
 
-## Error Messages {#ErrorMessages}
+## 에러 메세지 {#ErrorMessages}
 
-Error messages are visual feedback to our users when there are issues with their inputs. React Hook Form provides an `errors` object to let you retrieve errors easily. There are several different ways to improve error presentation on the screen.
+에러 메세지는 사용자 입력에 문제가 있을 때 사용자에게 시각적 피드백을 제공합니다. React Hook Form은 `errors` 객체를 제공하여 에러 정보를 손쉽게 가져올 수 있도록 합니다. 화면에 에러를 더 깔끔하게 표시하는 방법에는 여러 가지가 있습니다.
 
 - #### Register
 
-  You can simply pass the error message to `register`, via the `message` attribute of the validation rule object, like this:
+  유효성 검증 규칙 객체의 `message` 속성을 통해, 아래와 같이 `register`에 바로 에러 메시지를 전달할 수 있습니다.:
 
   `<input {...register('test', { maxLength: { value: 2, message: "error message" } })} />`
 
-- #### Optional Chaining
+- #### 옵셔널 체이닝(Optional Chaining)
 
-  The `?.` [optional chaining](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining) operator permits reading the `errors` object without worrying about causing another error due to `null` or `undefined`.
+  `?.` [옵셔널 체이닝(optional chaining)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining) 연산자를 사용하면 `errors` 객체를 조회할 때 `null` 또는 `undefined`로 인한 추가 에러 발생을 걱정하지 않아도 됩니다.
 
   `errors?.firstName?.message`
 
 - #### Lodash `get`
 
-  If your project is using [lodash](https://lodash.com), then you can leverage the lodash [get](https://lodash.com/docs/4.17.15#get) function. Eg:
+  프로젝트에서 [lodash](https://lodash.com)를 사용 중이라면, lodash [get](https://lodash.com/docs/4.17.15#get) 함수를 사용하여 깊이 있는 경로의 에러 메시지를 가져올 수 있습니다. 예:
 
   `get(errors, 'firstName.message')`
 
 ---
 
-## Connect Form {#ConnectForm}
+## 폼 연결하기 {#ConnectForm}
 
-When we are building forms, there are times when our input lives inside of deeply nested component trees, and that's when [FormContext](/docs/useformcontext) comes in handy. However, we can further improve the Developer Experience by creating a `ConnectForm` component and leveraging React's [renderProps](https://reactjs.org/docs/render-props.html). The benefit is you can connect your input with React Hook Form much easier.
+폼을 구성할 때 입력 컴포넌트가 깊게 중첩된 트리 구조 안에 위치하는 경우가 있습니다. 이 때 [FormContext](/docs/useformcontext)를 사용하면 편리합니다. 하지만, `ConnectForm` 컴포넌트를 만들고 리액트의 [renderProps](https://reactjs.org/docs/render-props.html)를 활용하면 개발자 경험을 더욱 향상시킬 수 있습니다. 이 방식을 사용하면 입력 컴포넌트를 React Hook Form에 훨씬 더 쉽게 연결할 수 있다는 장점이 있습니다.
 
 ```javascript copy
 import { FormProvider, useForm, useFormContext } from "react-hook-form"
@@ -298,17 +298,17 @@ export const App = () => {
 
 ---
 
-## FormProvider Performance {#FormProviderPerformance}
+## FormProvider 성능 {#FormProviderPerformance}
 
-React Hook Form's [FormProvider](/docs/formprovider) is built upon [React's Context](https://react.dev/learn/passing-data-deeply-with-context) API. It solves the problem where data is passed through the component tree without having to pass props down manually at every level. This also causes the component tree to trigger a re-render when React Hook Form triggers a state update, but we can still optimise our App if required via the example below.
+React Hook Form의 [FormProvider](/docs/formprovider)는 [React의 Context](https://react.dev/learn/passing-data-deeply-with-context) API 위에 구축되었습니다. 이는 데이터가 컴포넌트 트리를 따라 전달될 때 매 단계마다 수동으로 props를 내려줘야 한다는 문제를 해결합니다. 다만, React Hook Form이 상태 업데이트를 트리거할 때 컴포넌트 트리가 다시 렌더링되는 부작용이 생깁니다. 필요하다면 아래 예제를 통해 앱을 최적화할 수 있습니다.
 
-**Note:** Using React Hook Form's [Devtools](/dev-tools) alongside [FormProvider](/docs/formprovider) can cause performance issues in some situations. Before diving deep in performance optimizations, consider this bottleneck first.
+**참고:** React Hook Form의 [Devtools](/dev-tools)을 [FormProvider](/docs/formprovider)와 함께 사용하면 일부 상황에서 성능 문제가 발생할 수 있습니다. 본격적인 최적화에 들어가기 전, 이 병목 현상을 먼저 고려하세요.
 
 ```javascript copy sandbox="https://codesandbox.io/s/provider-perf-forked-r24ho"
 import { memo } from "react"
 import { useForm, FormProvider, useFormContext } from "react-hook-form"
 
-// we can use React.memo to prevent re-render except isDirty state changed
+// isDirty 상태가 변경될 때를 제외하고는 리렌더되지 않도록 React.memo를 사용할 수 있습니다.
 const NestedInput = memo(
   ({ register, formState: { isDirty } }) => (
     <div>
@@ -329,7 +329,7 @@ export const NestedInputContainer = ({ children }) => {
 export default function App() {
   const methods = useForm()
   const onSubmit = (data) => console.log(data)
-  console.log(methods.formState.isDirty) // make sure formState is read before render to enable the Proxy
+  console.log(methods.formState.isDirty) // Proxy를 활성화하려면 렌더링 전에 formState를 반드시 읽어야 합니다.
 
   return (
     <FormProvider {...methods}>
@@ -344,9 +344,9 @@ export default function App() {
 
 ---
 
-## Controlled mixed with Uncontrolled Components {#ControlledmixedwithUncontrolledComponents}
+## 제어 컴포넌트와 비제어 컴포넌트의 혼합 사용 {#ControlledmixedwithUncontrolledComponents}
 
-React Hook Form embraces uncontrolled components but is also compatible with controlled components. Most UI libraries are built to support only controlled components, such as [MUI](https://github.com/mui/material-ui) and [Antd](https://github.com/ant-design/ant-design). But with React Hook Form, the re-rendering of controlled components are also optimized. Here is an example that combines them both with validation.
+React Hook Form은 비제어 컴포넌트를 기본으로 하지만, 제어 컴포넌트와도 완벽히 호환합니다. [MUI](https://github.com/mui/material-ui)와 [Antd](https://github.com/ant-design/ant-design) 같은 대부분의 UI 라이브러리는 제어 컴포넌트만 지원하도록 설계되어 있지만, React Hook Form을 사용하면 제어 컴포넌트의 리렌더링도 최적화할 수 있습니다. 아래 예제는 제어 컴포넌트와 비제어 컴포넌트를 유효성 검증과 함께 결합한 코드입니다.
 
 <TabGroup buttonLabels={["Controller", "Custom Register"]}>
 
@@ -434,13 +434,13 @@ function App() {
 
 ---
 
-## Custom Hook with Resolver {#CustomHookwithResolver}
+## Resolver를 활용한 커스텀 훅 {#CustomHookwithResolver}
 
-You can build a custom hook as a resolver. A custom hook can easily integrate with yup/Joi/Superstruct as a validation method, and to be used inside validation resolver.
+커스텀 훅을 resolver로 구현할 수 있습니다. 이렇게 하면 커스텀 훅은 yup/Joi/Superstruct와 같은 유효성 검증 메서드와 쉽게 통합할 수 있으며, 유효성 검증 resolver 내부에서 활용할 수 있습니다.
 
-- Define a memorized validation schema (or define it outside your component if you don't have any dependencies)
-- Use the custom hook, by passing the validation schema
-- Pass the validation resolver to the useForm hook
+- 메모이제이션된 유효성 검증 스키마를 정의합니다.(의존성이 없다면 컴포넌트 외부에 정의해도 됩니다.)
+- 유효성 검증 스키마를 전달하여 커스텀 훅을 사용합니다.
+- 생성된 유효성 검증 resolver를 `useForm` 훅에 전달합니다.
 
 ```javascript copy sandbox="https://codesandbox.io/s/custom-hook-with-resolver-v7-cwczk"
 import { useCallback } from "react"
@@ -499,11 +499,11 @@ export default function App() {
 
 ---
 
-## Working with virtualized lists {#Workingwithvirtualizedlists}
+## 가상화된(virtualized) 리스트 다루기 {#Workingwithvirtualizedlists}
 
-Imagine a scenario where you have a table of data. This table might contain hundreds or thousands of rows, and each row will have inputs. A common practice is to only render the items that are in the viewport, however this will cause issues as the items are removed from the DOM when they are out of view and re-added. This will cause items to reset to their default values when they re-enter the viewport.
+데이터 테이블이 있는 시나리오를 상상해보세요. 이 테이블에는 수백 또는 수천 개의 행이 있을 수 있으며, 각 행에는 입력 필드가 들어 있습니다. 일반적으로 뷰포트에 보이는 항목만 렌더링하는 방식을 사용하지만, 이 경우 항목이 뷰포트 밖으로 나가면 DOM에서 제거되었다가 다시 추가되면서, 다시 보이는 순간 입력값이 기본값으로 리셋되는 문제가 발생할 수 있습니다.
 
-An example is shown below using [react-window](https://github.com/bvaughn/react-window).
+아래 예제는 [react-window](https://github.com/bvaughn/react-window)를 사용해 이를 보여줍니다.
 
 <TabGroup buttonLabels={["Form", "Field Array"]}>
 
@@ -601,49 +601,49 @@ function App() {
 
 ---
 
-## Testing Form {#TestingForm}
+## 폼 테스트 {#TestingForm}
 
-Testing is very important because it prevents your code from having bugs or mistakes. It also guarantees code safety when refactoring the codebase.
+테스트는 코드에 버그나 실수가 없도록 방지해 주기 때문에 매우 중요합니다. 또한 테스트는 코드베이스를 리팩토링할 때 안전성을 보장합니다.
 
-We recommend using [testing-library](https://testing-library.com/), because it is simple and tests are more focused on user behavior.
+간단하고 사용자 행동 중심의 테스트를 작성할 수 있는 [testing-library](https://testing-library.com/) 사용을 권장합니다.
 
-**Step 1:** Set up your testing environment.
+**1단계:** 테스트 환경 설정
 
-Please install [@testing-library/jest-dom](https://github.com/testing-library/jest-dom) with the latest version of `jest`, because react-hook-form uses `MutationObserver` to detect inputs, and to get unmounted from the DOM.
+React Hook Form은 입력 필드를 감지하고 DOM에서 언마운트되는 것을 확인하기 위해 `MutationObserver`를 사용하므로, 최신 버전의 `jest`와 함께 [@testing-library/jest-dom](https://github.com/testing-library/jest-dom)을 설치하세요.
 
-**Note:** If you are using React Native, you don't need to install [@testing-library/jest-dom](https://github.com/testing-library/jest-dom).
+**참고:** React Native를 사용 중이라면, [@testing-library/jest-dom](https://github.com/testing-library/jest-dom)을 설치할 필요가 없습니다.
 
 ```bash copy
 npm install -D @testing-library/jest-dom
 ```
 
-Create `setup.js` to import [@testing-library/jest-dom](https://github.com/testing-library/jest-dom).
+[@testing-library/jest-dom](https://github.com/testing-library/jest-dom)를 import할 `setup.js`를 생성하세요.
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-unit-test-docs-066zk?file=/src/setupTests.js"
 import "@testing-library/jest-dom"
 ```
 
-**Note:** If you are using React Native, you need to create setup.js, define `window` object, and include the following lines in the setup file:
+**참고:** React Native를 사용 중이라면, setup.js을 생성하고, `window` 객체를 정의한 뒤, 아래 내용을 setup 파일에 추가해야 합니다:
 
 ```javascript copy
 global.window = {}
 global.window = global
 ```
 
-Finally, you have to update `setup.js` in `jest.config.js` to include the file.
+마지막으로,`jest.config.js`에서 `setup.js`를 포함하도록 업데이트해야 합니다.
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-unit-test-docs-066zk"
 module.exports = {
-  setupFilesAfterEnv: ["<rootDir>/setup.js"], // or .ts for TypeScript App
-  // ...other settings
+  setupFilesAfterEnv: ["<rootDir>/setup.js"], // 또는 TypeScript App을 위한 .ts
+  // ...다른 settings
 }
 ```
 
-Additionally, you can set up [eslint-plugin-testing-library](https://github.com/testing-library/eslint-plugin-testing-library) and [eslint-plugin-jest-dom](https://github.com/testing-library/eslint-plugin-jest-dom) to follow best practices and anticipate common mistakes when writing your tests.
+추가로, 테스트 작성 시 모범 사례를 준수하고 자주 발생하는 실수를 방지하기 위해 [eslint-plugin-testing-library](https://github.com/testing-library/eslint-plugin-testing-library)와 [eslint-plugin-jest-dom](https://github.com/testing-library/eslint-plugin-jest-dom) 플러그인을 설정할 수 있습니다.
 
-**Step 2:** Create login form.
+**Step 2:** 로그인 폼 생성하기.
 
-We have set the role attribute accordingly. These attributes are helpful for when you write tests, and they improve accessibility. For more information, you can refer to the [testing-library](https://testing-library.com/) documentation.
+role 속성을 적절히 설정했습니다. 이 속성들은 테스트 작성 시 유용하며, 접근성을 향상시키는 데도 도움이 됩니다. 자세한 내용은 [testing-library](https://testing-library.com/) 문서를 참고하세요.
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-unit-test-docs-066zk?file=/src/App.js"
 import { useForm } from "react-hook-form"
@@ -694,19 +694,19 @@ export default function App({ login }) {
 }
 ```
 
-**Step 3:** Write tests.
+**3단계:** 테스트 작성하기.
 
-The following criteria are what we try to cover with the tests:
+다음 기준을 테스트로 커버합니다:
 
-- Test submission failure.
+- 제출 실패 테스트
 
-  We are using `waitFor` util and `find*` queries to detect submission feedback, because the `handleSubmit` method is executed asynchronously.
+  `handleSubmit` 메서드는 비동기적으로 실행되기 때문에, `waitFor` 유틸과 `find*` 쿼리를 사용해 제출 피드백을 확인합니다.
 
-- Test validation associated with each inputs.
+- 유효성 검증과 관련있는 각 입력 필드 테스트
 
-  We are using the `*ByRole` method when querying different elements because that's how users recognize your UI component.
+  사용자가 UI 컴포넌트를 인식하는 방식에 맞춰 `*ByRole` 메서드를 사용해 각 요소를 조회합니다.
 
-- Test successful submission.
+- 제출 성공 테스트
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-unit-test-docs-066zk?file=/src/App.test.js"
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
@@ -797,9 +797,9 @@ it("should not display error when value is valid", async () => {
 })
 ```
 
-#### Resolving act warning during test
+#### 테스트 중 act 경고 해결하기
 
-If you test a component that uses react-hook-form, you might run into a warning like this, even if you didn't write any asynchronous code for that component:
+react-hook-form을 사용하는 컴포넌트를 테스트할 때, 해당 컴포넌트에 비동기 코드를 작성하지 않아도 다음과 같은 경고가 발생할 수 있습니다:
 
 > Warning: An update to MyComponent inside a test was not wrapped in act(...)
 
@@ -836,11 +836,11 @@ it("should have a submit button", () => {
 })
 ```
 
-In this example, there is a simple form without any apparent async code, and the test merely renders the component and tests for the presence of a button. However, it still logs the warning about updates not being wrapped in `act()`.
+이 예제에서는 명백히 비동기 코드가 없는 간단한 폼을 렌더링하고 버튼이 있는지만 테스트합니다. 그러나 여전히 업데이트가 `act()`로 래핑되지 않았다는 경고가 출력됩니다.
 
-This is because react-hook-form internally uses asynchronous validation handlers. In order to compute the formState, it has to initially validate the form, which is done asynchronously, resulting in another render. That update happens after the test function returns, which triggers the warning.
+이는 react-hook-form이 내부적으로 비동기 유효성 검증 핸들러를 사용하기 때문입니다. `formState`를 계산하기 위해 초기 폼 유효성 검증을 비동기적으로 수행해야 하고, 이로 인해 추가적인 렌더링이 발생합니다. 테스트 함수가 반환된 후에 이 업데이트가 일어나면서 경고가 발생하는 것입니다.
 
-To solve this, wait until some element from your UI appears with `find*` queries. Note that you **must not** wrap your `render()` calls in `act()`. [You can read more about wrapping things in `act` unnecessarily here](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library#wrapping-things-in-act-unnecessarily).
+해결 방법은 `find*` 쿼리를 사용해 UI의 특정 요소가 나타날 때까지 기다리는 것입니다. 이 때 `render()`를 `act()`로 감싸면 **안된다는 점**을 기억하세요. [불필요하게 `act`로 래핑하는 것과 관련된 내용을 더 알아보려면 여기를 참고하세요.](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library#wrapping-things-in-act-unnecessarily).
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-unit-test-act-warning-docs-tcb7y?file=/src/App.test.js"
 import { render, screen } from "@testing-library/react"
@@ -851,17 +851,18 @@ it("should have a submit button", async () => {
 
   expect(await screen.findByText("SUBMIT")).toBeInTheDocument()
 
-  // Now that the UI was awaited until the async behavior was completed,
-  // you can keep asserting with `get*` queries.
+  // UI가 비동기 동작이 완료될 때까지 대기했으므로,
+  // 이제 `get*` 쿼리를 사용해 계속해서 검증할 수 있습니다.
   expect(screen.getByRole("textbox")).toBeInTheDocument()
 })
 ```
 
 ---
 
-## Transform and Parse {#TransformandParse}
+## 변환 및 파싱 {#TransformandParse}
 
-The native input returns the value in `string` format unless invoked with `valueAsNumber` or `valueAsDate`, you can read more under [this section](https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement). However, it's not perfect. We still have to deal with `isNaN` or `null` values. So it's better to leave the transform at the custom hook level. In the following example, we are using the `Controller` to include the functionality of the transform value's input and output. You can also achieve a similar result with a custom `register`.
+네이티브 `input` 요소는 `valueAsNumber`나 `valueAsDate`를 사용하지 않으면 항상 값을 `string` 형식으로 반환합니다. 자세한 내용은 [이 부분](https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement)을 참고하세요. 하지만 이 방식만으로는 완벽하지 않습니다. 여전히 `isNaN`이나 `null` 값을 직접 처리해야 하기 때문입니다. 따라서 변환 로직은 커스텀 훅 수준에서 처리하는 것이 좋습니다.  
+아래 예제에서는, `Controller`를 사용하여 입력값의 변환과 출력 기능을 함께 구현했습니다. 커스텀 `register`를 사용해도 유사한 결과를 얻을 수 있습니다.
 
 ```javascript copy sandbox="https://codesandbox.io/s/transform-vt3tm"
 import { Controller } from "react-hook-form"
@@ -880,7 +881,7 @@ const ControllerPlus = ({ control, transform, name, defaultValue }) => (
   />
 )
 
-// usage below:
+// 사용 예시는 아래와 같음:
 <ControllerPlus
   transform={{
     input: (value) => (isNaN(value) || value === 0 ? "" : value.toString()),
