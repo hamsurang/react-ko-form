@@ -13,7 +13,8 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Checkout Fork
+      # ---------- 공통 ----------
+      - name: Checkout fork
         uses: actions/checkout@v3
         with:
           repository: ${{ github.repository }}
@@ -22,14 +23,15 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config user.name "minchodang"
+          git config user.name  "minchodang"
           git config user.email "minsu910725@gmail.com"
 
-      - name: Add Upstream Remote
+      - name: Add upstream remote
         run: |
           git remote add upstream https://github.com/react-hook-form/documentation
           git fetch upstream
 
+      # ---------- master 동기화 ----------
       - name: Checkout master
         run: git checkout -B master origin/master
 
@@ -49,17 +51,17 @@ jobs:
         shell: bash
         run: |
           git diff upstream/master master -- . ':(exclude).github' ':(exclude).vscode' ':(exclude).gitignore' > changes.diff
-          [ -s changes.diff ] && echo changes=true >> $GITHUB_ENV || echo changes=false >> $GITHUB_ENV
+          [ -s changes.diff ] && echo changes=true  >>$GITHUB_ENV || echo changes=false  >>$GITHUB_ENV
 
       - id: existing-prs
         shell: bash
         run: |
           PR=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/pulls |
-            jq -r '.[] | select(.head.ref|startswith("sync-upstream-")) | .head.ref' | tr '\n' ' ')
-          [ -n "$PR" ] && { echo existing_pr=true >> $GITHUB_ENV; echo existing_pr_ref=$PR >> $GITHUB_ENV; } \
-                        || echo existing_pr=false >> $GITHUB_ENV
+                  -H "Accept: application/vnd.github.v3+json" \
+                  https://api.github.com/repos/${{ github.repository }}/pulls |
+                jq -r '.[] | select(.head.ref|startswith("sync-upstream-")) | .head.ref' | tr '\n' ' ')
+          [ -n "$PR" ] && { echo existing_pr=true >>$GITHUB_ENV; echo existing_pr_ref=$PR >>$GITHUB_ENV; } \
+                        || echo existing_pr=false >>$GITHUB_ENV
 
       - name: Update existing master-sync PR
         if: env.existing_pr == 'true'
@@ -85,11 +87,11 @@ jobs:
         shell: bash
         run: |
           PR=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/pulls |
-            jq -r '.[] | select(.head.ref|startswith("update-master-ko-")) | .head.ref' | tr '\n' ' ')
-          [ -n "$PR" ] && { echo existing_pr_ko=true >> $GITHUB_ENV; echo existing_pr_ko_ref=$PR >> $GITHUB_ENV; } \
-                        || echo existing_pr_ko=false >> $GITHUB_ENV
+                  -H "Accept: application/vnd.github.v3+json" \
+                  https://api.github.com/repos/${{ github.repository }}/pulls |
+                jq -r '.[] | select(.head.ref|startswith("update-master-ko-")) | .head.ref' | tr '\n' ' ')
+          [ -n "$PR" ] && { echo existing_pr_ko=true >>$GITHUB_ENV; echo existing_pr_ko_ref=$PR >>$GITHUB_ENV; } \
+                        || echo existing_pr_ko=false >>$GITHUB_ENV
 
       - name: Prepare master-ko update
         shell: bash
@@ -99,34 +101,30 @@ jobs:
           git fetch origin master-ko || true
           git checkout -B master-ko origin/master-ko || git checkout -B master-ko
 
+          # 1) master-ko 패키지 백업
           cp package.json /tmp/pkg_old.json || true
+
+          # 2) master → master-ko (src 제외) 복사
           git checkout master -- . ":(exclude)src"
 
+          # 3) package.json 깊이 병합
           node <<'NODE'
           const fs = require('fs');
-          const deepMerge = (t, s) => {
-            for (const k in s) {
-              if (s[k] && typeof s[k] === 'object' && !Array.isArray(s[k])) {
-                t[k] = deepMerge(t[k] || {}, s[k]);
-              } else if (!(k in t)) {
-                t[k] = s[k];
-              }
-            }
-            return t;
-          };
-          const oldPkg = fs.existsSync('/tmp/pkg_old.json') ? JSON.parse(fs.readFileSync('/tmp/pkg_old.json', 'utf8')) : {};
-          const newPkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-          ['dependencies','devDependencies','peerDependencies','scripts'].forEach(key=>{
-            newPkg[key]=deepMerge(newPkg[key]||{}, oldPkg[key]||{});
+          const merge = (a,b)=>{for(const k in b){if(b[k]&&typeof b[k]==='object'&&!Array.isArray(b[k]))a[k]=merge(a[k]||{},b[k]);else if(!(k in a))a[k]=b[k];}return a;}
+          const oldPkg = fs.existsSync('/tmp/pkg_old.json') ? JSON.parse(fs.readFileSync('/tmp/pkg_old.json','utf8')) : {};
+          const newPkg = JSON.parse(fs.readFileSync('package.json','utf8'));
+          ['dependencies','devDependencies','peerDependencies','scripts'].forEach(k=>{
+            newPkg[k]=merge(newPkg[k]||{},oldPkg[k]||{});
           });
-          fs.writeFileSync('package.json', JSON.stringify(newPkg, null, 2) + '\n');
+          fs.writeFileSync('package.json',JSON.stringify(newPkg,null,2)+'\n');
           NODE
 
+          # 4) 로컬 전용 파일 복원(존재할 때만)
           for f in pnpm-lock.yaml .yarnrc.yml; do
-            git checkout master-ko -- "$f" || true
+            git ls-files --error-unmatch "$f" >/dev/null 2>&1 && git checkout master-ko -- "$f" || true
           done
 
-          git add package.json pnpm-lock.yaml .yarnrc.yml
+          git add .
           git commit -m "Update master-ko (deep-merge package.json, keep local files)" || true
 
       - name: Push to existing master-ko PR
