@@ -196,7 +196,7 @@ jobs:
         run: |
           EXISTING_BRANCH=$(echo "${{ env.existing_pr_ko_ref }}" | awk '{print $1}')
           echo "Pushing updated changes to existing master-ko branch: $EXISTING_BRANCH"
-          git push origin master-ko:"$EXISTING_BRANCH" --force
+          git push origin master-ko:"$EXISTING_BRANCH"
         shell: bash
 
       - name: Create New PR for master-ko Update
