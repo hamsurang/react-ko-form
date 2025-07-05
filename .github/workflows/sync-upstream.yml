@@ -3,7 +3,7 @@ name: Sync Upstream and Create PR
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *" # 매일 밤 12시 정각에 실행
+    - cron: "0 0 * * *"
 
 jobs:
   sync:
@@ -13,206 +13,135 @@ jobs:
       pull-requests: write
 
     steps:
-      # ============= master 동기화 =============
-
-      - name: Checkout Fork
+      # ---------- 공통 ----------
+      - name: Checkout fork
         uses: actions/checkout@v3
         with:
           repository: ${{ github.repository }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0 # 모든 히스토리 가져오기
+          fetch-depth: 0
 
       - name: Configure Git
         run: |
-          git config user.name "minchodang"
+          git config user.name  "minchodang"
           git config user.email "minsu910725@gmail.com"
 
-      - name: Add Upstream Remote
+      - name: Add upstream remote
         run: |
           git remote add upstream https://github.com/react-hook-form/documentation
           git fetch upstream
 
-      - name: Checkout and Set Up Master Branch
-        run: |
-          git checkout -B master origin/master
+      # ---------- master 동기화 ----------
+      - name: Checkout master
+        run: git checkout -B master origin/master
 
-      # ***********************
-      #   충돌 자동 해결을 위해 -X theirs 추가
-      # ***********************
-      - name: Merge Upstream/master into master
+      - name: Merge upstream/master
+        shell: bash
         run: |
-          # 업스트림 변경을 우선으로(충돌 발생 시 upstream/master 변경사항 사용)
           git merge upstream/master -X theirs --no-edit
-
-          # 1) .github / .vscode 디렉토리 삭제
           for DIR in .github .vscode; do
             git rm -r --cached "$DIR" || true
             rm -rf "$DIR"
           done
-
-          # 2) .gitignore 는 **우리(master) 버전** 그대로 유지
           git checkout --ours .gitignore || true
-
-          # 변경 사항 스테이징
           git add .
+          git commit -m "Sync with upstream (remove .github & .vscode, keep .gitignore)" || true
 
-          # 로그 출력: 현재 스테이지에 있는 파일
-          echo "Staged files:"
-          git diff --cached --name-only
-
-          # 변경 사항이 있을 경우에만 커밋
-          git commit -m "Sync with upstream (remove .github & .vscode, keep local .gitignore)" || echo "No changes to commit"
+      - id: changes
         shell: bash
-
-      - name: Check for Changes
-        id: changes
         run: |
-          # .github / .vscode / .gitignore 제외한 변경 사항 확인
           git diff upstream/master master -- . ':(exclude).github' ':(exclude).vscode' ':(exclude).gitignore' > changes.diff
-          if [ -s changes.diff ]; then
-            echo "changes=true" >> $GITHUB_ENV
-          else
-            echo "changes=false" >> $GITHUB_ENV
-          fi
-          echo "Changes detected (excluding .github, .vscode, .gitignore):"
-          cat changes.diff || true
-        shell: bash
+          [ -s changes.diff ] && echo changes=true  >>$GITHUB_ENV || echo changes=false  >>$GITHUB_ENV
 
-      - name: Check Existing PRs for Master Sync
-        id: existing-prs
+      - id: existing-prs
+        shell: bash
         run: |
-          RESPONSE=$(curl -s \
-              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              https://api.github.com/repos/${{ github.repository }}/pulls)
-          EXISTING_PR=$(echo "$RESPONSE" | jq -r '.[] | select(.head.ref | startswith("sync-upstream-")) | .head.ref' | tr '\n' ' ')
-          if [[ -n "$EXISTING_PR" ]]; then
-              echo "existing_pr=true" >> $GITHUB_ENV
-              echo "existing_pr_ref=$EXISTING_PR" >> $GITHUB_ENV
-          else
-              echo "existing_pr=false" >> $GITHUB_ENV
-          fi
-          echo "Existing PRs for master sync: $EXISTING_PR"
-        shell: bash
+          PR=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  -H "Accept: application/vnd.github.v3+json" \
+                  https://api.github.com/repos/${{ github.repository }}/pulls |
+                jq -r '.[] | select(.head.ref|startswith("sync-upstream-")) | .head.ref' | tr '\n' ' ')
+          [ -n "$PR" ] && { echo existing_pr=true >>$GITHUB_ENV; echo existing_pr_ref=$PR >>$GITHUB_ENV; } \
+                        || echo existing_pr=false >>$GITHUB_ENV
 
-      - name: Update Existing master sync PR Branch
+      - name: Update existing master-sync PR
         if: env.existing_pr == 'true'
-        run: |
-          BRANCH=$(echo "${{ env.existing_pr_ref }}" | awk '{print $1}')
-          echo "Force‑pushing latest master to existing branch: $BRANCH"
-          git push origin master:"$BRANCH" --force-with-lease
         shell: bash
-
-      - name: Create Pull Request for Master Sync
-        if: env.existing_pr == 'false'
         run: |
-          BRANCH_NAME=sync-upstream-$(date +%Y%m%d%H%M%S)
-          git checkout -b $BRANCH_NAME
-          git push origin $BRANCH_NAME
-          curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          BR=$(echo "${{ env.existing_pr_ref }}" | awk '{print $1}')
+          git push origin master:"$BR" --force-with-lease
+
+      - name: Create master-sync PR
+        if: env.existing_pr == 'false' && env.changes == 'true'
+        shell: bash
+        run: |
+          BR=sync-upstream-$(date +%Y%m%d%H%M%S)
+          git checkout -b $BR
+          git push origin $BR
+          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/${{ github.repository }}/pulls \
-            -d '{
-              "title": "Sync with upstream (remove .github & .vscode, keep .gitignore)",
-              "body": "This PR syncs the repository with upstream changes, removes the .github and .vscode directories, and preserves the local .gitignore.",
-              "head": "'"${BRANCH_NAME}"'",
-              "base": "master"
-            }'
+            -d '{"title":"Sync with upstream (remove .github & .vscode, keep .gitignore)","head":"'"$BR"'","base":"master"}'
+
+      # ---------- master-ko ----------
+      - id: existing-prs-ko
         shell: bash
-
-      # ============= master-ko 업데이트 =============
-
-      - name: Check Existing PRs for master-ko Update
-        id: existing-prs-ko
         run: |
-          RESPONSE=$(curl -s \
-              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/${{ github.repository }}/pulls")
-          EXISTING_KO_PR=$(echo "$RESPONSE" | jq -r '.[] | select(.head.ref | startswith("update-master-ko-")) | .head.ref' | tr '\n' ' ')
-          if [[ -n "$EXISTING_KO_PR" ]]; then
-              echo "existing_pr_ko=true" >> $GITHUB_ENV
-              echo "existing_pr_ko_ref=$EXISTING_KO_PR" >> $GITHUB_ENV
-          else
-              echo "existing_pr_ko=false" >> $GITHUB_ENV
-          fi
-          echo "Existing PRs for master-ko update: $EXISTING_KO_PR"
+          PR=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  -H "Accept: application/vnd.github.v3+json" \
+                  https://api.github.com/repos/${{ github.repository }}/pulls |
+                jq -r '.[] | select(.head.ref|startswith("update-master-ko-")) | .head.ref' | tr '\n' ' ')
+          [ -n "$PR" ] && { echo existing_pr_ko=true >>$GITHUB_ENV; echo existing_pr_ko_ref=$PR >>$GITHUB_ENV; } \
+                        || echo existing_pr_ko=false >>$GITHUB_ENV
+
+      - name: Prepare master-ko update
         shell: bash
-
-      - name: Prepare master-ko Update
         run: |
+          set -euo pipefail
           git checkout master
           git fetch origin master-ko || true
           git checkout -B master-ko origin/master-ko || git checkout -B master-ko
 
-          # master의 모든 파일 복사 (src 제외)
+          # 1) master-ko 패키지 백업
+          cp package.json /tmp/pkg_old.json || true
+
+          # 2) master → master-ko (src 제외) 복사
           git checkout master -- . ":(exclude)src"
 
-          git add .
-          git commit -m "Update master-ko with upstream changes (excluding src)" || echo "No changes to commit"
-        shell: bash
+          # 3) package.json 깊이 병합
+          node <<'NODE'
+          const fs = require('fs');
+          const merge = (a,b)=>{for(const k in b){if(b[k]&&typeof b[k]==='object'&&!Array.isArray(b[k]))a[k]=merge(a[k]||{},b[k]);else if(!(k in a))a[k]=b[k];}return a;}
+          const oldPkg = fs.existsSync('/tmp/pkg_old.json') ? JSON.parse(fs.readFileSync('/tmp/pkg_old.json','utf8')) : {};
+          const newPkg = JSON.parse(fs.readFileSync('package.json','utf8'));
+          ['dependencies','devDependencies','peerDependencies','scripts'].forEach(k=>{
+            newPkg[k]=merge(newPkg[k]||{},oldPkg[k]||{});
+          });
+          fs.writeFileSync('package.json',JSON.stringify(newPkg,null,2)+'\n');
+          NODE
 
-      - name: Compare Changes with Existing master-ko PRs
-        id: compare-changes-ko
-        if: env.existing_pr_ko == 'true'
-        run: |
-          ALL_INCLUDED=true
-          EXISTING_BRANCH=""
-          for pr_ref in ${{ env.existing_pr_ko_ref }}
-          do
-            echo "Fetching branch: $pr_ref"
-            git fetch origin "$pr_ref:$pr_ref-branch"
-            echo "Comparing updated master-ko with existing PR branch (excluding src & .gitignore)"
-            if ! git diff --quiet master-ko "$pr_ref-branch" -- . ':(exclude)src' ':(exclude).gitignore'; then
-              ALL_INCLUDED=false
-              EXISTING_BRANCH=$pr_ref
-              break
-            fi
+          # 4) 로컬 전용 파일 복원(존재할 때만)
+          for f in pnpm-lock.yaml .yarnrc.yml; do
+            git ls-files --error-unmatch "$f" >/dev/null 2>&1 && git checkout master-ko -- "$f" || true
           done
 
-          if [ "$ALL_INCLUDED" = true ]; then
-            echo "ko_diff=false" >> $GITHUB_ENV
-          else
-            echo "ko_diff=true" >> $GITHUB_ENV
-            if [ -n "$EXISTING_BRANCH" ]; then
-              PR_NUMBER=$(curl -s \
-                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                -H "Accept: application/vnd.github.v3+json" \
-                "https://api.github.com/repos/${{ github.repository }}/pulls" \
-                | jq -r '.[] | select(.head.ref=="'$EXISTING_BRANCH'") | .number')
-              echo "Closing master-ko PR #$PR_NUMBER"
-              curl -X PATCH \
-                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                -H "Accept: application/vnd.github.v3+json" \
-                https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER \
-                -d '{"state":"closed"}'
-            fi
-          fi
-        shell: bash
+          git add .
+          git commit -m "Update master-ko (deep-merge package.json, keep local files)" || true
 
-      - name: Update Existing master-ko PR Branch
-        if: env.existing_pr_ko == 'true' && env.ko_diff == 'false'
-        run: |
-          EXISTING_BRANCH=$(echo "${{ env.existing_pr_ko_ref }}" | awk '{print $1}')
-          echo "Pushing updated changes to existing master-ko branch: $EXISTING_BRANCH"
-          git push origin master-ko:"$EXISTING_BRANCH" --force
+      - name: Push to existing master-ko PR
+        if: env.existing_pr_ko == 'true'
         shell: bash
-
-      - name: Create New PR for master-ko Update
-        if: env.ko_diff == 'true' || env.existing_pr_ko == 'false'
         run: |
-          BRANCH_NAME=update-master-ko-$(date +%Y%m%d%H%M%S)
-          git checkout -b $BRANCH_NAME
-          git push origin $BRANCH_NAME
-          curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          BR=$(echo "${{ env.existing_pr_ko_ref }}" | awk '{print $1}')
+          git push origin master-ko:"$BR" --force-with-lease
+
+      - name: Create master-ko PR
+        if: env.existing_pr_ko == 'false'
+        shell: bash
+        run: |
+          BR=update-master-ko-$(date +%Y%m%d%H%M%S)
+          git checkout -b $BR
+          git push origin $BR
+          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/${{ github.repository }}/pulls \
-            -d '{
-              "title": "Update master-ko (excluding src)",
-              "body": "This PR updates the master-ko branch with upstream changes except for the src directory.",
-              "head": "'"${BRANCH_NAME}"'",
-              "base": "master-ko"
-            }'
-        shell: bash
+            -d '{"title":"Update master-ko (excluding src)","head":"'"$BR"'","base":"master-ko"}'
