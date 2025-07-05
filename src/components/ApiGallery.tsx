@@ -163,6 +163,21 @@ export default function ApiGallery() {
           <li>
             <div>
               <h3>
+                <code>{`</>`}</code>useLens
+              </h3>
+              <p>
+                타입 세이프 렌즈를 통해 재사용 가능하고 공유 가능한 폼
+                컴포넌트를 만들 수 있으며, 폼 필드에 정밀하게 포커스할 수
+                있습니다.
+              </p>
+              <Link href="/docs/uselens" aria-label="read more about useLens">
+                Read More ▸
+              </Link>
+            </div>
+          </li>
+          <li>
+            <div>
+              <h3>
                 <code>{`</>`}</code>createFormControl
               </h3>
               <p className={styles.beta}>BETA @v7.55.0-next.3</p>
