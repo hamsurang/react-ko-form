@@ -18,13 +18,13 @@ npm install @hookform/lenses
 
 ### 기능
 
-- **타입 안전한 폼 상태**: 전체 TypeScript 지원과 정밀한 타입 추론으로 데이터의 특정 부분에 안전하게 포커스할 수 있습니다.
+- **타입 안전한 폼 상태**: 완전한 TypeScript 지원과 정밀한 타입 추론으로 데이터의 핵심 부분에 집중하세요.
 - **함수형 렌즈**: 렌즈 연산을 조합하여 복잡한 변환을 손쉽게 구축할 수 있습니다.
 - **깊은 구조 지원**: 중첩된 구조와 배열을 특화된 연산으로 우아하게 다룰 수 있습니다.
 - **매끄러운 통합**: React Hook Form의 Control API 및 기존 기능과 자연스럽게 연동됩니다.
 - **최적화된 성능**: 각 렌즈는 캐시되어 재사용되므로 효율성이 극대화됩니다.
 - **배열 처리**: 타입 안전한 매핑으로 동적 필드를 손쉽게 지원합니다.
-- **조합 가능한 API**: 우아한 렌즈 조합으로 복잡한 변환을 구축할 수 있습니다.
+- **조합 가능한 API**: 우아한 렌즈 조합으로 복잡한 변환을 구현할 수 있습니다.
 
 ### Props
 
@@ -41,9 +41,9 @@ const { control } = useForm<MyFormData>()
 const lens = useLens({ control })
 ```
 
-#### Dependencies 배열 (선택 사항)
+#### 의존성 배열(Dependencies Array) (선택 사항)
 
-옵션으로 두 번째 인자로 dependency array를 전달할 수 있습니다. 이 배열에 포함된 값이 변경되면 렌즈 캐시가 모두 초기화되고, 모든 렌즈가 새로 생성됩니다:
+옵션으로 두 번째 인자로 의존성 배열(Dependencies Array)를 전달할 수 있습니다. 이 배열에 포함된 값이 변경되면 렌즈 캐시가 모두 초기화되고, 모든 렌즈가 새로 생성됩니다:
 
 ```tsx copy
 const lens = useLens({ control }, [dependencies])
@@ -113,7 +113,7 @@ function ContactsList({ lens }: { lens: Lens<Contact[]> }) {
 
 <Admonition type="important" title="TypeScript Support">
 
-`focus` 메서드는 자동완성과 타입 체크가 가능한 완전한 TypeScript 지원을 제공합니다:
+`focus` 메서드는 TypeScript의 자동 완성과 타입 검사를 완벽 지원합니다:
 
 - 사용 가능한 필드 경로 자동완성
 - 존재하지 않는 경로에 대한 타입 에러
@@ -178,7 +178,7 @@ function SharedComponent({
 }
 ```
 
-#### Array Reflection
+#### 배열 재구조화(Array Reflection)
 
 배열 렌즈도 구조를 재구성할 수 있습니다:
 
@@ -196,7 +196,7 @@ function AnotherComponent({ lens }: { lens: Lens<{ data: string }[]> }) {
 
 <Admonition type="important">
 
-배열 리플렉션의 경우, 반드시 단일 항목이 포함된 배열을 템플릿으로 전달해야 합니다.
+배열 재구조화의 경우, 반드시 단일 항목이 포함된 배열을 템플릿으로 전달해야 합니다.
 
 </Admonition>
 
@@ -247,7 +247,7 @@ function Component({
 
 ### map {#map}
 
-`useFieldArray`와 통합하여 배열 필드를 매핑합니다. 이 메서드는 `useFieldArray`의 `fields` 속성이 필요합니다.
+`useFieldArray`와 통합되어 배열 필드를 순회합니다. 이 메서드를 사용하라면 `useFieldArray`의 `fields` 속성을 전달해야 합니다.
 
 ```tsx copy
 import { useFieldArray } from "@hookform/lenses/rhf"
@@ -347,7 +347,7 @@ function ControlledInput({ lens }: { lens: Lens<string> }) {
 
 ### useFieldArray
 
-렌즈와 함께 배열을 손쉽게 다루려면 `@hookform/lenses/rhf`에서 확장된 `useFieldArray`를 임포트하세요.
+렌즈와 함께 배열을 손쉽게 다루려면 `@hookform/lenses/rhf`에서 확장된 `useFieldArray`를 import하세요.
 
 ```tsx copy
 import { useFieldArray } from "@hookform/lenses/rhf"
@@ -393,10 +393,10 @@ function DynamicForm({
 <Admonition type="important" title="Rules">
 
 - `control` 파라미터는 필수이며, React Hook Form의 `useForm` 훅에서 반환된 객체여야 합니다.
-- 각 렌즈는 캐시되어 재사용되므로, 동일한 경로에 여러 번 포커스해도 항상 동일한 렌즈 인스턴스가 반환됩니다.
+- 각 렌즈는 성능 최적화를 위해 캐시에 저장되어 재사용되며, 동일한 경로를 여러 번 포커스하더라도 항상 동일한 렌즈 인스턴스가 반환됩니다.
 - `reflect` 등 함수형 메서드에 함수를 전달할 때는 캐싱 효과를 유지하려면 해당 함수를 메모이제이션하세요.
-- Dependencies 배열은 선택 사항이지만, 외부 상태 변화에 따라 렌즈 캐시를 초기화할 때 유용합니다.
-- 모든 렌즈 연산은 완전한 TypeScript 타입 안전성과 타입 추론을 보장합니다.
+- 의존성 배열(Dependencies Array)은 선택 사항이지만, 외부 상태 변화에 따라 렌즈 캐시를 초기화할 때 유용합니다.
+- 모든 렌즈 연산은 TypeScript 타입 안전성과 타입 추론을 완벽히 보장합니다.
 
 </Admonition>
 
@@ -498,7 +498,7 @@ interface InputProps<T, TName extends Path<T>> {
 
 #### 2. `useFormContext()`는 강한 결합을 만듭니다
 
-`useFormContext()`를 재사용 가능한 컴포넌트에서 사용하면 특정 폼 스키마에 강하게 결합되어 이동성이 떨어지고 공유하기 어려워집니다:
+`useFormContext()`를 재사용 가능한 컴포넌트에서 사용하면 특정 폼 스키마에 강하게 결합되어 유연성이 떨어지고 공유하기 어려워집니다:
 
 ```tsx
 // ❌ 부모 폼 구조에 강하게 결합됨
