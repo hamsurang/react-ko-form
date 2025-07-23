@@ -1,65 +1,65 @@
 ---
 title: useLens
-description: Type-safe functional lenses for React Hook Form
+description: React Hook Form을 위한 타입 안전한 함수형 렌즈
 sidebar: apiLinks
 ---
 
 ## \</> `useLens`
 
-React Hook Form Lenses is a powerful TypeScript-first library that brings the elegance of functional lenses to form development. It provides type-safe manipulation of nested structures, enabling developers to precisely control and transform complex data with ease.
+React Hook Form Lenses는 함수형 렌즈의 개념을 폼 개발에 적용한 TypeScript 우선 라이브러리입니다. 중첩된 구조를 타입 안전하게 다룰 수 있어, 복잡한 데이터를 쉽고 정밀하게 제어하고 변환할 수 있습니다.
 
-`useLens` is a custom hook that creates a lens instance connected to your React Hook Form control, enabling type-safe focusing, transformation, and manipulation of deeply nested form data structures through functional programming concepts.
+`useLens`는 React Hook Form의 control에 연결된 렌즈 인스턴스를 생성하는 커스텀 훅으로, 함수형 프로그래밍 개념을 통해 깊이 중첩된 폼 데이터 구조를 타입 안전하게 포커싱, 변환, 조작할 수 있게 해줍니다.
 
-### Installation
+### 설치
 
 ```bash copy
 npm install @hookform/lenses
 ```
 
-### Features
+### 기능
 
-- **Type-Safe Form State**: Focus on specific parts of your data with full TypeScript support and precise type inference
-- **Functional Lenses**: Build complex transformations through composable lens operations
-- **Deep Structure Support**: Handle deeply nested structures and arrays elegantly with specialized operations
-- **Seamless Integration**: Work smoothly with React Hook Form's Control API and existing functionality
-- **Optimized Performance**: Each lens is cached and reused for optimal efficiency
-- **Array Handling**: Specialized support for dynamic fields with type-safe mapping
-- **Composable API**: Build complex transformations through elegant lens composition
+- **타입 안전한 폼 상태**: 완전한 TypeScript 지원과 정밀한 타입 추론으로 데이터의 핵심 부분에 집중하세요.
+- **함수형 렌즈**: 렌즈 연산을 조합하여 복잡한 변환을 손쉽게 구축할 수 있습니다.
+- **깊은 구조 지원**: 중첩된 구조와 배열을 특화된 연산으로 우아하게 다룰 수 있습니다.
+- **매끄러운 통합**: React Hook Form의 Control API 및 기존 기능과 자연스럽게 연동됩니다.
+- **최적화된 성능**: 각 렌즈는 캐시되어 재사용되므로 효율성이 극대화됩니다.
+- **배열 처리**: 타입 안전한 매핑으로 동적 필드를 손쉽게 지원합니다.
+- **조합 가능한 API**: 우아한 렌즈 조합으로 복잡한 변환을 구현할 수 있습니다.
 
 ### Props
 
 ---
 
-The `useLens` hook accepts the following configuration:
+`useLens` 훅은 다음과 같은 설정을 받습니다:
 
 #### `control`: <TypeText>Control\<TFieldValues></TypeText>
 
-**Required.** The control object from React Hook Form's `useForm` hook. This connects your lens to the form management system.
+**필수.** React Hook Form의 `useForm` 훅에서 반환된 control 객체입니다. 이 객체를 통해 렌즈가 폼 관리 시스템과 연결됩니다.
 
 ```tsx copy
 const { control } = useForm<MyFormData>()
 const lens = useLens({ control })
 ```
 
-#### Dependencies Array (Optional)
+#### 의존성 배열(Dependencies Array) (선택 사항)
 
-You can optionally pass a dependency array as the second parameter to clear the lens cache and re-create all lenses when dependencies change:
+옵션으로 두 번째 인자로 의존성 배열(Dependencies Array)를 전달할 수 있습니다. 이 배열에 포함된 값이 변경되면 렌즈 캐시가 모두 초기화되고, 모든 렌즈가 새로 생성됩니다:
 
 ```tsx copy
 const lens = useLens({ control }, [dependencies])
 ```
 
-This is useful when you need to reset the entire lens cache based on external state changes.
+외부 상태 변경에 따라 전체 렌즈 캐시를 초기화해야 할 때 유용합니다.
 
-### Return
+### 반환값
 
 ---
 
-The following table contains information about the main types and operations available on lens instances:
+다음 표는 렌즈 인스턴스에서 사용할 수 있는 주요 타입과 연산에 대한 정보를 담고 있습니다:
 
-**Core Types:**
+**핵심 타입(Core Types):**
 
-`Lens<T>` - The main lens type that provides different operations based on the field type you're working with:
+`Lens<T>` - 작업 중인 필드 타입에 따라 다양한 연산을 제공하는 주요 렌즈 타입입니다:
 
 ```ts
 type LensWithArray = Lens<string[]>
@@ -67,35 +67,36 @@ type LensWithObject = Lens<{ name: string; age: number }>
 type LensWithPrimitive = Lens<string>
 ```
 
-**Main Operations:**
+**주요 연산(Main Operations):**
 
-These are the core methods available on every lens instance:
+다음은 모든 렌즈 인스턴스에서 사용할 수 있는 핵심 메서드입니다:
 
-| Method                | Description                                    | Returns              |
-| --------------------- | ---------------------------------------------- | -------------------- |
-| [`focus`](#focus)     | Focuses on a specific field path               | `Lens<PathValue>`    |
-| [`reflect`](#reflect) | Transform and reshape lens structure           | `Lens<NewStructure>` |
-| [`map`](#map)         | Iterate over array fields (with useFieldArray) | `R[]`                |
-| [`interop`](#interop) | Connect to React Hook Form's control system    | `{ control, name }`  |
+| Method                | Description                                             | Returns              |
+| --------------------- | ------------------------------------------------------- | -------------------- |
+| [`focus`](#focus)     | 특정 필드 경로에 포커스합니다                           | `Lens<PathValue>`    |
+| [`reflect`](#reflect) | 렌즈 구조를 변환하고 재구성합니다                       | `Lens<NewStructure>` |
+| [`map`](#map)         | 배열 필드를 반복 처리합니다 (useFieldArray와 함께 사용) | `R[]`                |
+| [`interop`](#interop) | React Hook Form의 control 시스템과 연결합니다           | `{ control, name }`  |
 
 ---
 
 ### focus {#focus}
 
-Creates a new lens focused on a specific path. This is the primary method for drilling down into your data structure.
+특정 경로에 포커스된 새로운 렌즈를 생성합니다. 데이터 구조를 깊이 탐색할 때 사용하는 주요 메서드입니다.
 
 ```tsx copy
-// Type-safe path focusing
+// 타입 안전한 경로 포커싱
 const profileLens = lens.focus("profile")
 const emailLens = lens.focus("profile.email")
 const arrayItemLens = lens.focus("users.0.name")
 ```
 
-**Array focusing:**
+**배열 포커싱:**
 
 ```tsx copy
 function ContactsList({ lens }: { lens: Lens<Contact[]> }) {
-  // Focus on specific array index
+  // 특정 배열 인덱스에 포커스하기
+
   const firstContact = lens.focus("0")
   const secondContactName = lens.focus("1.name")
 
@@ -112,19 +113,19 @@ function ContactsList({ lens }: { lens: Lens<Contact[]> }) {
 
 <Admonition type="important" title="TypeScript Support">
 
-The `focus` method provides full TypeScript support with autocompletion and type checking:
+`focus` 메서드는 TypeScript의 자동 완성과 타입 검사를 완벽 지원합니다:
 
-- Autocomplete available field paths
-- Type errors for non-existent paths
-- Inferred return types based on focused field
+- 사용 가능한 필드 경로 자동완성
+- 존재하지 않는 경로에 대한 타입 에러
+- 포커싱된 필드에 따라 추론된 반환 타입
 
 </Admonition>
 
 ### reflect {#reflect}
 
-Transforms the lens structure with complete type inference. This is useful when you want to create a new lens from an existing one with a different shape to pass to a shared component.
+렌즈 구조를 완전한 타입 추론과 함께 변환합니다. 기존 렌즈에서 새로운 형태의 렌즈를 만들어 공통 컴포넌트에 전달할 때 유용합니다.
 
-The first argument is a proxy with a dictionary of lenses. Note that lens instantiation happens only on property access. The second argument is the original lens.
+첫 번째 인자는 렌즈의 딕셔너리 프록시입니다. 프로퍼티에 접근할 때만 실제 렌즈가 생성됩니다. 두 번째 인자는 원본 렌즈입니다.
 
 #### Object Reflection
 
@@ -156,9 +157,9 @@ function SharedComponent({
 }
 ```
 
-**Alternative syntax using the lens parameter:**
+**lens 매개변수를 직접 사용하는 대체 문법:**
 
-You can also use the second parameter (the original lens) directly:
+두 번째 매개변수(원본 렌즈)를 직접 사용할 수도 있습니다:
 
 ```tsx
 const contactLens = lens.reflect((_, l) => ({
@@ -177,9 +178,9 @@ function SharedComponent({
 }
 ```
 
-#### Array Reflection
+#### 배열 재구조화(Array Reflection)
 
-You can restructure array lenses:
+배열 렌즈도 구조를 재구성할 수 있습니다:
 
 ```tsx
 function ArrayComponent({ lens }: { lens: Lens<{ value: string }[]> }) {
@@ -195,13 +196,13 @@ function AnotherComponent({ lens }: { lens: Lens<{ data: string }[]> }) {
 
 <Admonition type="important">
 
-Note that for array reflection, you must pass an array with a single item as the template.
+배열 재구조화의 경우, 반드시 단일 항목이 포함된 배열을 템플릿으로 전달해야 합니다.
 
 </Admonition>
 
 #### Merging Lenses
 
-You can use `reflect` to merge two lenses into one:
+`reflect`를 사용하여 두 개의 렌즈를 하나로 병합할 수 있습니다:
 
 ```tsx
 function Component({
@@ -220,11 +221,11 @@ function Component({
 }
 ```
 
-Keep in mind that in such cases, the function passed to `reflect` is no longer pure.
+이 경우 `reflect`에 전달된 함수는 더 이상 순수 함수가 아님을 유의하세요.
 
 #### Spread Operator Support
 
-You can use spread in reflect if you want to leave other properties as is. At runtime, the first argument is just a proxy that calls `focus` on the original lens. This is useful for proper typing when you need to change the property names for only a few fields and leave the rest unchanged:
+reflect에서 스프레드 연산자를 사용하면 나머지 프로퍼티를 그대로 유지할 수 있습니다. 런타임에서 첫 번째 인자는 원본 렌즈의 `focus`를 호출하는 프록시일 뿐입니다. 일부 필드의 프로퍼티 이름만 변경하고 나머지는 그대로 두고 싶을 때 타입 안전하게 사용할 수 있습니다:
 
 ```tsx
 function Component({
@@ -246,7 +247,7 @@ function Component({
 
 ### map {#map}
 
-Maps over array fields with `useFieldArray` integration. This method requires the `fields` property from `useFieldArray`.
+`useFieldArray`와 통합되어 배열 필드를 순회합니다. 이 메서드를 사용하라면 `useFieldArray`의 `fields` 속성을 전달해야 합니다.
 
 ```tsx copy
 import { useFieldArray } from "@hookform/lenses/rhf"
@@ -290,21 +291,21 @@ function ContactForm({
 
 **Map callback parameters:**
 
-| Parameter    | Type        | Description                            |
-| ------------ | ----------- | -------------------------------------- |
-| `value`      | `T`         | The current field value with `id`      |
-| `lens`       | `Lens<T>`   | Lens focused on the current array item |
-| `index`      | `number`    | Current array index                    |
-| `array`      | `T[]`       | The complete array                     |
-| `originLens` | `Lens<T[]>` | The original array lens                |
+| Parameter    | Type        | Description                    |
+| ------------ | ----------- | ------------------------------ |
+| `value`      | `T`         | 현재 필드 값(`id` 포함)        |
+| `lens`       | `Lens<T>`   | 현재 배열 항목에 포커스된 렌즈 |
+| `index`      | `number`    | 현재 배열 인덱스               |
+| `array`      | `T[]`       | 전체 배열                      |
+| `originLens` | `Lens<T[]>` | 원본 배열 렌즈                 |
 
 ### interop {#interop}
 
-The `interop` method provides seamless integration with React Hook Form by exposing the underlying `control` and `name` properties. This allows you to connect your lens to React Hook Form's control API.
+`interop` 메서드는 렌즈가 내부적으로 사용하는 `control`과 `name` 속성을 노출하여 React Hook Form과의 자연스러운 통합을 제공합니다. 이를 통해 렌즈를 React Hook Form의 control API에 손쉽게 연결할 수 있습니다.
 
-#### First Variant: Object Return
+#### 첫 번째 형태: 객체 반환
 
-The first variant involves calling `interop()` without arguments, which returns an object containing the `control` and `name` properties for React Hook Form:
+첫 번째 형태는 인수 없이 `interop()`을 호출하는 것으로, React Hook Form을 위한 `control` 및 `name` 속성을 포함하는 객체를 반환합니다:
 
 ```tsx
 const { control, name } = lens.interop()
@@ -312,9 +313,9 @@ const { control, name } = lens.interop()
 return <input {...control.register(name)} />
 ```
 
-#### Second Variant: Callback Function
+#### 두 번째 형태: 콜백 함수
 
-The second variant passes a callback function to `interop` which receives the `control` and `name` properties as arguments. This allows you to work with these properties directly within the callback scope:
+두 번째 형태는 `interop`에 콜백 함수를 전달하는 방식입니다. 이 콜백은 `control`과 `name` 속성을 인자로 받아, 콜백 내부에서 직접 이 값들을 활용할 수 있습니다:
 
 ```tsx
 return (
@@ -325,9 +326,9 @@ return (
 )
 ```
 
-#### Integration with useController
+#### useController와의 통합
 
-The `interop` method's return value can be passed directly to the `useController` hook from React Hook Form, providing seamless integration:
+`interop` 메서드의 반환값은 React Hook Form의 `useController` 훅에 직접 전달할 수 있어, 매끄러운 통합이 가능합니다:
 
 ```tsx
 import { useController } from "react-hook-form"
@@ -346,7 +347,7 @@ function ControlledInput({ lens }: { lens: Lens<string> }) {
 
 ### useFieldArray
 
-Import the enhanced `useFieldArray` from `@hookform/lenses/rhf` for seamless array handling with lenses.
+렌즈와 함께 배열을 손쉽게 다루려면 `@hookform/lenses/rhf`에서 확장된 `useFieldArray`를 import하세요.
 
 ```tsx copy
 import { useFieldArray } from "@hookform/lenses/rhf"
@@ -391,17 +392,17 @@ function DynamicForm({
 
 <Admonition type="important" title="Rules">
 
-- The `control` parameter is required and must be from React Hook Form's `useForm` hook
-- Each lens is cached and reused for optimal performance - focusing on the same path multiple times returns the identical lens instance
-- When using functions with methods like `reflect`, memoize the function to maintain caching benefits
-- Dependencies array is optional but useful for clearing lens cache based on external state changes
-- All lens operations maintain full TypeScript type safety and inference
+- `control` 파라미터는 필수이며, React Hook Form의 `useForm` 훅에서 반환된 객체여야 합니다.
+- 각 렌즈는 성능 최적화를 위해 캐시에 저장되어 재사용되며, 동일한 경로를 여러 번 포커스하더라도 항상 동일한 렌즈 인스턴스가 반환됩니다.
+- `reflect` 등 함수형 메서드에 함수를 전달할 때는 캐싱 효과를 유지하려면 해당 함수를 메모이제이션하세요.
+- 의존성 배열(Dependencies Array)은 선택 사항이지만, 외부 상태 변화에 따라 렌즈 캐시를 초기화할 때 유용합니다.
+- 모든 렌즈 연산은 TypeScript 타입 안전성과 타입 추론을 완벽히 보장합니다.
 
 </Admonition>
 
-### Examples
+### 예제
 
-#### Basic Usage
+#### 기본 사용법
 
 ```tsx copy sandbox="https://codesandbox.io/p/sandbox/keen-herschel-y5h2ft"
 import { useForm } from "react-hook-form"
@@ -453,7 +454,7 @@ function ChildForm({
   )
 }
 
-// PersonForm is used twice with different sources
+// PersonForm은 서로 다른 소스와 함께 두 번 사용됩니다.
 function PersonForm({
   lens,
 }: {
@@ -472,61 +473,60 @@ function StringInput({ lens }: { lens: Lens<string> }) {
 }
 ```
 
-### Motivation
+### 동기
 
-Working with complex, deeply nested forms in React Hook Form can quickly become challenging. Traditional approaches often lead to common problems that make development more difficult and error-prone:
+React Hook Form에서 복잡하고 깊이 중첩된 폼을 다루는 것은 금방 어려워질 수 있습니다. 기존 방식은 개발을 더 어렵고 오류가 발생하기 쉬운 여러 문제로 이어집니다:
 
-#### 1. Type-Safe Name Props Are Nearly Impossible
+#### 1. 타입 안전한 Name 프롭은 사실상 불가능합니다
 
-Creating reusable form components requires accepting a `name` prop to specify which field to control. However, making this type-safe in TypeScript is extremely challenging:
+재사용 가능한 폼 컴포넌트를 만들려면 제어할 필드를 지정하기 위해 `name` 프롭을 받아야 합니다. 그러나 TypeScript에서 이를 타입 안전하게 만드는 것은 매우 어렵습니다:
 
 ```tsx
-// ❌ Loses type safety - no way to ensure name matches the form schema
+// ❌ 타입 안전성을 잃음 - name이 폼 스키마와 일치하는지 확인할 방법이 없음
 interface InputProps<T> {
-  name: string // Could be any string, even invalid field paths
+  name: string // 임의의 문자열일 수 있으며, 잘못된 필드 경로일 수도 있음
   control: Control<T>
 }
 
-// ❌ Attempting proper typing leads to complex, unmaintainable generics
+// ❌ 적절한 타입 지정을 시도하면 복잡하고 유지 관리가 어려운 제네릭으로 이어집니다.
 interface InputProps<T, TName extends Path<T>> {
   name: TName
   control: Control<T>
 }
-// This becomes unwieldy and breaks down with nested objects
+// 중첩 객체에서는 유지보수가 어렵고 쉽게 무너집니다
 ```
 
-#### 2. `useFormContext()` Creates Tight Coupling
+#### 2. `useFormContext()`는 강한 결합을 만듭니다
 
-Using `useFormContext()` in reusable components tightly couples them to specific form schemas, making them less portable and harder to share:
+`useFormContext()`를 재사용 가능한 컴포넌트에서 사용하면 특정 폼 스키마에 강하게 결합되어 유연성이 떨어지고 공유하기 어려워집니다:
 
 ```tsx
-// ❌ Tightly coupled to parent form structure
+// ❌ 부모 폼 구조에 강하게 결합됨
 function AddressForm() {
-  const { control } = useFormContext<UserForm>() // Locked to UserForm type
+  const { control } = useFormContext<UserForm>() // UserForm 타입에 고정됨
 
   return (
     <div>
-      <input {...control.register("address.street")} />{" "}
-      {/* Fixed field paths */}
+      <input {...control.register("address.street")} /> {/* 고정된 필드 경로 */}
       <input {...control.register("address.city")} />
     </div>
   )
 }
-// Can't reuse this component with different form schemas
+// 다른 폼 스키마로 이 컴포넌트를 재사용할 수 없음
 ```
 
-#### 3. String-Based Field Paths Are Error-Prone
+#### 3. 문자열 기반 필드 경로는 오류를 유발하기 쉽습니다
 
-Building reusable components with string concatenation for field paths is fragile and difficult to maintain:
+문자열 연결로 필드 경로를 만드는 재사용 가능한 컴포넌트 방식은 매우 취약하고 유지보수가 어렵습니다:
 
 ```tsx
-// ❌ String concatenation is error-prone and hard to refactor
+// ❌ 문자열 연결 방식은 오류가 발생하기 쉽고 리팩터링이 어렵습니다
 function PersonForm({ basePath }: { basePath: string }) {
   const { register } = useForm();
 
   return (
     <div>
-      {/* No type safety, prone to typos */}
+      {/* 타입 안전성이 없고, 오타에 취약합니다 */}
       <input {...register(`${basePath}.firstName`)} />
       <input {...register(`${basePath}.lastName`)} />
       <input {...register(`${basePath}.email`)} />
@@ -534,48 +534,48 @@ function PersonForm({ basePath }: { basePath: string }) {
   );
 }
 
-// Usage becomes unwieldy and error-prone
+// 사용법이 번거롭고 오류가 발생하기 쉽습니다
 <PersonForm basePath="user.profile.owner" />
 <PersonForm basePath="user.profile.emergency_contact" />
 ```
 
-### Performance Optimization
+### 성능 최적화
 
-#### Built-in Caching System
+#### 내장 캐싱 시스템
 
-Lenses are automatically cached to prevent unnecessary component re-renders when using `React.memo`. This means that focusing on the same path multiple times will return the identical lens instance:
+렌즈는 `React.memo`를 사용할 때 불필요한 컴포넌트 리렌더링을 방지하기 위해 자동으로 캐싱됩니다. 즉, 동일한 경로에 여러 번 포커스해도 항상 동일한 렌즈 인스턴스가 반환됩니다:
 
 ```tsx
 assert(lens.focus("firstName") === lens.focus("firstName"))
 ```
 
-#### Function Memoization
+#### 함수 메모이제이션
 
-When using functions with methods like `reflect`, you need to be careful about function identity to maintain caching benefits:
+`reflect`와 같은 메서드에 함수를 전달할 때는 캐싱 효과를 유지하려면 함수의 동일성에 주의해야 합니다:
 
 ```tsx
-// ❌ Creates a new function on every render, breaking the cache
+// ❌ 매 렌더마다 새로운 함수를 생성하여 캐시가 깨집니다
 lens.reflect((l) => l.focus("firstName"))
 ```
 
-To maintain caching, memoize the function you pass:
+캐싱을 유지하려면, 전달하는 함수를 반드시 메모이제이션하세요:
 
 ```tsx
-// ✅ Memoized function preserves the cache
+// ✅ 메모이제이션된 함수는 캐시를 보존합니다
 lens.reflect(useCallback((l) => l.focus("firstName"), []))
 ```
 
 <Admonition type="tip" title="React Compiler Optimization">
 
-[React Compiler](https://react.dev/learn/react-compiler) can automatically optimize these functions for you! Since functions passed to `reflect` have no side effects, React Compiler will automatically hoist them to module scope, ensuring lens caching works perfectly without manual memoization.
+[React Compiler](https://react.dev/learn/react-compiler)는 이러한 함수들을 자동으로 최적화해줍니다! `reflect`에 전달되는 함수는 부작용이 없으므로, React Compiler가 자동으로 해당 함수를 모듈 스코프로 끌어올려 렌즈 캐싱이 수동 메모이제이션 없이도 완벽하게 동작하도록 보장합니다.
 
 </Admonition>
 
-### Advanced Usage
+### 고급 사용법
 
-#### Manual Lens Creation
+#### 수동 렌즈 생성
 
-For advanced use cases or when you need more control, you can create lenses manually without the `useLens` hook using the `LensCore` class:
+더 고급 사용 사례나 세밀한 제어가 필요할 때는 `useLens` 훅 없이 `LensCore` 클래스를 사용해 렌즈를 직접 생성할 수 있습니다:
 
 ```tsx
 import { useMemo } from "react"
@@ -607,6 +607,6 @@ function App() {
 
 <Admonition type="tip" title="Questions or Feedback?">
 
-Found a bug or have a feature request? Check out the [GitHub repository](https://github.com/react-hook-form/lenses) to report issues or contribute to the project.
+버그를 발견하셨거나 기능 요청이 있으신가요? [GitHub 저장소](https://github.com/react-hook-form/lenses)에서 이슈를 등록하거나 프로젝트에 기여해 주세요.
 
 </Admonition>
