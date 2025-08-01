@@ -225,9 +225,11 @@ jobs:
             git ls-files --error-unmatch "$f" >/dev/null 2>&1 && git checkout master-ko -- "$f" || true
           done
 
-          # 5) pnpm lockfile 재생성
+          # 5) pnpm lockfile 클린 재생성
           if command -v pnpm &> /dev/null; then
-            pnpm install --lockfile-only
+            # 기존 lockfile 제거하고 클린 설치
+            rm -f pnpm-lock.yaml
+            pnpm install --frozen-lockfile=false
             git add pnpm-lock.yaml
           fi
 
