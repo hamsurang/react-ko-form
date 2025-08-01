@@ -187,8 +187,8 @@ jobs:
           # 1) master-ko 패키지 백업
           cp package.json /tmp/pkg_old.json || true
 
-          # 2) master → master-ko (src 제외) 복사
-          git checkout master -- . ":(exclude)src"
+          # 2) upstream/master → master-ko (src 제외) 복사 
+          git checkout upstream/master -- . ":(exclude)src"
 
           # 3) package.json 깊이 병합
           node <<'NODE'
