@@ -203,9 +203,15 @@ jobs:
           NODE
 
           # 4) 로컬 전용 파일 복원 (존재할 때만)
-          for f in pnpm-lock.yaml .yarnrc.yml README.md; do
+          for f in .yarnrc.yml README.md; do
             git ls-files --error-unmatch "$f" >/dev/null 2>&1 && git checkout master-ko -- "$f" || true
           done
+
+          # 5) pnpm lockfile 재생성
+          if command -v pnpm &> /dev/null; then
+            pnpm install --lockfile-only
+            git add pnpm-lock.yaml
+          fi
 
           git add .
           git commit -m "Update master-ko (deep-merge package.json, keep local files including README.md)" || echo "No changes to commit"
