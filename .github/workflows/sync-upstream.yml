@@ -193,12 +193,30 @@ jobs:
           # 3) package.json 깊이 병합
           node <<'NODE'
           const fs = require('fs');
-          const merge = (a,b)=>{for(const k in b){if(b[k]&&typeof b[k]==='object'&&!Array.isArray(b[k]))a[k]=merge(a[k]||{},b[k]);else if(!(k in a))a[k]=b[k];}return a;}
           const oldPkg = fs.existsSync('/tmp/pkg_old.json') ? JSON.parse(fs.readFileSync('/tmp/pkg_old.json','utf8')) : {};
           const newPkg = JSON.parse(fs.readFileSync('package.json','utf8'));
-          ['dependencies','devDependencies','peerDependencies','scripts'].forEach(k=>{
-            newPkg[k]=merge(newPkg[k]||{},oldPkg[k]||{});
+          
+          // 의존성 스마트 병합: upstream과 master-ko 둘 다에 있으면 upstream 버전, master-ko에만 있으면 유지
+          ['dependencies','devDependencies','peerDependencies'].forEach(k=>{
+            const upstreamDeps = newPkg[k] || {};
+            const localDeps = oldPkg[k] || {};
+            const merged = {...upstreamDeps}; // upstream을 기본으로 시작
+            
+            // master-ko에만 있는 패키지들 추가
+            for(const pkg in localDeps) {
+              if(!(pkg in upstreamDeps)) {
+                merged[pkg] = localDeps[pkg];
+              }
+            }
+            newPkg[k] = merged;
           });
+          
+          // scripts는 기존 방식으로 병합 (중복되지 않는 것만 추가)
+          const merge = (a,b)=>{for(const k in b){if(b[k]&&typeof b[k]==='object'&&!Array.isArray(b[k]))a[k]=merge(a[k]||{},b[k]);else if(!(k in a))a[k]=b[k];}return a;}
+          if(oldPkg.scripts) {
+            newPkg.scripts = merge(newPkg.scripts||{}, oldPkg.scripts);
+          }
+          
           fs.writeFileSync('package.json',JSON.stringify(newPkg,null,2)+'\n');
           NODE
 
