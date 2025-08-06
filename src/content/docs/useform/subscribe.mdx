@@ -1,51 +1,52 @@
 ---
 title: subscribe
-description: Subscribe to form state update without render
+description: 리렌더링 없이 폼 상태 업데이트 구독
 sidebar: apiLinks
 ---
 
 ## `subscribe:` <TypeText>`UseFormSubscribe<TFieldValues extends FieldValues>`</TypeText>
 
-Subscribe to [`formState`](/docs/useform/formState) changes and value updates. You can subscribe to individual fields or the entire form, while avoiding unnecessary re-renders caused by form changes.
+[`formState`](/docs/useform/formState) 변경사항과 값 업데이트를 구독합니다. 개별 필드나 전체 폼을 구독할 수 있으며, 폼 변경으로 인한 불필요한 리렌더링을 방지할 수 있습니다.
 
 ### Props
 
 ---
 
-| Name      | Type                                          | Description                                                         | Example                                                                                                                                                                                                                                                               |
-| --------- | --------------------------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name      | <TypeText>undefined</TypeText>                | Subscribe to the entire form                                        | `subscribe()`                                                                                                                                                                                                                                                         |
-|           | <TypeText>string[]</TypeText>                 | Subscribe on multiple fields by **name**.                           | `subscribe({ name: ['firstName', 'lastName'] })`                                                                                                                                                                                                                      |
-| formState | <TypeText>`Partial<ReadFormState>`</TypeText> | Pick which [`formState`](/docs/useform/formState) to be subscribed. | <CodeArea withOutCopy rawData={`subscribe({ \n  formState: { \n    values: true, \n    isDirty: true, \n    dirtyFields: true, \n    touchedFields: true, \n    isValid: true, \n    errors: true, \n    defaultValues: true, \n    isSubmitted: true  \n  } \n})`}/> |
-| callback  | <TypeText>`Function`</TypeText>               | The callback function for the subscription.                         | <CodeArea withOutCopy rawData={`subscribe({ \n  formState: { \n    values: true \n  }, \n  callback: ({ values }) => { \n    console.log(values) \n  } \n})`}/>                                                                                                       |
-| exact     | <TypeText>boolean</TypeText>                  | This prop will enable an exact match for input name subscriptions.  | `subscribe({ name: 'target', exact: true })`                                                                                                                                                                                                                          |
+| Name      | Type                                          | Description                                                 | Example                                                                                                                                                                                                                                                               |
+| --------- | --------------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name      | <TypeText>undefined</TypeText>                | 전체 폼을 구독합니다.                                       | `subscribe()`                                                                                                                                                                                                                                                         |
+|           | <TypeText>string[]</TypeText>                 | **name**으로 여러 필드를 구독합니다.                        | `subscribe({ name: ['firstName', 'lastName'] })`                                                                                                                                                                                                                      |
+| formState | <TypeText>`Partial<ReadFormState>`</TypeText> | 구독할 [`formState`](/docs/useform/formState)를 선택합니다. | <CodeArea withOutCopy rawData={`subscribe({ \n  formState: { \n    values: true, \n    isDirty: true, \n    dirtyFields: true, \n    touchedFields: true, \n    isValid: true, \n    errors: true, \n    defaultValues: true, \n    isSubmitted: true  \n  } \n})`}/> |
+| callback  | <TypeText>`Function`</TypeText>               | 구독을 위한 콜백 함수입니다.                                | <CodeArea withOutCopy rawData={`subscribe({ \n  formState: { \n    values: true \n  }, \n  callback: ({ values }) => { \n    console.log(values) \n  } \n})`}/>                                                                                                       |
+| exact     | <TypeText>boolean</TypeText>                  | 구독 시, 정확히 일치하는 매칭을 활성화합니다.               | `subscribe({ name: 'target', exact: true })`                                                                                                                                                                                                                          |
 
-<Admonition type="important" title="Notes">
+<Admonition type="important" title="참고사항">
 
 <ul>
   <li>
-    <p>This function is intended for subscribing to changes only; dispatching state updates or triggering re-renders is not allowed. eg `setValue` or `reset`</p>
-  </li>
-  <li>
     <p>
-      This function shares the same functionality as{" "}
-      <code>createFormControl.subscribe</code>, with the key difference being
-      that [createFormControl](/docs/createFormControl) can be initialized
-      outside of a React component.
+      이 함수는 변경사항 구독만을 위한 것이며, 상태 업데이트 dispatch나 리렌더링
+      트리거는 허용되지 않습니다. 예: `setValue` 또는 `reset`
     </p>
   </li>
   <li>
     <p>
-      This function is dedicated for subscribe form state without **render**,
-      use this function for that instead of [watch](/docs/useform/watch)
-      callback function.
+      이 함수는 <code>createFormControl.subscribe</code>와 동일한 기능을
+      공유합니다. 다만 [createFormControl](/docs/createFormControl)은 React
+      컴포넌트 외부에서도 초기화할 수 있다는 점이 다릅니다.
+    </p>
+  </li>
+  <li>
+    <p>
+      이 함수는 **렌더링** 없이 폼 상태를 구독하기 위한 전용 함수입니다.
+      [watch](/docs/useform/watch) 콜백 함수 대신 이 함수를 사용하세요.
     </p>
   </li>
 </ul>
 
 </Admonition>
 
-**Examples:**
+**예시:**
 
 ---
 
@@ -61,19 +62,19 @@ export default function App() {
   const { register, subscribe } = useForm<FormInputs>()
 
   useEffect(() => {
-    // make sure to unsubscribe;
+    // 구독 해제를 반드시 해야 합니다;
     const callback = subscribe({
       formState: {
-        values: true
+        values: true,
       },
       callback: ({ values }) => {
-        console.log(values);
-      }
+        console.log(values)
+      },
     })
 
-    return () => callback();
+    return () => callback()
 
-    // You can also just return the subscribe
+    // subscribe를 직접 반환할 수도 있습니다
     // return subscribe();
   }, [subscribe])
 
