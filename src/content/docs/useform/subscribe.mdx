@@ -12,26 +12,29 @@ sidebar: apiLinks
 
 ---
 
-| Name      | Type                                          | Description                                                         | Example                                                                                                                                                                                                                                                               |
-| --------- | --------------------------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name      | <TypeText>undefined</TypeText>                | 전체 폼을 구독합니다                                                | `subscribe()`                                                                                                                                                                                                                                                         |
-|           | <TypeText>string[]</TypeText>                 | **name**으로 여러 필드를 구독합니다.                                | `subscribe({ name: ['firstName', 'lastName'] })`                                                                                                                                                                                                                      |
-| formState | <TypeText>`Partial<ReadFormState>`</TypeText> | 구독할 [`formState`](/docs/useform/formState)를 선택합니다.        | <CodeArea withOutCopy rawData={`subscribe({ \n  formState: { \n    values: true, \n    isDirty: true, \n    dirtyFields: true, \n    touchedFields: true, \n    isValid: true, \n    errors: true, \n    defaultValues: true, \n    isSubmitted: true  \n  } \n})`}/> |
-| callback  | <TypeText>`Function`</TypeText>               | 구독을 위한 콜백 함수입니다.                                        | <CodeArea withOutCopy rawData={`subscribe({ \n  formState: { \n    values: true \n  }, \n  callback: ({ values }) => { \n    console.log(values) \n  } \n})`}/>                                                                                                       |
-| exact     | <TypeText>boolean</TypeText>                  | 이 속성은 필드 이름 구독 시 정확한 일치를 활성화합니다.              | `subscribe({ name: 'target', exact: true })`                                                                                                                                                                                                                          |
+| Name      | Type                                          | Description                                                 | Example                                                                                                                                                                                                                                                               |
+| --------- | --------------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name      | <TypeText>undefined</TypeText>                | 전체 폼을 구독합니다.                                       | `subscribe()`                                                                                                                                                                                                                                                         |
+|           | <TypeText>string[]</TypeText>                 | **name**으로 여러 필드를 구독합니다.                        | `subscribe({ name: ['firstName', 'lastName'] })`                                                                                                                                                                                                                      |
+| formState | <TypeText>`Partial<ReadFormState>`</TypeText> | 구독할 [`formState`](/docs/useform/formState)를 선택합니다. | <CodeArea withOutCopy rawData={`subscribe({ \n  formState: { \n    values: true, \n    isDirty: true, \n    dirtyFields: true, \n    touchedFields: true, \n    isValid: true, \n    errors: true, \n    defaultValues: true, \n    isSubmitted: true  \n  } \n})`}/> |
+| callback  | <TypeText>`Function`</TypeText>               | 구독을 위한 콜백 함수입니다.                                | <CodeArea withOutCopy rawData={`subscribe({ \n  formState: { \n    values: true \n  }, \n  callback: ({ values }) => { \n    console.log(values) \n  } \n})`}/>                                                                                                       |
+| exact     | <TypeText>boolean</TypeText>                  | 구독 시, 정확히 일치하는 매칭을 활성화합니다.               | `subscribe({ name: 'target', exact: true })`                                                                                                                                                                                                                          |
 
 <Admonition type="important" title="참고사항">
 
 <ul>
   <li>
-    <p>이 함수는 변경사항 구독만을 위한 것이며, 상태 업데이트 디스패치나 리렌더링 트리거는 허용되지 않습니다. 예: `setValue` 또는 `reset`</p>
+    <p>
+      이 함수는 변경사항 구독만을 위한 것이며, 상태 업데이트 dispatch나 리렌더링
+      트리거는 허용되지 않습니다. 예: `setValue` 또는 `reset`
+    </p>
   </li>
   <li>
-          <p>
-        이 함수는{" "}
-        <code>createFormControl.subscribe</code>와 동일한 기능을 공유합니다. 다만
-        [createFormControl](/docs/createFormControl)은 React 컴포넌트 외부에서도 초기화할 수 있다는 점이 다릅니다.
-      </p>
+    <p>
+      이 함수는 <code>createFormControl.subscribe</code>와 동일한 기능을
+      공유합니다. 다만 [createFormControl](/docs/createFormControl)은 React
+      컴포넌트 외부에서도 초기화할 수 있다는 점이 다릅니다.
+    </p>
   </li>
   <li>
     <p>
@@ -62,14 +65,14 @@ export default function App() {
     // 구독 해제를 반드시 해야 합니다;
     const callback = subscribe({
       formState: {
-        values: true
+        values: true,
       },
       callback: ({ values }) => {
-        console.log(values);
-      }
+        console.log(values)
+      },
     })
 
-    return () => callback();
+    return () => callback()
 
     // subscribe를 직접 반환할 수도 있습니다
     // return subscribe();
