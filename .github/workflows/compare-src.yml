@@ -36,29 +36,40 @@ jobs:
           git archive origin/master src | tar -x -C "$WORK"
           mv "$WORK/src" master-src
 
+      # ✅ 체크섬 기반 변경 탐지 (ADD / MODIFY / DELETE 정확 분류)
       - name: Detect changes between origin-src and master-src
         id: compare
         shell: bash
         run: |
           set -Eeuo pipefail
           mkdir -p origin-src
-          diff -qr master-src origin-src | \
-          sed -n \
-            -e 's/^Files master-src\/\(.*\) and origin-src\/.* differ$/M \1/p' \
-            -e 's/^Only in master-src\/\(.*\): \(.*\)$/A \1\/\2/p' \
-            -e 's/^Only in origin-src\/\(.*\): \(.*\)$/D \1\/\2/p' \
-            > changes.list || true
-          grep -E '\.(mdx|tsx|ts)$' changes.list > changes.filtered || true
+
+          # master-src / origin-src 각각 "path<TAB>sha1" 리스트 만들기
+          ( cd master-src && \
+            find . -type f -print0 | xargs -0 sha1sum | sed 's# \+\./#\t#' | awk -F'\t' '{print $2"\t"$1}' | sort -k1,1 ) > master.sum || true
+          ( cd origin-src && \
+            find . -type f -print0 | xargs -0 sha1sum | sed 's# \+\./#\t#' | awk -F'\t' '{print $2"\t"$1}' | sort -k1,1 ) > origin.sum || true
+
+          # A: master에만 있음 / D: origin에만 있음 / M: 둘 다 있는데 내용 변경
+          join -t $'\t' -v1 -1 1 -2 1 master.sum origin.sum | awk -F'\t' '{print "A "$1}' > added.raw || true
+          join -t $'\t' -v2 -1 1 -2 1 master.sum origin.sum | awk -F'\t' '{print "D "$1}' > deleted.raw || true
+          join -t $'\t'    -1 1 -2 1 master.sum origin.sum | awk -F'\t' '{if($2!=$3) print "M "$1}' > modified.raw || true
+
+          # 관심 확장자만 취합
+          awk '$1=="A" && $2 ~ /\.(mdx|tsx|ts)$/{print}' added.raw    > changes.filtered || true
+          awk '$1=="D" && $2 ~ /\.(mdx|tsx|ts)$/{print}' deleted.raw >> changes.filtered || true
+          awk '$1=="M" && $2 ~ /\.(mdx|tsx|ts)$/{print}' modified.raw >> changes.filtered || true
 
           if [ -s changes.filtered ]; then
             echo "pr_needed=true"  >> "$GITHUB_ENV"
           else
             echo "pr_needed=false" >> "$GITHUB_ENV"
           fi
-
-          echo "changes<<EOF" >> "$GITHUB_OUTPUT"
-          cat changes.filtered || true
-          echo "EOF" >> "$GITHUB_OUTPUT"
+          {
+            echo "changes<<EOF"
+            cat changes.filtered || true
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Update origin-src content
         if: ${{ env.pr_needed == 'true' }}
@@ -108,13 +119,14 @@ jobs:
             --head  "$new_branch" \
             --base  master-ko
 
-      - name: Ensure labels exist (docs/i18n/tracker)
+      # ✅ 라벨(기본 + kind) 없으면 생성
+      - name: Ensure labels exist (docs/i18n/tracker + kind labels)
         if: ${{ env.pr_needed == 'true' }}
         shell: bash
         run: |
           set -Eeuo pipefail
           owner="${GITHUB_REPOSITORY%/*}"; repo="${GITHUB_REPOSITORY#*/}"
-          existing=$(gh api -X GET "repos/$owner/$repo/labels?per_page=100" --jq '.[].name' || true)
+          existing=$(gh api -X GET "repos/$owner/$repo/labels?per_page=200" --jq '.[].name' || true)
           has() { grep -Fxq "$1" <<< "$existing"; }
           ensure_label() {
             name="$1"; color="$2"; desc="$3"
@@ -122,10 +134,15 @@ jobs:
               gh api -X POST "repos/$owner/$repo/labels" -f name="$name" -f color="$color" -f description="$desc" >/dev/null
             fi
           }
-          ensure_label docs    0075ca "Documentation"
-          ensure_label i18n    c5def5 "Localization/Internationalization"
-          ensure_label tracker 5319e7 "Tracker/Meta issue"
+          ensure_label docs          0075ca "Documentation"
+          ensure_label i18n          c5def5 "Localization/Internationalization"
+          ensure_label tracker       5319e7 "Tracker/Meta issue"
+          ensure_label docs:add      0e8a16 "Docs task: Add"
+          ensure_label docs:sync     fbca04 "Docs task: Sync"
+          ensure_label docs:migrate  1d76db "Docs task: Migrate"
+          ensure_label docs:remove   d93f0b "Docs task: Remove"
 
+      # ✅ 서브 이슈 생성 + 마스터 체크리스트(라벨 기반) 갱신
       - name: Create sub-issues and update master tracker
         if: ${{ env.pr_needed == 'true' }}
         shell: bash
@@ -133,14 +150,17 @@ jobs:
           set -Eeuo pipefail
           owner="${GITHUB_REPOSITORY%/*}"; repo="${GITHUB_REPOSITORY#*/}"
 
+          # 변경 분류
           awk '$1=="A"{print $2}' changes.filtered > added.list || true
           awk '$1=="M"{print $2}' changes.filtered > modified.list || true
           awk '$1=="D"{print $2}' changes.filtered > deleted.list || true
 
+          # tsx→mdx 마이그레이션 매칭
           awk -F/ '{b=$0; sub(/\.[^.]+$/,"",b); if($0 ~ /\.mdx$/) print b}' added.list   | sort > added_mdx_base.list  || true
           awk -F/ '{b=$0; sub(/\.[^.]+$/,"",b); if($0 ~ /\.tsx$/) print b}' deleted.list | sort > deleted_tsx_base.list || true
           comm -12 added_mdx_base.list deleted_tsx_base.list > migrate_base.list || true
 
+          # 마스터 이슈 확보
           tracker_title="Docs: 번역·동기화 마스터 체크리스트"
           tracker=$(gh api -X GET "repos/$owner/$repo/issues?state=open&labels=tracker&per_page=100" \
                     --jq '.[] | select(.title=="'"$tracker_title"'") | .number' | head -n1)
@@ -155,10 +175,18 @@ jobs:
 
           create_issue() {
             file="$1"
-            kind="$2"
+            kind="$2"  # Add | Sync | Migrate | Remove
             title="[Docs] $file — $kind"
             slug=$(printf "%s" "$file|$kind" | sha1sum | awk '{print $1}')
+            case "$kind" in
+              Add)     kind_label="docs:add" ;;
+              Sync)    kind_label="docs:sync" ;;
+              Migrate) kind_label="docs:migrate" ;;
+              Remove)  kind_label="docs:remove" ;;
+              *)       kind_label="docs:sync" ;;
+            esac
 
+            # 중복 방지(슬러그 or 동일 제목)
             existing=$(gh api -X GET "repos/$owner/$repo/issues?state=all&labels=docs,i18n&per_page=100" \
                         --jq '[.[] | select((.title=="'"$title"'") or (.body|tostring|contains("'"$slug"'")))] | first | .number' \
                         | tr -d '\n')
@@ -167,11 +195,12 @@ jobs:
               existing=$(gh api -X POST "repos/$owner/$repo/issues" \
                           -f title="$title" \
                           -f body="$issue_body" \
-                          -f labels[]="docs" -f labels[]="i18n" \
+                          -f labels[]="docs" -f labels[]="i18n" -f labels[]="$kind_label" \
                           --jq '.number')
             fi
           }
 
+          # 서브 이슈 생성
           if [ -s modified.list ]; then
             while IFS= read -r f; do [ -n "$f" ] && create_issue "$f" "Sync"; done < modified.list
           fi
@@ -195,23 +224,24 @@ jobs:
             while IFS= read -r f; do [ -n "$f" ] && create_issue "$f" "Remove"; done < deleted_pure.list
           fi
 
+          # 열린 서브 이슈 수집(라벨 포함) → 마스터 체크리스트 갱신
           gh api -X GET "repos/$owner/$repo/issues?state=open&labels=docs,i18n&per_page=100" \
-            --jq '.[] | select(.title!="'"$tracker_title"'") | "\(.number)\t\(.title)"' > open.tsv || true
+            --jq '.[] | select(.labels | any(.name=="tracker") | not) | "\(.number)\t\(.title)\t\([.labels[].name]|join(","))"' > open.tsv || true
 
           {
             echo "### 번역 작업 체크리스트"
             echo
             echo "#### 1) 번역 혹은 변경점 반영 필요"
-            awk -F'\t' '/ — Sync$/{print "- [ ] #"$1" " gensub(/^\[Docs\] /,"","", $2)}' open.tsv | sort -k3
+            awk -F'\t' 'index($3,"docs:sync") {print "- [ ] #"$1" " gensub(/^\[Docs\] /,"","", $2)}' open.tsv | sort -k2
             echo
             echo "#### 2) 번역 추가 필요(새로운 파일 추가)"
-            awk -F'\t' '/ — Add$/{print "- [ ] #"$1" " gensub(/^\[Docs\] /,"","", $2)}' open.tsv | sort -k3
+            awk -F'\t' 'index($3,"docs:add") {print "- [ ] #"$1" " gensub(/^\[Docs\] /,"","", $2)}' open.tsv | sort -k2
             echo
             echo "#### 3) tsx -> mdx로 변경 작업"
-            awk -F'\t' '/ — Migrate$/{print "- [ ] #"$1" " gensub(/^\[Docs\] /,"","", $2)}' open.tsv | sort -k3
+            awk -F'\t' 'index($3,"docs:migrate") {print "- [ ] #"$1" " gensub(/^\[Docs\] /,"","", $2)}' open.tsv | sort -k2
             echo
             echo "#### 4) 삭제 필요"
-            awk -F'\t' '/ — Remove$/{print "- [ ] #"$1" " gensub(/^\[Docs\] /,"","", $2)}' open.tsv | sort -k3
+            awk -F'\t' 'index($3,"docs:remove") {print "- [ ] #"$1" " gensub(/^\[Docs\] /,"","", $2)}' open.tsv | sort -k2
             echo
             echo "> 참고"
             echo "> - tsx→mdx 변경 발생 시 3)와 4)를 연계 처리"
