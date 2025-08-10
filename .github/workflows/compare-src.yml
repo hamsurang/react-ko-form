@@ -162,18 +162,17 @@ jobs:
             tracker=$(gh api -X POST "repos/$owner/$repo/issues" \
                       -f title="$tracker_title" \
                       -f body="$tracker_body" \
-                      -F labels="$tracker_labels" \
+                      -f labels="$tracker_labels" \
                       --jq '.number')
           fi
 
           add_labels_if_missing() {
             local num="$1"; shift
-            # 현재 라벨 목록
             curr=$(gh api -X GET "repos/$owner/$repo/issues/$num" --jq '[.labels[].name] | join(",")')
             for lbl in "$@"; do
               if ! grep -q "\b${lbl}\b" <<< "$curr"; then
                 payload="[\"$lbl\"]"
-                gh api -X POST "repos/$owner/$repo/issues/$num/labels" -F labels="$payload" >/dev/null
+                gh api -X POST "repos/$owner/$repo/issues/$num/labels" -f labels="$payload" >/dev/null
               fi
             done
           }
@@ -191,7 +190,6 @@ jobs:
               *)       kind_label="docs:sync" ;;
             esac
 
-            # 중복 방지(슬러그 or 동일 제목)
             existing=$(gh api -X GET "repos/$owner/$repo/issues?state=all&labels=docs,i18n&per_page=100" \
                         --jq '[.[] | select((.title=="'"$title"'") or (.body|tostring|contains("'"$slug"'")))] | first | .number' \
                         | tr -d '\n')
@@ -202,10 +200,9 @@ jobs:
               existing=$(gh api -X POST "repos/$owner/$repo/issues" \
                           -f title="$title" \
                           -f body="$issue_body" \
-                          -F labels="$issue_labels" \
+                          -f labels="$issue_labels" \
                           --jq '.number')
             else
-              # 기존 이슈면 라벨 보강(doc, i18n, kind_label)
               add_labels_if_missing "$existing" "docs" "i18n" "$kind_label"
             fi
           }
