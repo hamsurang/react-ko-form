@@ -43,20 +43,22 @@ jobs:
           set -Eeuo pipefail
           mkdir -p origin-src
           diff -qr master-src origin-src | \
-          sed -n -e 's/^Files master-src\/\(.*\) and origin-src\/.* differ$/M \1/p' \
-                 -e 's/^Only in origin-src\/\(.*\): \(.*\)$/A \1\/\2/p' \
-                 -e 's/^Only in master-src\/\(.*\): \(.*\)$/D \1\/\2/p' > changes.list || true
+          sed -n \
+            -e 's/^Files master-src\/\(.*\) and origin-src\/.* differ$/M \1/p' \
+            -e 's/^Only in master-src\/\(.*\): \(.*\)$/A \1\/\2/p' \
+            -e 's/^Only in origin-src\/\(.*\): \(.*\)$/D \1\/\2/p' \
+            > changes.list || true
           grep -E '\.(mdx|tsx|ts)$' changes.list > changes.filtered || true
+
           if [ -s changes.filtered ]; then
             echo "pr_needed=true"  >> "$GITHUB_ENV"
           else
             echo "pr_needed=false" >> "$GITHUB_ENV"
           fi
-          {
-            echo "changes<<EOF"
-            cat changes.filtered || true
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
+
+          echo "changes<<EOF" >> "$GITHUB_OUTPUT"
+          cat changes.filtered || true
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Update origin-src content
         if: ${{ env.pr_needed == 'true' }}
