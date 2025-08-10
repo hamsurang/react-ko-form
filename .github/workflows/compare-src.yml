@@ -44,18 +44,13 @@ jobs:
           set -Eeuo pipefail
           mkdir -p origin-src
 
-          # master-src / origin-src 각각 "path<TAB>sha1" 리스트 만들기
-          ( cd master-src && \
-            find . -type f -print0 | xargs -0 sha1sum | sed 's# \+\./#\t#' | awk -F'\t' '{print $2"\t"$1}' | sort -k1,1 ) > master.sum || true
-          ( cd origin-src && \
-            find . -type f -print0 | xargs -0 sha1sum | sed 's# \+\./#\t#' | awk -F'\t' '{print $2"\t"$1}' | sort -k1,1 ) > origin.sum || true
+          ( cd master-src && find . -type f -print0 | xargs -0 sha1sum | sed 's# \+\./#\t#' | awk -F'\t' '{print $2"\t"$1}' | sort -k1,1 ) > master.sum || true
+          ( cd origin-src && find . -type f -print0 | xargs -0 sha1sum | sed 's# \+\./#\t#' | awk -F'\t' '{print $2"\t"$1}' | sort -k1,1 ) > origin.sum || true
 
-          # A: master에만 있음 / D: origin에만 있음 / M: 둘 다 있는데 내용 변경
           join -t $'\t' -v1 -1 1 -2 1 master.sum origin.sum | awk -F'\t' '{print "A "$1}' > added.raw || true
           join -t $'\t' -v2 -1 1 -2 1 master.sum origin.sum | awk -F'\t' '{print "D "$1}' > deleted.raw || true
           join -t $'\t'    -1 1 -2 1 master.sum origin.sum | awk -F'\t' '{if($2!=$3) print "M "$1}' > modified.raw || true
 
-          # 관심 확장자만 취합
           awk '$1=="A" && $2 ~ /\.(mdx|tsx|ts)$/{print}' added.raw    > changes.filtered || true
           awk '$1=="D" && $2 ~ /\.(mdx|tsx|ts)$/{print}' deleted.raw >> changes.filtered || true
           awk '$1=="M" && $2 ~ /\.(mdx|tsx|ts)$/{print}' modified.raw >> changes.filtered || true
@@ -142,7 +137,7 @@ jobs:
           ensure_label docs:migrate  1d76db "Docs task: Migrate"
           ensure_label docs:remove   d93f0b "Docs task: Remove"
 
-      # ✅ 서브 이슈 생성 + 마스터 체크리스트(라벨 기반) 갱신
+      # ✅ 서브 이슈 생성 + (기존 이슈일 경우) 라벨 보강 + 마스터 체크리스트 갱신
       - name: Create sub-issues and update master tracker
         if: ${{ env.pr_needed == 'true' }}
         shell: bash
@@ -150,28 +145,38 @@ jobs:
           set -Eeuo pipefail
           owner="${GITHUB_REPOSITORY%/*}"; repo="${GITHUB_REPOSITORY#*/}"
 
-          # 변경 분류
           awk '$1=="A"{print $2}' changes.filtered > added.list || true
           awk '$1=="M"{print $2}' changes.filtered > modified.list || true
           awk '$1=="D"{print $2}' changes.filtered > deleted.list || true
 
-          # tsx→mdx 마이그레이션 매칭
           awk -F/ '{b=$0; sub(/\.[^.]+$/,"",b); if($0 ~ /\.mdx$/) print b}' added.list   | sort > added_mdx_base.list  || true
           awk -F/ '{b=$0; sub(/\.[^.]+$/,"",b); if($0 ~ /\.tsx$/) print b}' deleted.list | sort > deleted_tsx_base.list || true
           comm -12 added_mdx_base.list deleted_tsx_base.list > migrate_base.list || true
 
-          # 마스터 이슈 확보
           tracker_title="Docs: 번역·동기화 마스터 체크리스트"
           tracker=$(gh api -X GET "repos/$owner/$repo/issues?state=open&labels=tracker&per_page=100" \
                     --jq '.[] | select(.title=="'"$tracker_title"'") | .number' | head -n1)
           if [ -z "$tracker" ]; then
             tracker_body=$'### 번역 작업 체크리스트\n\n(자동 생성. 서브 이슈와 연동된 체크박스입니다)'
+            tracker_labels='["docs","i18n","tracker"]'
             tracker=$(gh api -X POST "repos/$owner/$repo/issues" \
                       -f title="$tracker_title" \
                       -f body="$tracker_body" \
-                      -f labels[]="docs" -f labels[]="i18n" -f labels[]="tracker" \
+                      -F labels="$tracker_labels" \
                       --jq '.number')
           fi
+
+          add_labels_if_missing() {
+            local num="$1"; shift
+            # 현재 라벨 목록
+            curr=$(gh api -X GET "repos/$owner/$repo/issues/$num" --jq '[.labels[].name] | join(",")')
+            for lbl in "$@"; do
+              if ! grep -q "\b${lbl}\b" <<< "$curr"; then
+                payload="[\"$lbl\"]"
+                gh api -X POST "repos/$owner/$repo/issues/$num/labels" -F labels="$payload" >/dev/null
+              fi
+            done
+          }
 
           create_issue() {
             file="$1"
@@ -190,13 +195,18 @@ jobs:
             existing=$(gh api -X GET "repos/$owner/$repo/issues?state=all&labels=docs,i18n&per_page=100" \
                         --jq '[.[] | select((.title=="'"$title"'") or (.body|tostring|contains("'"$slug"'")))] | first | .number' \
                         | tr -d '\n')
+
             if [ -z "$existing" ] || [ "$existing" = "null" ]; then
               issue_body=$'파일: `'"$file"$'`\n유형: '"$kind"$'\n\n### 작업\n- [ ] 번역/동기화\n- [ ] 리뷰\n- [ ] PR\n\nTracked by: #'"$tracker"$'\n\n<!-- TRANSLATION_TRACKER:'"$slug"' -->'
+              issue_labels='["docs","i18n","'"$kind_label"'"]'
               existing=$(gh api -X POST "repos/$owner/$repo/issues" \
                           -f title="$title" \
                           -f body="$issue_body" \
-                          -f labels[]="docs" -f labels[]="i18n" -f labels[]="$kind_label" \
+                          -F labels="$issue_labels" \
                           --jq '.number')
+            else
+              # 기존 이슈면 라벨 보강(doc, i18n, kind_label)
+              add_labels_if_missing "$existing" "docs" "i18n" "$kind_label"
             fi
           }
 
