@@ -11,6 +11,9 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      issues: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout repository
@@ -21,34 +24,53 @@ jobs:
       - name: Set git identity
         shell: bash
         run: |
+          set -Eeuo pipefail
           git config --global user.name  "minchodang"
           git config --global user.email "minsu910725@gmail.com"
 
       - name: Extract src from origin/master
-        id: extract
         shell: bash
         run: |
+          set -Eeuo pipefail
           WORK=$(mktemp -d)
           git archive origin/master src | tar -x -C "$WORK"
           mv "$WORK/src" master-src
 
+      # ✅ 체크섬 기반 변경 탐지 (ADD / MODIFY / DELETE 정확 분류)
       - name: Detect changes between origin-src and master-src
         id: compare
         shell: bash
         run: |
+          set -Eeuo pipefail
           mkdir -p origin-src
-          CHANGES=$(rsync -rcnc --delete --out-format='%n' master-src/ origin-src/ | grep -v '^$' || true)
-          if [ -n "$CHANGES" ]; then
+
+          ( cd master-src && find . -type f -print0 | xargs -0 sha1sum | sed 's# \+\./#\t#' | awk -F'\t' '{print $2"\t"$1}' | sort -k1,1 ) > master.sum || true
+          ( cd origin-src && find . -type f -print0 | xargs -0 sha1sum | sed 's# \+\./#\t#' | awk -F'\t' '{print $2"\t"$1}' | sort -k1,1 ) > origin.sum || true
+
+          join -t $'\t' -v1 -1 1 -2 1 master.sum origin.sum | awk -F'\t' '{print "A "$1}' > added.raw || true
+          join -t $'\t' -v2 -1 1 -2 1 master.sum origin.sum | awk -F'\t' '{print "D "$1}' > deleted.raw || true
+          join -t $'\t'    -1 1 -2 1 master.sum origin.sum | awk -F'\t' '{if($2!=$3) print "M "$1}' > modified.raw || true
+
+          awk '$1=="A" && $2 ~ /\.(mdx|tsx|ts)$/{print}' added.raw    > changes.filtered || true
+          awk '$1=="D" && $2 ~ /\.(mdx|tsx|ts)$/{print}' deleted.raw >> changes.filtered || true
+          awk '$1=="M" && $2 ~ /\.(mdx|tsx|ts)$/{print}' modified.raw >> changes.filtered || true
+
+          if [ -s changes.filtered ]; then
             echo "pr_needed=true"  >> "$GITHUB_ENV"
-            printf '%s\n' "$CHANGES"
           else
             echo "pr_needed=false" >> "$GITHUB_ENV"
           fi
+          {
+            echo "changes<<EOF"
+            cat changes.filtered || true
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Update origin-src content
         if: ${{ env.pr_needed == 'true' }}
         shell: bash
         run: |
+          set -Eeuo pipefail
           if git show-ref --quiet refs/remotes/origin/master-ko; then
             git checkout -B master-ko origin/master-ko
           else
@@ -63,10 +85,9 @@ jobs:
       - name: Find existing update-origin-src PR
         if: ${{ env.pr_needed == 'true' }}
         id: pr-branch
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
+          set -Eeuo pipefail
           branch=$(gh pr list --json headRefName \
                    --jq '.[] | select(.headRefName | startswith("update-origin-src-")) | .headRefName' \
                    | head -n1)
@@ -76,14 +97,14 @@ jobs:
         if: ${{ env.pr_needed == 'true' && steps.pr-branch.outputs.branch != '' }}
         shell: bash
         run: |
+          set -Eeuo pipefail
           git push origin master-ko:${{ steps.pr-branch.outputs.branch }} --force
 
       - name: Create new PR
         if: ${{ env.pr_needed == 'true' && steps.pr-branch.outputs.branch == '' }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
+          set -Eeuo pipefail
           new_branch=update-origin-src-${{ github.run_id }}
           git checkout -b "$new_branch"
           git push origin "$new_branch"
@@ -92,3 +113,143 @@ jobs:
             --body  "Auto-sync **origin-src** with the latest **src** directory from **origin/master**." \
             --head  "$new_branch" \
             --base  master-ko
+
+      # ✅ 라벨(기본 + kind) 없으면 생성
+      - name: Ensure labels exist (docs/i18n/tracker + kind labels)
+        if: ${{ env.pr_needed == 'true' }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          owner="${GITHUB_REPOSITORY%/*}"; repo="${GITHUB_REPOSITORY#*/}"
+          existing=$(gh api -X GET "repos/$owner/$repo/labels?per_page=200" --jq '.[].name' || true)
+          has() { grep -Fxq "$1" <<< "$existing"; }
+          ensure_label() {
+            name="$1"; color="$2"; desc="$3"
+            if ! has "$name"; then
+              gh api -X POST "repos/$owner/$repo/labels" -f name="$name" -f color="$color" -f description="$desc" >/dev/null
+            fi
+          }
+          ensure_label docs          0075ca "Documentation"
+          ensure_label i18n          c5def5 "Localization/Internationalization"
+          ensure_label tracker       5319e7 "Tracker/Meta issue"
+          ensure_label docs:add      0e8a16 "Docs task: Add"
+          ensure_label docs:sync     fbca04 "Docs task: Sync"
+          ensure_label docs:migrate  1d76db "Docs task: Migrate"
+          ensure_label docs:remove   d93f0b "Docs task: Remove"
+
+      # ✅ 서브 이슈 생성 + (기존 이슈일 경우) 라벨 보강 + 마스터 체크리스트 갱신
+      - name: Create sub-issues and update master tracker
+        if: ${{ env.pr_needed == 'true' }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          owner="${GITHUB_REPOSITORY%/*}"; repo="${GITHUB_REPOSITORY#*/}"
+
+          awk '$1=="A"{print $2}' changes.filtered > added.list || true
+          awk '$1=="M"{print $2}' changes.filtered > modified.list || true
+          awk '$1=="D"{print $2}' changes.filtered > deleted.list || true
+
+          awk -F/ '{b=$0; sub(/\.[^.]+$/,"",b); if($0 ~ /\.mdx$/) print b}' added.list   | sort > added_mdx_base.list  || true
+          awk -F/ '{b=$0; sub(/\.[^.]+$/,"",b); if($0 ~ /\.tsx$/) print b}' deleted.list | sort > deleted_tsx_base.list || true
+          comm -12 added_mdx_base.list deleted_tsx_base.list > migrate_base.list || true
+
+          tracker_title="Docs: 번역·동기화 마스터 체크리스트"
+          tracker=$(gh api -X GET "repos/$owner/$repo/issues?state=open&labels=tracker&per_page=100" \
+                    --jq '.[] | select(.title=="'"$tracker_title"'") | .number' | head -n1)
+          if [ -z "$tracker" ]; then
+            tracker_body=$'### 번역 작업 체크리스트\n\n(자동 생성. 서브 이슈와 연동된 체크박스입니다)'
+            tracker=$(gh api -X POST "repos/$owner/$repo/issues" \
+                      -f title="$tracker_title" \
+                      -f body="$tracker_body" \
+                      -f labels[]="docs" -f labels[]="i18n" -f labels[]="tracker" \
+                      --jq '.number')
+          fi
+
+          add_labels_if_missing() {
+            local num="$1"; shift
+            curr=$(gh api -X GET "repos/$owner/$repo/issues/$num" --jq '[.labels[].name] | join(",")')
+            for lbl in "$@"; do
+              if ! grep -q "\b${lbl}\b" <<< "$curr"; then
+                gh api -X POST "repos/$owner/$repo/issues/$num/labels" -f labels[]="$lbl" >/dev/null
+              fi
+            done
+          }
+
+          create_issue() {
+            file="$1"
+            kind="$2"  # Add | Sync | Migrate | Remove
+            title="[Docs] $file — $kind"
+            slug=$(printf "%s" "$file|$kind" | sha1sum | awk '{print $1}')
+            case "$kind" in
+              Add)     kind_label="docs:add" ;;
+              Sync)    kind_label="docs:sync" ;;
+              Migrate) kind_label="docs:migrate" ;;
+              Remove)  kind_label="docs:remove" ;;
+              *)       kind_label="docs:sync" ;;
+            esac
+
+            existing=$(gh api -X GET "repos/$owner/$repo/issues?state=all&labels=docs,i18n&per_page=100" \
+                        --jq '[.[] | select((.title=="'"$title"'") or (.body|tostring|contains("'"$slug"'")))] | first | .number' \
+                        | tr -d '\n')
+
+            if [ -z "$existing" ] || [ "$existing" = "null" ]; then
+              issue_body=$'파일: `'"$file"$'`\n유형: '"$kind"$'\n\n### 작업\n- [ ] 번역/동기화\n- [ ] 리뷰\n- [ ] PR\n\nTracked by: #'"$tracker"$'\n\n<!-- TRANSLATION_TRACKER:'"$slug"' -->'
+              existing=$(gh api -X POST "repos/$owner/$repo/issues" \
+                          -f title="$title" \
+                          -f body="$issue_body" \
+                          -f labels[]="docs" -f labels[]="i18n" -f labels[]="$kind_label" \
+                          --jq '.number')
+            else
+              add_labels_if_missing "$existing" "docs" "i18n" "$kind_label"
+            fi
+          }
+
+          # 서브 이슈 생성
+          if [ -s modified.list ]; then
+            while IFS= read -r f; do [ -n "$f" ] && create_issue "$f" "Sync"; done < modified.list
+          fi
+          if [ -s added.list ]; then
+            if [ -s migrate_base.list ]; then
+              grep -v -F -f <(sed 's/$/.mdx/' migrate_base.list) added.list > added_pure.list || true
+            else
+              cp added.list added_pure.list
+            fi
+            while IFS= read -r f; do [ -n "$f" ] && create_issue "$f" "Add"; done < added_pure.list
+          fi
+          if [ -s migrate_base.list ]; then
+            while IFS= read -r b; do [ -n "$b" ] && create_issue "$b.mdx" "Migrate"; done < migrate_base.list
+          fi
+          if [ -s deleted.list ]; then
+            if [ -s migrate_base.list ]; then
+              grep -v -F -f <(sed 's/$/.tsx/' migrate_base.list) deleted.list > deleted_pure.list || true
+            else
+              cp deleted.list deleted_pure.list
+            fi
+            while IFS= read -r f; do [ -n "$f" ] && create_issue "$f" "Remove"; done < deleted_pure.list
+          fi
+
+          # 열린 서브 이슈 수집(라벨 포함) → 마스터 체크리스트 갱신
+          gh api -X GET "repos/$owner/$repo/issues?state=open&labels=docs,i18n&per_page=100" \
+            --jq '.[] | select(.labels | any(.name=="tracker") | not) | "\(.number)\t\(.title)\t\([.labels[].name]|join(","))"' > open.tsv || true
+
+          {
+            echo "### 번역 작업 체크리스트"
+            echo
+            echo "#### 1) 번역 혹은 변경점 반영 필요"
+            awk -F'\t' 'index($3,"docs:sync") {print "- [ ] #"$1" " gensub(/^\[Docs\] /,"","", $2)}' open.tsv | sort -k2
+            echo
+            echo "#### 2) 번역 추가 필요(새로운 파일 추가)"
+            awk -F'\t' 'index($3,"docs:add") {print "- [ ] #"$1" " gensub(/^\[Docs\] /,"","", $2)}' open.tsv | sort -k2
+            echo
+            echo "#### 3) tsx -> mdx로 변경 작업"
+            awk -F'\t' 'index($3,"docs:migrate") {print "- [ ] #"$1" " gensub(/^\[Docs\] /,"","", $2)}' open.tsv | sort -k2
+            echo
+            echo "#### 4) 삭제 필요"
+            awk -F'\t' 'index($3,"docs:remove") {print "- [ ] #"$1" " gensub(/^\[Docs\] /,"","", $2)}' open.tsv | sort -k2
+            echo
+            echo "> 참고"
+            echo "> - tsx→mdx 변경 발생 시 3)와 4)를 연계 처리"
+            echo "> - 타입/코드 변경은 번역 범위에서 제외"
+          } > master.md
+
+          gh issue edit "$tracker" --body-file master.md
