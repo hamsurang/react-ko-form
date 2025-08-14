@@ -1,6 +1,6 @@
 ---
 title: createFormControl
-description: 폼 상태를 생성하고 구독할 수 있도록 준비합니다. (BETA)
+description: 폼 상태를 생성하고 구독할 수 있도록 준비합니다.
 sidebar: apiLinks
 ---
 
@@ -18,14 +18,15 @@ sidebar: apiLinks
 
 ---
 
-| Name          | Type                           | Description                                                     |
-| ------------- | ------------------------------ | --------------------------------------------------------------- |
-| `formControl` | <TypeText>Object</TypeText>    | `useForm` 훅을 위한 control 객체                                |
-| `control`     | <TypeText>Object</TypeText>    | `useController`, `useFormState`, `useWatch`를 위한 control 객체 |
-| `...returns`  | <TypeText>Functions</TypeText> | `useForm`이 반환하는 메서드들                                   |
+| Name          | Type                           | Description                                                                      |
+| ------------- | ------------------------------ | -------------------------------------------------------------------------------- |
+| `formControl` | <TypeText>Object</TypeText>    | `useForm` 훅을 위한 control 객체                                                 |
+| `control`     | <TypeText>Object</TypeText>    | `useController`, `useFormState`, `useWatch`를 위한 control 객체                  |
+| `subscribe`   | <TypeText>Function</TypeText>  | 렌더링을 발생시키지 않고 폼 상태 변화를 [감지](/docs/useform/subscribe)하는 함수 |
+| `...returns`  | <TypeText>Functions</TypeText> | `useForm`이 반환하는 메서드들                                                    |
 
 <Admonition type="important" title="Notes">
-  - 이 함수는 **v7.55.0-next.3** 버전부터 제공됩니다. - 이 함수는 완전히 선택적
+  - 이 함수는 **v7.55.0** 버전부터 제공됩니다. - 이 함수는 완전히 선택적
   기능으로, `useFormContext` API 대신 사용하는 것을 고려해볼 수 있습니다. -
   리액트 리렌더링을 건너뛰어 formsState를 구독하고자 할 때 유용하게 사용할 수
   있습니다.
