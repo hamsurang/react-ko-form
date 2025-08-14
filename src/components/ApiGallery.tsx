@@ -16,7 +16,9 @@ export default function ApiGallery() {
       (e.target as HTMLElement).getAttribute("value") as string
     )
     if (version !== 7) {
-      router.push(`https://legacy.react-hook-form.com/v${version}/api`)
+      router.push(
+        `https://react-hook-form-website-git-leagcy-hook-form.vercel.app/${version}/api`
+      )
     } else {
       router.push(`/v${version}/docs/`)
     }
@@ -180,7 +182,6 @@ export default function ApiGallery() {
               <h3>
                 <code>{`</>`}</code>createFormControl
               </h3>
-              <p className={styles.beta}>BETA @v7.55.0-next.3</p>
               <p>
                 React 컴포넌트 바깥에서 폼 컨트롤 객체를 생성하고 폼 상태를
                 구독하며, 컨텍스트 없이도 메서드에 접근할 수 있습니다.
