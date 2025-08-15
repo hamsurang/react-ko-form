@@ -4,7 +4,7 @@ description: 입력 변경 사항 구독
 sidebar: apiLinks
 ---
 
-## \</> `watch:` _<TypeText>some overloads</TypeText>_
+## \</> `watch:` _<TypeText>UseFormWatch</TypeText>_
 
 이 메서드는 지정된 입력을 감시하고 해당 값을 반환합니다. 입력 값을 렌더링하고 조건에 따라 렌더링할 내용을 결정할 때 유용합니다.
 
@@ -12,17 +12,9 @@ sidebar: apiLinks
 
 이 함수는 주로 **두 가지 목적**으로 사용됩니다:
 
-1. 필드의 값을 반환하며 동기화를 유지합니다.
-
-   a. <TypeText>`watch(name: string, defaultValue?): unknown`</TypeText>
-
-   b. <TypeText>`watch(names: string[], defaultValue?): {[key:string]: unknown}`</TypeText>
-
-   c. <TypeText>`watch(): {[key:string]: unknown}`</TypeText>
-
-2. 주어진 콜백 함수로 구독을 시작합니다(`구독 해제` 함수 호출로 중지할 수 있음).
-
-   a. <TypeText>`watch(callback: (data, { name, type }) => void, defaultValues?): { unsubscribe: () => void }`</TypeText>
+- <TypeText>`watch(name: string, defaultValue?): unknown`</TypeText>
+- <TypeText>`watch(names: string[], defaultValue?): {[key:string]: unknown}`</TypeText>
+- <TypeText>`watch(): {[key:string]: unknown}`</TypeText>
 
 이 네 가지 오버로드 각각에 대한 설명은 아래와 같습니다.
 
@@ -78,7 +70,7 @@ onChange 이벤트를 기반으로 전체 폼의 업데이트 및 변경 사항�
 const formValues = watch()
 ```
 
-#### 2. 콜백 함수로 감시 시작하기 <TypeText>`watch(callback: (data, { name, type }) => void, defaultValues?: {[key:string]: unknown}): { unsubscribe: () => void }`</TypeText>
+#### 2. <b>Deprecated:</b> [subscribe](/docs/useform/subscribe) 사용 또는 마이그레이션을 고려해 주세요. 콜백 함수와 함께 감시하기 <TypeText>`watch(callback: (data, { name, type }) => void, defaultValues?: {[key:string]: unknown}): { unsubscribe: () => void }`</TypeText>
 
 ---
 
@@ -119,8 +111,7 @@ useEffect(() => {
 
 <TabGroup buttonLabels={["TS", "JS"]}>
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-watch-v7-ts-8et1d"
-import React from "react"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-watch-v7-ts-8et1d"
 import { useForm } from "react-hook-form"
 
 interface IFormInputs {
@@ -139,14 +130,6 @@ function App() {
   const watchShowAge = watch("showAge", false) // 두 번째 인수로 기본 값을 제공할 수 있습니다.
   const watchAllFields = watch() // 인수를 전달하지 않으면, 모든 것을 감시하게 됩니다.
   const watchFields = watch(["showAge", "age"]) // 이름을 통해 특정 필드를 대상으로 할 수도 있습니다.
-
-  // watch의 콜백 버전입니다. 완료되면 unsubscribe하는 것은 사용자 책임입니다.
-  React.useEffect(() => {
-    const subscription = watch((value, { name, type }) =>
-      console.log(value, name, type)
-    )
-    return () => subscription.unsubscribe()
-  }, [watch])
 
   const onSubmit = (data: IFormInputs) => console.log(data)
 
@@ -167,7 +150,6 @@ function App() {
 ```
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-watch-v7-qbxd7"
-import React from "react"
 import { useForm } from "react-hook-form"
 
 function App() {
@@ -180,14 +162,6 @@ function App() {
   const watchShowAge = watch("showAge", false) // 두 번째 인수로 기본 값을 제공할 수 있습니다.
   const watchAllFields = watch() // 인수를 전달하지 않으면, 모든 것을 감시하게 됩니다.
   const watchFields = watch(["showAge", "number"]) // 이름을 통해 특정 필드를 대상으로 할 수도 있습니다.
-
-  // watch의 콜백 버전입니다. 완료되면 unsubscribe하는 것은 사용자 책임입니다.
-  React.useEffect(() => {
-    const subscription = watch((value, { name, type }) =>
-      console.log(value, name, type)
-    )
-    return () => subscription.unsubscribe()
-  }, [watch])
 
   const onSubmit = (data) => console.log(data)
 
@@ -214,7 +188,7 @@ function App() {
 
 <TabGroup buttonLabels={["TS", "JS"]}>
 
-```typescript copy sandbox="https://codesandbox.io/s/watch-with-usefieldarray-z54xwd"
+```tsx copy sandbox="https://codesandbox.io/s/watch-with-usefieldarray-z54xwd"
 import * as React from "react"
 import { useForm, useFieldArray } from "react-hook-form"
 
