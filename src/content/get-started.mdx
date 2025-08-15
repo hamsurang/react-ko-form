@@ -18,7 +18,7 @@ npm install react-hook-form
 
 <TabGroup buttonLabels={["TS", "JS"]}>
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-get-started-ts-5ksmm"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-get-started-ts-5ksmm"
 import { useForm, SubmitHandler } from "react-hook-form"
 
 type Inputs = {
@@ -104,7 +104,7 @@ React Hook Form의 주요 개념 중 하나는 컴포넌트를 훅에 **`registe
 
 <TabGroup buttonLabels={["TS", "JS"]} >
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-get-started-ts-5ksmm"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-get-started-ts-5ksmm"
 import ReactDOM from "react-dom"
 import { useForm, SubmitHandler } from "react-hook-form"
 
@@ -180,7 +180,7 @@ React Hook Form은 기존 [HTML 표준 form validation](https://developer.mozill
 
 <TabGroup buttonLabels={["TS", "JS"]} >
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-apply-validation-ts-forked-nmbyh"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-apply-validation-ts-forked-nmbyh"
 import { useForm, SubmitHandler } from "react-hook-form"
 
 interface IFormInput {
@@ -230,7 +230,7 @@ export default function App() {
 
 <TabGroup buttonLabels={["TS", "JS"]} >
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-adapting-existing-form-ts-uzfxm"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-adapting-existing-form-ts-uzfxm"
 import { Path, useForm, UseFormRegister, SubmitHandler } from "react-hook-form"
 
 interface IFormValues {
@@ -432,7 +432,7 @@ const App = () => {
 
 <TabGroup buttonLabels={["TS", "JS", 'shadcn/ui']} >
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-v6-controller-ts-jwyzw"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-v6-controller-ts-jwyzw"
 import { useForm, Controller, SubmitHandler } from "react-hook-form"
 import { TextField, Checkbox } from "@material-ui/core"
 
@@ -504,18 +504,14 @@ const FormSchema = z.object({
 })
 
 export function InputForm() {
-  const form =
-    useForm <
-    z.infer <
-    typeof FormSchema >>
-      {
-        resolver: zodResolver(FormSchema),
-        defaultValues: {
-          username: "",
-        },
-      }
+  const form = useForm({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      username: "",
+    },
+  })
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  function onSubmit(data: z.output<typeof FormSchema>) {
     console.log(data)
   }
 
@@ -544,7 +540,7 @@ export function InputForm() {
 
 <TabGroup buttonLabels={["TS", "JS"]} >
 
-```typescript copy sandbox="https://codesandbox.io/s/usecontroller-forked-4t8cx"
+```tsx copy sandbox="https://codesandbox.io/s/usecontroller-forked-4t8cx"
 import * as React from "react"
 import { useForm, useController, UseControllerProps } from "react-hook-form"
 
@@ -828,7 +824,7 @@ export default function App() {
 
 React Hook Form은 `TypeScript`로 빌드되었으며, form 값을 지원하기 위해 `FormData` 타입을 정의할 수 있습니다.
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-typescript-qwk7b"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-typescript-qwk7b"
 import * as React from "react"
 import { useForm } from "react-hook-form"
 
