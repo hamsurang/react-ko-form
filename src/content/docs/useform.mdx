@@ -83,20 +83,20 @@ sidebar: apiLinks
 
 **일반적인 속성:**
 
-| Option                                                  | Description                                                            |
-| ------------------------------------------------------- | ---------------------------------------------------------------------- |
-| [mode](#mode)                                           | 제출 **전** 유효성 검사 전략.                                          |
-| [reValidateMode](#reValidateMode)                       | 제출 **후** 유효성 검사 전략.                                          |
-| [defaultValues](#defaultValues)                         | 폼의 기본 값.                                                          |
-| [values](#values)                                       | 폼 값을 업데이트하기 위한 반응형 값.                                   |
-| [errors](#errors)                                       | 폼 에러를 업데이트하기 위한 반응형 에러.                               |
-| [resetOptions](#resetOptions)                           | 새로운 폼 값을 업데이트할 때 폼 상태 업데이트를 초기화할 수 있는 옵션. |
-| [criteriaMode](#criteriaMode)                           | 모든 유효성 검사 에러를 한 번에 노출하거나 하나씩 노출.                |
-| [shouldFocusError](#shouldFocusError)                   | 내장된 포커스 관리를 활성화하거나 비활성화.                            |
-| [delayError](#delayError)                               | 에러가 즉시 나타나는 것을 지연.                                        |
-| [shouldUseNativeValidation](#shouldUseNativeValidation) | 브라우저 내장 폼 제약 조건 API 사용.                                   |
-| [shouldUnregister](#shouldUnregister)                   | 언마운트 후 입력의 등록 취소(unregister)를 활성화하거나 비활성화.      |
-| [disabled](#disabled)                                   | 전체 폼과 해당 폼에 포함된 모든 입력을 비활성화합니다.                 |
+| Option                                                  | Description                                                                                                                 |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| [mode](#mode)                                           | 제출 **전** 유효성 검사 전략.                                                                                               |
+| [reValidateMode](#reValidateMode)                       | 제출 **후** 유효성 검사 전략.                                                                                               |
+| [defaultValues](#defaultValues)                         | 폼의 기본값이며, 이 값은 캐시됩니다.                                                                                        |
+| [values](#values)                                       | 폼 값을 업데이트하기 위한 반응형 값.                                                                                        |
+| [errors](#errors)                                       | 서버에서 반환한 오류로 폼을 갱신합니다. ⚠ 중요: 무한 리렌더링을 방지하려면 errors 객체의 참조가 변경되지 않도록 유지하세요. |
+| [resetOptions](#resetOptions)                           | 새로운 폼 값을 업데이트할 때 폼 상태 업데이트를 초기화할 수 있는 옵션.                                                      |
+| [criteriaMode](#criteriaMode)                           | 모든 유효성 검사 에러를 한 번에 노출하거나 하나씩 노출.                                                                     |
+| [shouldFocusError](#shouldFocusError)                   | 내장된 포커스 관리를 활성화하거나 비활성화.                                                                                 |
+| [delayError](#delayError)                               | 에러가 즉시 나타나는 것을 지연.                                                                                             |
+| [shouldUseNativeValidation](#shouldUseNativeValidation) | 브라우저 내장 폼 제약 조건 API 사용.                                                                                        |
+| [shouldUnregister](#shouldUnregister)                   | 언마운트 후 입력의 등록 취소(unregister)를 활성화하거나 비활성화.                                                           |
+| [disabled](#disabled)                                   | 전체 폼과 해당 폼에 포함된 모든 입력을 비활성화합니다.                                                                      |
 
 **스키마 유효성 검사 속성:**
 
@@ -445,7 +445,7 @@ npm install @hookform/resolvers
 
 <TabGroup buttonLabels={["Yup","Zod","Joi","Ajv","Vest", "Custom"]}>
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-apply-validation-ts-forked-nmbyh"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-apply-validation-ts-forked-nmbyh"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
@@ -465,7 +465,7 @@ const schema = yup
   .required()
 
 const App = () => {
-  const { register, handleSubmit } = useForm<Inputs>({
+  const { register, handleSubmit } = useForm({
     resolver: yupResolver(schema), // yup, joi 그리고 직접 작성한 유효성 검사 로직도 사용 가능.
   })
 
@@ -501,7 +501,12 @@ const App = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form
+      onSubmit={handleSubmit((data) => {
+        // 입력 처리
+        console.log(data)
+      })}
+    >
       <input {...register("name")} />
       <input {...register("age", { valueAsNumber: true })} type="number" />
       <input type="submit" />
@@ -510,41 +515,45 @@ const App = () => {
 }
 ```
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-joiresolver-v6-ts-forked-5pseh"
-import React from "react";
-import { useForm } from "react-hook-form";
-import { joiResolver } from "@hookform/resolvers/joi";
-import Joi from "joi";
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-joiresolver-v6-ts-forked-5pseh"
+import React from "react"
+import { useForm } from "react-hook-form"
+import { joiResolver } from "@hookform/resolvers/joi"
+import Joi from "joi"
 
 interface IFormInput {
-  name: string;
-  age: number;
+  name: string
+  age: number
 }
 
 const schema = Joi.object({
   name: Joi.string().required(),
-  age: Joi.number().required()
-});
+  age: Joi.number().required(),
+})
 
 const App = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm<IFormInput>({
-    resolver: joiResolver(schema)
-  });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IFormInput>({
+    resolver: joiResolver(schema),
+  })
   const onSubmit = (data: IFormInput) => {
-    console.log(data);
-  };
+    console.log(data)
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <input {...register("name"} />
-      <input type="number" {...register("age"} />
+      <input {...register("name")} />
+      <input type="number" {...register("age")} />
       <input type="submit" />
     </form>
-  );
+  )
 }
 ```
 
-```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-ajvresolver-vr3imc"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-ajvresolver-vr3imc"
 import { useForm } from "react-hook-form"
 import { ajvResolver } from "@hookform/resolvers/ajv"
 
@@ -588,7 +597,7 @@ const App = () => {
 }
 ```
 
-```javascript copy sandbox="https://codesandbox.io/s/vest-8q874"
+```tsx copy sandbox="https://codesandbox.io/s/vest-8q874"
 import * as React from "react"
 import { useForm } from "react-hook-form"
 import { vestResolver } from "@hookform/resolvers/vest"
@@ -635,7 +644,7 @@ const App = () => {
 }
 ```
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-customresoliver-ts-v7-juc63"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-customresoliver-ts-v7-juc63"
 import * as React from "react"
 import { useForm } from "react-hook-form"
 import * as Joi from "joi"
