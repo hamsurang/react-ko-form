@@ -3,14 +3,7 @@
 # dependencies
 /node_modules
 /.pnp
-.yarn/*
-!.yarn/patches
-!.yarn/releases
-!.yarn/plugins
-!.yarn/sdks
-!.yarn/versions
 .pnp.*
-
 
 # testing
 /coverage
@@ -33,6 +26,7 @@ yarn-error.log*
 .idea
 .cache/
 package-lock.json
+.vscode
 tsconfig.tsbuildinfo
 .next/
 
