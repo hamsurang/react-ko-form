@@ -185,7 +185,7 @@ export const FormStateApi = ({
         <code>isValidating</code>
       </td>
       <td>
-        <code className={typographyStyles.typeText}>boolean</code>
+        <code className={typographyStyles.typeText}>object</code>
       </td>
       <td>{(api || API).formState.isValidating}</td>
     </tr>
