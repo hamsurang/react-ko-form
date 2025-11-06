@@ -40,36 +40,14 @@ jobs:
             echo "has_changes=true" >> $GITHUB_ENV
           fi
           echo "Detected changes between origin/master and upstream/master"
+          echo "master_changed=false" >> $GITHUB_ENV
+          echo "master_ko_changed=false" >> $GITHUB_ENV
 
-      - name: Find Existing master-sync PR
-        id: find-master-pr
-        run: |
-          RESPONSE=$(curl -s \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/pulls?state=open)
-          REF=$(echo "$RESPONSE" | jq -r '.[] | select(.head.ref | startswith("sync-upstream-")) | .head.ref' | head -n1)
-          if [[ -n "$REF" && "$REF" != "null" ]]; then
-            echo "existing_pr=true" >> $GITHUB_ENV
-            echo "existing_ref=$REF" >> $GITHUB_ENV
-          else
-            echo "existing_pr=false" >> $GITHUB_ENV
-          fi
-          echo "Existing master-sync PR branch: $REF"
-
-      - name: Prepare master-sync Branch
+      - name: Update master branch
         if: env.has_changes == 'true'
         run: |
           set -euo pipefail
-          BASE_BRANCH=master
-          if [[ "${{ env.existing_pr }}" == "true" ]]; then
-            BRANCH="${{ env.existing_ref }}"
-            git checkout -B "$BRANCH" "origin/$BRANCH" || git checkout -b "$BRANCH" origin/$BASE_BRANCH
-          else
-            BRANCH="sync-upstream-$(date +%Y%m%d%H%M%S)"
-            git checkout -B "$BRANCH" origin/$BASE_BRANCH
-          fi
-
+          git checkout -B master origin/master
           git merge upstream/master -X theirs --no-edit
 
           for DIR in .github .vscode; do
@@ -79,28 +57,17 @@ jobs:
 
           git checkout --ours .gitignore || true
           git add -A
-          git commit -m "Sync with upstream (remove .github & .vscode, keep .gitignore)" || echo "No changes"
-
-          git push -u origin "$BRANCH" --force-with-lease
-          echo "branch_name=$BRANCH" >> $GITHUB_ENV
-
-      - name: Create or Update PR to master
-        if: env.has_changes == 'true'
-        run: |
-          if [[ "${{ env.existing_pr }}" == "true" ]]; then
-            echo "✅ Existing PR found — branch updated."
+          if git diff --cached --quiet; then
+            echo "master_changed=false" >> $GITHUB_ENV
           else
-            curl -X POST \
-              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              https://api.github.com/repos/${{ github.repository }}/pulls \
-              -d '{
-                "title": "Sync with upstream (removing .github directory)",
-                "body": "This PR syncs the repository with upstream changes and removes the entire .github directory.",
-                "head": "'"${{ env.branch_name }}"'",
-                "base": "master"
-              }'
+            git commit -m "Sync with upstream (remove .github & .vscode, keep .gitignore)"
+            echo "master_changed=true" >> $GITHUB_ENV
           fi
+
+      - name: Push master branch
+        if: env.master_changed == 'true'
+        run: |
+          git push origin master
 
       # ===== master-ko 업데이트 =====
 
@@ -150,9 +117,15 @@ jobs:
           rm -f pnpm-lock.yaml
           pnpm install --frozen-lockfile=false || true
           git add -A
-          git commit -m "Update master-ko (deep-merge package.json, keep local files)" || echo "No changes"
+          if git diff --cached --quiet; then
+            echo "master_ko_changed=false" >> $GITHUB_ENV
+          else
+            git commit -m "Update master-ko (deep-merge package.json, keep local files)"
+            echo "master_ko_changed=true" >> $GITHUB_ENV
+          fi
 
       - name: Push and Create/Update PR for master-ko
+        if: env.master_ko_changed == 'true'
         run: |
           if [[ "${{ env.existing_ko_pr }}" == "true" ]]; then
             BRANCH="${{ env.existing_ko_ref }}"
