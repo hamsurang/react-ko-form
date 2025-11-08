@@ -1,0 +1,50 @@
+---
+title: Watch
+description: 입력 변경 사항을 구독하는 Watch 컴포넌트
+sidebar: apiLinks
+---
+
+## \</> `Watch:` <TypeText>Component</TypeText>
+
+ `useWatch`와 동일한 기능을 제공하지만, 컴포넌트 형태로 사용할 수 있는 React Hook Form 컴포넌트입니다. 다른 컴포넌트 내부에서 hook을 사용하는 대신, JSX에서 `<Watch />` 를 직접 사용하여 폼 값을 구독하고 렌더링할 수 있습니다.
+
+### Props
+
+---
+
+| Name           | Type                                                 | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| -------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `name`         | <TypeText>string \| string[] \| undefined</TypeText> | 필드의 이름.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `control`      | <TypeText>Object</TypeText>                          | `useForm`에서 제공한느 [`control`](/docs/useform/control) 객체. `FormProvider` 를 사용하는 경우, 선택 사항입니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `compute`      | <TypeText>function</TypeText>                        | <p>특정 폼 값을 선택하거나 가공하여 구독합니다.</p><ul><li>전체 폼을 구독하되 특정 조건에서만 업데이트된 값 반환<CodeArea withOutCopy rawData={`const watchedValue = useWatch({\n  compute: (data: FormValue) => { \n    if (data.test?.length) return data.test; \n\n    return ''; \n  }, \n});`}/></li><li>특정 폼 값 상태 구독<CodeArea withOutCopy rawData={`const watchedValue = useWatch({\n  name: 'test', \n  compute: (data: string) => { \n    return data.length ? data : ''; \n  }, \n});`}/></li></ul> |
+| `defaultValue` | <TypeText>unknown</TypeText>                         | 초기 렌더링 전에 `useWatch`가 반환할 기본값.<br/><br/>**참고:** 기본값이 제공되면 첫 번째 렌더링은 항상 `defaultValue`를 반환합니다.                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `disabled`     | <TypeText>boolean = false</TypeText>                 | 구독을 비활성화하는 옵션.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `exact`        | <TypeText>boolean = false</TypeText>                 | 필드 이름의 정확한 일치 여부를 기준으로 구독을 활성화합니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `render`       | <TypeText>Function</TypeText>                        | 지정된 폼 필드를 구독하고 값이 변경될 때마다 자식 함수를 다시 렌더링합니다. 이를 통해 상태를 수동으로 연결하지 않고도 JSX에서 선언적으로 폼 값을 사용할 수 있습니다.                                                                                                                                                                                                                                                                                                                                                                        |
+
+**Examples:**
+
+---
+
+```tsx copy sandbox=""
+import { useForm, Watch } from "react-hook-form"
+
+const App = () => {
+  const { register, control } = useForm()
+
+  return (
+    <div>
+      <form>
+        <input {...register("foo")} />
+        <input {...register("bar")} />
+      </form>
+      {/* `foo` 값이 변경될 때만 리렌더링 */}
+      <Watch
+        control={control}
+        names={["foo"]}
+        render={([foo]) => <span>{foo}</span>}
+      />
+    </div>
+  )
+}
+```
