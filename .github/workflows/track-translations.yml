@@ -1,0 +1,179 @@
+name: Track Translation Status
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 2 * * 1" # 매주 월요일 새벽 2시
+
+jobs:
+  track-translations:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: master-ko
+          fetch-depth: 0
+
+      - name: Detect translation gaps
+        id: gaps
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          # origin-src와 실제 src 비교 (한글 포함 파일은 번역됨으로 간주)
+          ( cd origin-src && find . -type f \( -name "*.mdx" -o -name "*.tsx" -o -name "*.ts" \) -print0 | xargs -0 sha1sum | sed 's# \+\./#\t#' | awk -F'\t' '{print $2"\t"$1}' | sort -k1,1 ) > origin.sum || true
+          ( cd src && find . -type f \( -name "*.mdx" -o -name "*.tsx" -o -name "*.ts" \) -print0 | xargs -0 sha1sum | sed 's# \+\./#\t#' | awk -F'\t' '{print $2"\t"$1}' | sort -k1,1 ) > src.sum || true
+
+          # 한글이 포함된 파일 목록 (번역된 파일로 간주)
+          grep -IPlr --exclude-dir=.git '\p{Hangul}' src/ | sed 's|^src/||' | sort > translated.list || true
+
+          # 번역되지 않은 파일 찾기
+          join -t $'\t' -v1 -1 1 -2 1 origin.sum src.sum | awk -F'\t' '{print $1}' > missing.list || true
+
+          # 변경된 파일 찾기 (체크섬 불일치)
+          join -t $'\t' -1 1 -2 1 origin.sum src.sum | awk -F'\t' '{if($2!=$3) print $1}' > changed.list || true
+
+          # 변경된 파일 중 한글이 없는 것만 OUTDATED로 표시
+          : > gaps.txt
+          if [ -s missing.list ]; then
+            awk '{print "UNTRANSLATED\t"$0}' missing.list >> gaps.txt
+          fi
+          if [ -s changed.list ]; then
+            while IFS= read -r f; do
+              if ! grep -Fxq "$f" translated.list; then
+                echo "OUTDATED"$'\t'"$f" >> gaps.txt
+              fi
+            done < changed.list
+          fi
+
+          if [ -s gaps.txt ]; then
+            echo "has_gaps=true" >> "$GITHUB_ENV"
+          else
+            echo "has_gaps=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Ensure labels exist
+        if: ${{ env.has_gaps == 'true' }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          owner="${GITHUB_REPOSITORY%/*}"; repo="${GITHUB_REPOSITORY#*/}"
+          existing=$(gh api -X GET "repos/$owner/$repo/labels?per_page=200" --jq '.[].name' || true)
+          has() { grep -Fxq "$1" <<< "$existing"; }
+          ensure_label() {
+            name="$1"; color="$2"; desc="$3"
+            if ! has "$name"; then
+              gh api -X POST "repos/$owner/$repo/labels" -f name="$name" -f color="$color" -f description="$desc" >/dev/null
+            fi
+          }
+          ensure_label docs          0075ca "Documentation"
+          ensure_label i18n          c5def5 "Localization/Internationalization"
+          ensure_label tracker       5319e7 "Tracker/Meta issue"
+          ensure_label docs:add      0e8a16 "Docs task: Add"
+          ensure_label docs:sync     fbca04 "Docs task: Sync"
+          ensure_label docs:migrate  1d76db "Docs task: Migrate"
+          ensure_label docs:remove   d93f0b "Docs task: Remove"
+
+      - name: Create or update translation issues
+        if: ${{ env.has_gaps == 'true' }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          owner="${GITHUB_REPOSITORY%/*}"; repo="${GITHUB_REPOSITORY#*/}"
+
+          tracker_title="Docs: 번역·동기화 마스터 체크리스트"
+          tracker=$(gh api -X GET "repos/$owner/$repo/issues?state=open&labels=tracker&per_page=100" \
+                    --jq '.[] | select(.title=="'"$tracker_title"'") | .number' | head -n1)
+
+          if [ -z "$tracker" ] || [ "$tracker" = "null" ]; then
+            tracker_body=$'### 번역 작업 체크리스트\n\n(자동 생성. 서브 이슈와 연동된 체크박스입니다)'
+            tracker=$(gh api -X POST "repos/$owner/$repo/issues" \
+                      -f title="$tracker_title" \
+                      -f body="$tracker_body" \
+                      -f labels[]="docs" -f labels[]="i18n" -f labels[]="tracker" \
+                      --jq '.number')
+          fi
+
+          add_labels_if_missing() {
+            local num="$1"; shift
+            curr=$(gh api -X GET "repos/$owner/$repo/issues/$num" --jq '[.labels[].name] | join(",")')
+            for lbl in "$@"; do
+              if ! grep -q "\b${lbl}\b" <<< "$curr"; then
+                gh api -X POST "repos/$owner/$repo/issues/$num/labels" -f labels[]="$lbl" >/dev/null
+              fi
+            done
+          }
+
+          create_issue() {
+            file="$1"
+            status="$2"  # UNTRANSLATED | OUTDATED
+            
+            if [ "$status" = "UNTRANSLATED" ]; then
+              kind="Add"
+              kind_label="docs:add"
+              title="[Docs] $file — Add"
+            else
+              kind="Sync"
+              kind_label="docs:sync"
+              title="[Docs] $file — Sync"
+            fi
+            
+            slug=$(printf "%s" "$file|$kind" | sha1sum | awk '{print $1}')
+
+            existing=$(gh api -X GET "repos/$owner/$repo/issues?state=all&labels=docs,i18n&per_page=100" \
+                        --jq '[.[] | select((.title=="'"$title"'") or (.body|tostring|contains("'"$slug"'")))] | first | .number' \
+                        | tr -d '\n')
+
+            if [ -z "$existing" ] || [ "$existing" = "null" ]; then
+              issue_body=$'파일: `'"$file"$'`\n유형: '"$kind"$'\n\n### 작업\n- [ ] 번역/동기화\n- [ ] 리뷰\n- [ ] PR\n\nTracked by: #'"$tracker"$'\n\n<!-- TRANSLATION_TRACKER:'"$slug"' -->'
+              existing=$(gh api -X POST "repos/$owner/$repo/issues" \
+                          -f title="$title" \
+                          -f body="$issue_body" \
+                          -f labels[]="docs" -f labels[]="i18n" -f labels[]="$kind_label" \
+                          --jq '.number')
+            else
+              add_labels_if_missing "$existing" "docs" "i18n" "$kind_label"
+            fi
+          }
+
+          # 서브 이슈 생성
+          awk -F'\t' '$1=="UNTRANSLATED"{print $2}' gaps.txt | while IFS= read -r f; do
+            [ -n "$f" ] && create_issue "$f" "UNTRANSLATED"
+          done
+
+          awk -F'\t' '$1=="OUTDATED"{print $2}' gaps.txt | while IFS= read -r f; do
+            [ -n "$f" ] && create_issue "$f" "OUTDATED"
+          done
+
+          # 열린 서브 이슈 수집(라벨 포함) → 마스터 체크리스트 갱신
+          gh api -X GET "repos/$owner/$repo/issues?state=open&labels=docs,i18n&per_page=100" \
+            --jq '.[] | select(.labels | any(.name=="tracker") | not) | "\(.number)\t\(.title)\t\([.labels[].name]|join(","))"' > open.tsv || true
+
+          {
+            echo "### 번역 작업 체크리스트"
+            echo
+            echo "#### 1) 번역 혹은 변경점 반영 필요"
+            awk -F'\t' 'index($3,"docs:sync") {print "- [ ] #"$1" " gensub(/^\[Docs\] /,"","", $2)}' open.tsv | sort -k2 || echo "_없음_"
+            echo
+            echo "#### 2) 번역 추가 필요(새로운 파일 추가)"
+            awk -F'\t' 'index($3,"docs:add") {print "- [ ] #"$1" " gensub(/^\[Docs\] /,"","", $2)}' open.tsv | sort -k2 || echo "_없음_"
+            echo
+            echo "#### 3) tsx -> mdx로 변경 작업"
+            awk -F'\t' 'index($3,"docs:migrate") {print "- [ ] #"$1" " gensub(/^\[Docs\] /,"","", $2)}' open.tsv | sort -k2 || echo "_없음_"
+            echo
+            echo "#### 4) 삭제 필요"
+            awk -F'\t' 'index($3,"docs:remove") {print "- [ ] #"$1" " gensub(/^\[Docs\] /,"","", $2)}' open.tsv | sort -k2 || echo "_없음_"
+            echo
+            echo "> 참고"
+            echo "> - tsx→mdx 변경 발생 시 3)와 4)를 연계 처리"
+            echo "> - 타입/코드 변경은 번역 범위에서 제외"
+          } > master.md
+
+          gh issue edit "$tracker" --body-file master.md

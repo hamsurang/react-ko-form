@@ -1,0 +1,78 @@
+name: Sync origin-src with origin/master
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  sync-origin-src:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set git identity
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config --global user.name  "minchodang"
+          git config --global user.email "minsu910725@gmail.com"
+
+      - name: Extract src from origin/master
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          WORK=$(mktemp -d)
+          git archive origin/master src | tar -x -C "$WORK"
+          mv "$WORK/src" master-src
+
+      - name: Detect changes between origin-src and master-src
+        id: compare
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p origin-src
+
+          ( cd master-src && find . -type f -print0 | xargs -0 sha1sum | sed 's# \+\./#\t#' | awk -F'\t' '{print $2"\t"$1}' | sort -k1,1 ) > master.sum || true
+          ( cd origin-src && find . -type f -print0 | xargs -0 sha1sum | sed 's# \+\./#\t#' | awk -F'\t' '{print $2"\t"$1}' | sort -k1,1 ) > origin.sum || true
+
+          join -t $'\t' -v1 -1 1 -2 1 master.sum origin.sum | awk -F'\t' '{print "A "$1}' > added.raw || true
+          join -t $'\t' -v2 -1 1 -2 1 master.sum origin.sum | awk -F'\t' '{print "D "$1}' > deleted.raw || true
+          join -t $'\t'    -1 1 -2 1 master.sum origin.sum | awk -F'\t' '{if($2!=$3) print "M "$1}' > modified.raw || true
+
+          awk '$1=="A" && $2 ~ /\.(mdx|tsx|ts)$/{print}' added.raw    > changes.filtered || true
+          awk '$1=="D" && $2 ~ /\.(mdx|tsx|ts)$/{print}' deleted.raw >> changes.filtered || true
+          awk '$1=="M" && $2 ~ /\.(mdx|tsx|ts)$/{print}' modified.raw >> changes.filtered || true
+
+          if [ -s changes.filtered ]; then
+            echo "has_changes=true" >> "$GITHUB_ENV"
+          else
+            echo "has_changes=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Update and push origin-src
+        if: ${{ env.has_changes == 'true' }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if git show-ref --quiet refs/remotes/origin/master-ko; then
+            git checkout -B master-ko origin/master-ko
+          else
+            git checkout -B master-ko
+          fi
+
+          rsync -a --delete master-src/ origin-src/
+          git add -A origin-src
+
+          if ! git diff --cached --quiet; then
+            git commit -m "origin-src를 origin/master/src와 자동 동기화"
+            git push origin master-ko
+          fi
