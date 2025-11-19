@@ -268,7 +268,8 @@ const onSubmit = (data) => {
         <p>
           <b className={typographyStyles.note}>Note:</b> only registered fields
           with a <code>ref</code> will work. Custom registered inputs do not
-          apply. For example: <code>{`register('test') // doesn't work`}</code>{" "}
+          apply. For example:{" "}
+          <code>{`register('test') // doesn't work`}</code>{" "}
         </p>
 
         <p>
@@ -2059,7 +2060,8 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
                     타입을 가집니다.
                     <p>
                       <b className={typographyStyles.note}>중요: </b>이 동작은
-                      <strong>내장된</strong> 검증에만 적용됩니다.
+                      <strong>내장된</strong>{" "}
+                       검증에만 적용됩니다.
                     </p>
                   </p>
                 </td>
@@ -2742,39 +2744,6 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
         </tr>
         <tr>
           <td>
-            <code>defaultValue</code>
-          </td>
-          <td>
-            <code className={typographyStyles.typeText}>unknown</code>
-          </td>
-          <td></td>
-          <td>
-            <p>
-              <b className={typographyStyles.note}>중요: </b>
-              <code>useForm</code>의 <code>defaultValue</code> 또는{" "}
-              <code>defaultValues</code>에 <code>undefined</code> 를 적용할 수
-              없습니다.
-            </p>
-            <ul>
-              <li>
-                <p>
-                  필드 레벨에서 <code>defaultValue</code>를 설정하거나{" "}
-                  <code>useForm</code>의 <code>defaultValues</code>를 사용해야
-                  합니다. <code>undefined</code>는 사용할 수 없습니다.
-                </p>
-              </li>
-              <li>
-                <p>
-                  폼이 기본값으로 <code>reset</code>을 호출하는 경우,{" "}
-                  <code>useForm</code>에 <code>defaultValues</code>를 제공해야
-                  합니다.
-                </p>
-              </li>
-            </ul>
-          </td>
-        </tr>
-        <tr>
-          <td>
             <code>rules</code>
           </td>
           <td>
@@ -2828,6 +2797,41 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
               입력 필드는 비활성화되며, 이 값은 제출(submission) 데이터에서
               제외됩니다.
             </p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <code>defaultValue</code>
+          </td>
+          <td>
+            <code className={typographyStyles.typeText}>unknown</code>
+          </td>
+          <td></td>
+          <td>
+            <p>
+              <b className={typographyStyles.note}>중요: </b>
+              <code>useForm</code>의 <code>defaultValue</code> 또는{" "}
+              <code>defaultValues</code>에 <code>undefined</code> 를 적용할 수
+              없습니다.
+            </p>
+            <ul>
+              <li>
+                <p>
+                  필드 레벨에서 <code>defaultValue</code>를 설정하거나{" "}
+                  <code>useForm</code>의 <code>defaultValues</code>를 사용해야
+                  합니다. <code>undefined</code>는 유효한 값이 아닙니다. {" "}
+                  <code>useForm</code>에서{" "}
+                  <code>defaultValues</code>를 사용했다면, 이 prop은 사용하지 마세요.
+                </p>
+              </li>
+              <li>
+                <p>
+                  폼이 기본값으로 <code>reset</code>을 호출하는 경우,{" "}
+                  <code>useForm</code>에 <code>defaultValues</code>를 제공해야
+                  합니다.
+                </p>
+              </li>
+            </ul>
           </td>
         </tr>
       </tbody>
