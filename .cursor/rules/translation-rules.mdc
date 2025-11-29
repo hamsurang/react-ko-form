@@ -1,59 +1,59 @@
 ---
-description: react-ko-form 번역 규칙
+description: Translation rules for react-ko-form
 alwaysApply: true
 ---
 
-# react-ko-form의 번역 규칙 😎
+# Translation Rules for React-Ko-Form 😎
 
-react-ko-form은 일관된 번역을 제공하기 위해 아래 규칙을 지켜서 번역하고 있습니다.
+React-ko-form follows the rules below to provide consistent translations.
 
-## 주요 번역 규칙
+## Standard Translation Rules
 
-1. form - `폼`으로 표기
+1. form - Translate as `폼`
 
-2. method - `메서드`로 표기
+2. method - Translate as `메서드`
 
-3. submission - `제출`로 표기(제출이라는 번역이 어색하다면 **영어로 표기**)
+3. submission - Translate as `제출` (use English if "제출" sounds awkward in context)
 
-4. input - 맥락에 따라 `인풋` / `입력`으로 표기
+4. input - Translate as `인풋` or `입력` depending on context
 
-5. error - `에러`로 표기
+5. error - Translate as `에러`
 
-6. send - `전달`로 표기
+6. send - Translate as `전달`
 
-7. submit - `전송`으로 표기
+7. submit - Translate as `전송`
 
-8. prop - `속성`으로 표기
+8. prop - Translate as `속성`
 
-9. rerendering - `리렌더링`으로 표기
+9. rerendering - Translate as `리렌더링`
 
-## 병기 표현 규칙
+## Bilingual Notation Rules
 
-1. register/registered - `등록(register)`으로 표기
+1. register/registered - Use `등록(register)`
 
-2. blur - `블러(blur)`로 표기
+2. blur - Use `블러(blur)`
 
-3. optional array - `의존성 배열(optional array)`로 표기
+3. optional array - Use `의존성 배열(optional array)`
 
-4. flat field array - `평면 필드 배열(flat field array)`로 표기
+4. flat field array - Use `평면 필드 배열(flat field array)`
 
-5. properties - `속성(properties)`로 표기
+5. properties - Use `속성(properties)`
 
-6. props - `속성(props)`으로 표기
+6. props - Use `속성(props)`
 
-7. touched - `터치된(touched)`로 표기
+7. touched - Use `터치된(touched)`
 
-8. dirty - `변경된(dirty)`로 표기
+8. dirty - Use `변경된(dirty)`
 
-9. render phase - `렌더 단계(render phase)`로 표기
+9. render phase - Use `렌더 단계(render phase)`
 
-10. export - `내보내기(export)`로 표기
+10. export - Use `내보내기(export)`
 
-11. dependency array - `의존성 배열(dependency array)`로 표기
+11. dependency array - Use `의존성 배열(dependency array)`
 
-## 영문 표기 단어
+## Terms to Keep in English
 
-하기 영문 표기들은 원문의 의미 전달이 어려워 영문으로 표기하기로 결정.
+The following terms should remain in English as their Korean translations may lose technical precision:
 
 1. flush
 
@@ -61,12 +61,12 @@ react-ko-form은 일관된 번역을 제공하기 위해 아래 규칙을 지켜
 
 3. dispatch
 
-## 제목
+## Section Titles
 
-부제목 같은 경우(Props, Examples, Rules) 번역하지 않습니다.
+Do NOT translate main section headings (Props, Examples, Rules).
 
-다만 부제목 하위 subtitle 같은 경우 번역이 가능한 원문이라면 번역합니다.
+However, translate subtitles under these sections if they are descriptive phrases.
 
-예를 들어, Example 아래에 subtitle로 Reset Field State이 있고 관련된 예시 코드가 있다면 `Reset Field State`은 `필드 상태 초기화`로 번역합니다.
+For example, if there is a subtitle "Reset Field State" under "Examples" with related example code, translate `Reset Field State` to `필드 상태 초기화`.
 
-(참고 링크: https://react-hook-form.com/docs/useform/resetfield)
+(Reference: <https://react-hook-form.com/docs/useform/resetfield>)
