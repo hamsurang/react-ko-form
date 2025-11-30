@@ -18,6 +18,14 @@ sidebar: apiLinks
 | `string`    | 폼 값에서 지정된 경로의 값을 가져옵니다.        |
 | `array`     | 폼 값에서 지정된 경로의 값을 배열로 반환합니다. |
 
+| Name         | Type            | Description                                     |
+| ------------ | --------------- | ----------------------------------------------- |
+| `fieldNames` | `undefined`     | 폼의 모든 값을 반환합니다.                      |
+|              | `string`        | 폼 값에서 지정된 경로의 값을 가져옵니다.        |
+|              | `array`         | 폼 값에서 지정된 경로의 값을 배열로 반환합니다. |
+| `config`     | `dirtyFields`   | dirty fields만 반환합니다.                      |
+|              | `touchedFields` | touchedFields만 반환합니다.                     |
+
 **Examples:**
 
 ---
@@ -30,12 +38,14 @@ sidebar: apiLinks
 <input {...register("root.test2")} />
 ```
 
-| Name                                  | Output                              |
-| ------------------------------------- | ----------------------------------- |
-| `getValues()`                         | `{ root: { test1: '', test2: ''} }` |
-| `getValues("root")`                   | `{ test1: '', test2: ''}`           |
-| `getValues("root.firstName")`         | `''`                                |
-| `getValues(["yourDetails.lastName"])` | `['']`                              |
+| Name                                            | Output                              |
+| ----------------------------------------------- | ----------------------------------- |
+| `getValues()`                                   | `{ root: { test1: '', test2: ''} }` |
+| `getValues("root")`                             | `{ test1: '', test2: ''}`           |
+| `getValues("root.firstName")`                   | `''`                                |
+| `getValues(["yourDetails.lastName"])`           | `['']`                              |
+| `getValues(undefined, { dirtyFields: true })`   | `{ root: { test1: '', test2: ''} }` |
+| `getValues(undefined, { touchedFields: true })` | `{ root: { test1: '', test2: ''} }` |
 
 <Admonition type="important" title="Rules">
 
@@ -49,7 +59,7 @@ sidebar: apiLinks
 
 <TabGroup buttonLabels={["TS", "JS", "Types"]}>
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-v7-ts-getvalues-txsfg"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-v7-ts-getvalues-txsfg"
 import React from "react"
 import { useForm } from "react-hook-form"
 
@@ -108,7 +118,7 @@ export default function App() {
 }
 ```
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-v7-ts-getvalues-txsfg"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-v7-ts-getvalues-txsfg"
 import React from "react"
 import { useForm } from "react-hook-form"
 
