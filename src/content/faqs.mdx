@@ -1,19 +1,19 @@
 ---
 title: FAQs
-description: Frequently asked questions
+description: 자주 묻는 질문
 sidebar: faqLinks
 ---
 
-## Performance of React Hook Form {#PerformanceofReactHookForm}
+## React Hook Form의 성능 {#PerformanceofReactHookForm}
 
-Performance is one of the primary reasons why this library was created. React Hook Form relies on an uncontrolled form, which is the reason why the `register` function captures `ref` and the controlled component has its re-rendering scope with `Controller` or `useController`. This approach reduces the amount of re-rendering that occurs due to a user typing in an input or other form values changing at the root of your form or applications. Components mount to the page faster than controlled components because they have less overhead. As a reference, there is a quick comparison test that you can refer to at [this repo link](https://github.com/bluebill1049/react-hook-form-performance-compare).
+성능은 이 라이브러리가 만들어진 주요 이유 중 하나입니다. React Hook Form은 비제어 컴포넌트 방식을 사용하며, 이것이 `register` 함수가 `ref`를 캡처하고 제어 컴포넌트가 `Controller` 또는 `useController`로 자체 리렌더링 범위를 갖는 이유입니다. 이 접근 방식은 사용자가 입력 필드에 타이핑하거나 다른 폼 값이 변경될 때 폼이나 애플리케이션의 루트에서 발생하는 리렌더링의 양을 줄입니다. 컴포넌트는 오버헤드가 적기 때문에 제어 컴포넌트보다 페이지에 더 빠르게 마운트됩니다. 참고로 [이 저장소 링크](https://github.com/bluebill1049/react-hook-form-performance-compare)에서 간단한 성능 비교 테스트를 확인할 수 있습니다.
 
 ---
 
-## How to create an accessible input error and message? {#Howtocreateanaccessibleinputerrorandmessage}
+## 접근 가능한 입력 에러 및 메시지를 만드는 방법은? {#Howtocreateanaccessibleinputerrorandmessage}
 
-React Hook Form is based on Uncontrolled Components, which gives you the ability to easily build an accessible custom form.
-_(For more information about Uncontrolled Components, read [Sharing State Between Components](https://react.dev/learn/sharing-state-between-components))_
+React Hook Form은 비제어 컴포넌트를 기반으로 하므로, 접근 가능한 커스텀 폼을 쉽게 만들 수 있습니다.
+_(비제어 컴포넌트에 대한 자세한 내용은 [컴포넌트 간 State 공유하기](https://react.dev/learn/sharing-state-between-components)를 참고하세요)_
 
 ```javascript copy
 import { useForm } from "react-hook-form"
@@ -44,31 +44,31 @@ export default function App() {
 
 ---
 
-## Does it work with Class Components? {#DoesitworkwithClassComponents}
+## 클래스 컴포넌트에서 작동하나요? {#DoesitworkwithClassComponents}
 
-No, not out of the box. If you want to do this, you can build a wrapper around it and use it in your Class Component.
+아니요, 기본적으로는 작동하지 않습니다. 사용하고 싶다면 wrapper를 만들어서 클래스 컴포넌트에서 사용할 수 있습니다.
 
-> You can’t use Hooks inside of a class component, but you can definitely mix classes and function components with Hooks in a single tree. Whether a component is a class or a function that uses Hooks is simply an implementation detail of that component. In the longer term, we expect Hooks to be the primary way people write React components.
+> 클래스 컴포넌트 내부에서는 Hook을 사용할 수 없지만, 하나의 트리 안에서 클래스 컴포넌트와 Hook을 사용하는 함수 컴포넌트를 혼합하여 사용할 수는 있습니다. 컴포넌트가 클래스인지 Hook을 사용하는 함수인지는 단순히 해당 컴포넌트의 구현 세부 사항일 뿐입니다. 장기적으로 우리는 Hook이 React 컴포넌트를 작성하는 주요 방법이 될 것으로 기대합니다.
 
 ---
 
-## How to reset the form? {#Howtoresettheform}
+## 폼을 어떻게 리셋하나요? {#Howtoresettheform}
 
-There are two methods to clear the form:
+폼을 리셋하는 두 가지 방법이 있습니다:
 
 - **HTMLFormElement.reset()**
 
-  This method does the same thing as clicking a form's reset button. It only clears `input/select/checkbox` values.
+  이 메서드는 폼의 리셋 버튼을 클릭하는 것과 동일한 동작을 수행합니다. `input/select/checkbox` 값만 초기화합니다.
 
 - **React Hook Form API: `reset()`**
 
-  React Hook Form's `reset` method will reset all field values, and will also clear all `errors` within the form.
+  React Hook Form의 `reset` 메서드는 모든 필드 값을 리셋하고, 폼 내의 모든 `errors`도 제거합니다.
 
 ---
 
-## How to initialize form values? {#Howtoinitializeformvalues}
+## 폼 값을 초기화하는 방법은? {#Howtoinitializeformvalues}
 
-Being that React Hook Form relies on an uncontrolled form, you can specify a `defaultValue` or `defaultChecked` to an individual field. However, it is more common and recommended to initialize a form by passing `defaultValues` to `useForm`.
+React Hook Form은 비제어 컴포넌트 방식을 사용하므로, 개별 필드에 `defaultValue` 또는 `defaultChecked`를 지정할 수 있습니다. 하지만 `useForm`에 `defaultValues`를 전달하여 폼을 초기화하는 것이 더 일반적이고 권장되는 방법입니다.
 
 ```javascript copy
 function App() {
@@ -89,9 +89,9 @@ function App() {
 }
 ```
 
-For async default values, you can use the following methods:
+비동기 기본값의 경우 다음 방법을 사용할 수 있습니다:
 
-- Async `defaultValues`
+- 비동기 `defaultValues`
 
   ```javascript copy
   function App() {
@@ -104,7 +104,7 @@ For async default values, you can use the following methods:
   }
   ```
 
-- Reactive `values`
+- 반응형 `values`
 
   ```javascript copy
   function App() {
@@ -120,9 +120,9 @@ For async default values, you can use the following methods:
 
 ---
 
-## How to share ref usage? {#Howtosharerefusage}
+## 어떻게 ref의 사용을 공유하나요? {#Howtosharerefusage}
 
-React Hook Form needs a `ref` to collect the input value. However, you may want to use `ref` for other purposes (e.g. scroll into the view, or focus).
+React Hook Form은 입력 값을 수집하기 위해 `ref`가 필요합니다. 하지만 다른 목적(예: 뷰로 스크롤하거나 포커스)으로 `ref`를 사용하고 싶을 수도 있습니다.
 
 <TabGroup buttonLabels={["TS", "JS"]}>
 
@@ -141,7 +141,7 @@ export default function App() {
   const onSubmit = (data: Inputs) => console.log(data)
   const { ref, ...rest } = register("firstName")
   const onClick = () => {
-    firstNameRef.current!.value = ""
+    firstNameRef.current.value = ""
   }
 
   useImperativeHandle(ref, () => firstNameRef.current)
@@ -190,11 +190,11 @@ export default function App() {
 
 ---
 
-## What if you don't have access to ref? {#Whatifyoudonthaveaccesstoref}
+## ref에 접근할 수 없는 경우는 어떻게 해야 하나요? {#Whatifyoudonthaveaccesstoref}
 
-You can actually `register` an input without a `ref`. In fact, you can manually `setValue`, `setError` and `trigger`.
+실제로 `ref` 없이도 입력을 `register`할 수 있습니다. 사실, 수동으로 `setValue`, `setError`, `trigger`를 사용할 수 있습니다.
 
-**Note:** Because `ref` has not been registered, React Hook Form won't be able to register event listeners to the inputs. This means you will have to manually update value and error.
+**참고:** `ref`가 등록되지 않았기 때문에 React Hook Form은 입력에 이벤트 리스너를 등록할 수 없습니다. 즉, 값과 에러를 수동으로 업데이트해야 합니다.
 
 ```javascript copy
 import React, { useEffect } from "react"
@@ -207,7 +207,7 @@ export default function App() {
   useEffect(() => {
     register("firstName", { required: true })
     register("lastName")
-  }, [])
+  }, [register])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -234,47 +234,39 @@ export default function App() {
 
 ---
 
-## Why is the first keystroke not working? {#Whyisthefirstkeystrokenotworking}
+## 첫 번째 키 입력이 작동하지 않는 이유는 무엇인가요? {#Whyisthefirstkeystrokenotworking}
 
-Make sure you are not using `value`. The correct property is `defaultValue`.
+`value`를 사용하지 않는지 확인하세요. 올바른 속성은 `defaultValue`입니다.
 
-React Hook Form is focusing on uncontrolled inputs, which means you don't need to change the input `value` via `state` via `onChange`. In fact, you don't need `value` at all. You only need to set `defaultValue` for the initial input value.
-
-```javascript
-import { useForm } from "react-hook-form/dist/index.ie11" // V6
-import { useForm } from "react-hook-form/dist/react-hook-form.ie11" // V5'
-// Resolvers
-import { yupResolver } from "@hookform/resolvers/dist/ie11/yup"
-```
+React Hook Form은 비제어 입력에 중점을 두고 있으므로, `onChange`를 통해 `state`로 입력 `value`를 변경할 필요가 없습니다. 사실 `value`는 전혀 필요하지 않습니다. 초기 입력 값을 설정하기 위해 `defaultValue`만 설정하면 됩니다.
 
 ---
 
-## React Hook Form, Formik or Redux Form? {#ReactHookFormFormikorReduxForm}
+## React Hook Form, Formik 또는 Redux Form? {#ReactHookFormFormikorReduxForm}
 
-First of all, all libs try to solve the same problem: make the form building experience as easy as possible. However, there are some fundamental differences between these three. `react-hook-form` is built with uncontrolled inputs in mind and tries to provide your form with the best performance and least amount of re-renders possible. Additionallly, `react-hook-form` is built with React Hooks and used as a hook, which means there is no Component for you to import. Here are some of the detailed differences:
-
+우선, 모든 라이브러리는 동일한 문제를 해결하려고 합니다: 폼 구축 경험을 최대한 쉽게 만드는 것입니다. 하지만 이 세 가지 사이에는 몇 가지 근본적인 차이점이 있습니다. `react-hook-form`은 비제어 입력을 염두에 두고 만들어졌으며, 가능한 최고의 성능과 최소한의 리렌더링을 제공하려고 합니다. 또한 `react-hook-form`은 React Hook으로 만들어졌고 훅으로 사용되므로, 임포트할 컴포넌트가 없습니다. 다음은 세부적인 차이점입니다:
 |                    | React Hook Form                                                                                                                                                                                              | Formik                                                                 | Redux Form                                                                              |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| **Component**      | [uncontrolled](https://reactjs.org/docs/uncontrolled-components.html) & [controlled](https://reactjs.org/docs/forms.html)                                                                                    | [controlled](https://reactjs.org/docs/forms.html)                      | [controlled](https://reactjs.org/docs/forms.html)                                       |
-| **Rendering**      | minimum re-render and optimise computation                                                                                                                                                                   | re-render according to local state changes (As you type in the input.) | re-render according to state management lib (Redux) changes (As you type in the input.) |
+| **컴포넌트**      | [비제어](https://reactjs.org/docs/uncontrolled-components.html) & [제어](https://reactjs.org/docs/forms.html)                                                                                    | [제어](https://reactjs.org/docs/forms.html)                      | [제어](https://reactjs.org/docs/forms.html)                                       |
+| **렌더링**      | 최소 리렌더링 및 계산 최적화                                                                                                                                                                   | 로컬 상태 변경에 따라 리렌더링 (입력할 때마다) | 상태 관리 라이브러리(Redux) 변경에 따라 리렌더링 (입력할 때마다) |
 | **API**            | Hooks                                                                                                                                                                                                        | Component (RenderProps, Form, Field) + Hooks                           | Component (RenderProps, Form, Field)                                                    |
-| **Package size**   | Small <br/> `react-hook-form@7.27.0` <br/> **8.5KB**                                                                                                                                                         | Medium <br />`formik@2.1.4` <br/>**15KB**                              | Large <br/>`redux-form@8.3.6` <br/>**26.4KB**                                           |
-| **Validation**     | Built-in, [Yup](https://github.com/jquense/yup), [Zod](https://github.com/vriad/zod), [Joi](https://github.com/hapijs/joi), [Superstruct](https://github.com/ianstormtaylor/superstruct) and build your own. | Build yourself or [Yup](https://github.com/jquense/yup)                | Build yourself or Plugins                                                               |
-| **Learning curve** | Low to Medium                                                                                                                                                                                                | Medium                                                                 | Medium                                                                                  |
+| **패키지 크기**   | 작음 <br/> `react-hook-form@7.27.0` <br/> **8.5KB**                                                                                                                                                         | 보통 <br />`formik@2.1.4` <br/>**15KB**                              | 큼 <br/>`redux-form@8.3.6` <br/>**26.4KB**                                           |
+| **유효성 검사**     | 내장, [Yup](https://github.com/jquense/yup), [Zod](https://github.com/vriad/zod), [Joi](https://github.com/hapijs/joi), [Superstruct](https://github.com/ianstormtaylor/superstruct) 및 직접 구현 가능 | 직접 구현 또는 [Yup](https://github.com/jquense/yup)                | 직접 구현 또는 플러그인                                                               |
+| **학습 곡선** | 낮음에서 보통                                                                                                                                                                                                | 보통                                                                 | 보통                                                                                  |
 
 ---
 
 ## watch vs getValues vs state {#watchvsgetValuesvsstate}
 
-- **watch:** subscribe to either all inputs or a specified input's changes via an event listener and re-render based on which fields are subscribed to. Check out [this codesandbox](https://codesandbox.io/s/react-hook-form-watch-with-radio-buttons-and-select-examples-ovfus) for actual behaviour.
-- **getValues**: get values that are stored inside the custom hook as reference, fast and cheap. This method doesn’t trigger a re-render.
-- **local state**: React local state represents more than just an input’s state and also decides what to render. This will trigger on each input’s change.
+- **watch:** 이벤트 리스너를 통해 모든 입력 또는 특정 입력의 변경 사항을 구독하고, 구독된 필드에 따라 리렌더링합니다. 실제 동작은 [이 codesandbox](https://codesandbox.io/s/react-hook-form-watch-with-radio-buttons-and-select-examples-ovfus)를 확인하세요.
+- **getValues**: 커스텀 훅 내부에 참조로 저장된 값을 가져옵니다. 빠르고 가볍습니다. 이 메서드는 리렌더링을 트리거하지 않습니다.
+- **로컬 state**: React 로컬 상태는 단순히 입력의 상태뿐만 아니라 무엇을 렌더링할지도 결정합니다. 각 입력의 변경마다 트리거됩니다.
 
 ---
 
-## Why is default value not changing correctly with ternary operator? {#Whyisdefaultvaluenotchangingcorrectlywithternaryoperator}
+## 삼항 연산자로 기본값이 올바르게 변경되지 않는 이유는 무엇인가요? {#Whyisdefaultvaluenotchangingcorrectlywithternaryoperator}
 
-React Hook Form doesn't control your entire form and inputs, which is why React wouldn't recognize that the actual input has been exchanged or swapped. As a solution, you can resolve this problem by giving a unique `key` prop to your input. You can also read more about the key props from [this article written by Kent C. Dodds](https://kentcdodds.com/blog/understanding-reacts-key-prop).
+React Hook Form은 전체 폼과 입력을 제어하지 않기 때문에, React는 실제 입력이 교체되거나 바뀌었다는 것을 인식하지 못합니다. 해결 방법으로, 입력에 고유한 `key` prop을 부여하여 이 문제를 해결할 수 있습니다. key prop에 대한 자세한 내용은 [Kent C. Dodds가 작성한 이 글](https://kentcdodds.com/blog/understanding-reacts-key-prop)에서도 확인할 수 있습니다.
 
 ```javascript sandbox="https://codesandbox.io/s/react-hook-form-faq-toggle-fields-3htr6" copy
 import { useForm } from "react-hook-form"
@@ -296,14 +288,14 @@ export default function App() {
 
 ---
 
-## How to work with modal or tab forms? {#Howtoworkwithmodalortabforms}
+## 모달 또는 탭 폼과 함께 작업할 때는 어떻게 해야 하나요? {#Howtoworkwithmodalortabforms}
 
-It's important to understand that React Hook Form embraces native form behavior by storing input state inside each input (except custom `register` at `useEffect`). A common misconception is that input state remains with mounted or unmounted inputs. Such as when working with a modal or tab forms. Instead, the correct solution is to build a new form for your form inside each modal or tab and capture your submission data in local or global state and then do something with the combined data.
+React Hook Form이 각 입력 내부에 입력 상태를 저장하여 네이티브 폼 동작을 따른다는 것을 이해하는 것이 중요합니다(`useEffect`에서 커스텀 `register`를 사용하는 경우 제외). 흔한 오해는 입력 상태가 마운트되거나 언마운트된 입력에 유지된다고 생각하는 것입니다. 예를 들어 모달이나 탭 폼을 다룰 때 그렇습니다. 올바른 해결책은 각 모달이나 탭 내부에 새로운 폼을 만들고, 제출 데이터를 로컬 또는 전역 상태에 캡처한 다음 결합된 데이터로 작업하는 것입니다.
 
-- [Modal form and toggle inputs example](https://codesandbox.io/s/react-hook-form-modal-form-conditional-inputs-c7n0r)
-- [Tab form example](https://codesandbox.io/s/tabs-760h9)
+- [모달 폼 및 토글 입력 예제](https://codesandbox.io/s/react-hook-form-modal-form-conditional-inputs-c7n0r)
+- [탭 폼 예제](https://codesandbox.io/s/tabs-760h9)
 
-Alternatively you can use the deprecated option `shouldUnregister: false` when calling \`useForm\`.
+또는 `useForm`을 호출할 때 더 이상 사용되지 않는 옵션인 `shouldUnregister: false`를 사용할 수도 있습니다.
 
 <TabGroup buttonLabels={["Controller", "Custom Register"]}>
 
