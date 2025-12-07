@@ -54,7 +54,7 @@ sidebar: apiLinks
 
 <TabGroup buttonLabels={["TS", "JS"]}>
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-handlesubmit-ts-v7-lcrtu"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-handlesubmit-ts-v7-lcrtu"
 import React from "react"
 import { useForm, SubmitHandler, SubmitErrorHandler } from "react-hook-form"
 
@@ -71,7 +71,7 @@ export default function App() {
     console.log(errors)
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit, onError)}>
       <input {...register("firstName")} />
       <input {...register("lastName")} />
       <input type="email" {...register("email")} />
@@ -105,7 +105,6 @@ export default function App() {
 **비동기**
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-async-submit-validation-kpx0o"
-import React from "react";
 import { useForm } from "react-hook-form";
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
