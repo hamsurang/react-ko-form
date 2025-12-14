@@ -18,7 +18,12 @@
   --color-orange: #e67e22;
 }
 
+.dark {
+  --color-options: #0e101c;
+}
+
 .light {
+  --color-options: #ffff;
   --color-text: black;
   --color-background: #ffff;
   --color-footer: #081229;
@@ -51,8 +56,9 @@ body {
   -ms-font-feature-settings: "kern", "liga", "clig", "calt";
   -webkit-font-feature-settings: "kern", "liga", "clig", "calt";
   font-feature-settings: "kern", "liga", "clig", "calt";
-  font-family: "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
-    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  font-family:
+    "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+    "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 0.9rem;
@@ -938,12 +944,4 @@ pre[class*="language-"] {
   .ds-dataset-3 {
     height: auto;
   }
-}
-
-#carbon-responsive {
-  margin: 0 auto 50px;
-}
-
-#carbon-cover {
-  margin: 0 auto 50px;
 }
