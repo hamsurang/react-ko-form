@@ -87,9 +87,9 @@ sidebar: apiLinks
 | ------------------------------------------------------- | ---------------------------------------------------------------------- |
 | [mode](#mode)                                           | 제출 **전** 유효성 검사 전략.                                          |
 | [reValidateMode](#reValidateMode)                       | 제출 **후** 유효성 검사 전략.                                          |
-| [defaultValues](#defaultValues)                         | 폼의 기본 값.                                                          |
+| [defaultValues](#defaultValues)                         | 폼의 기본값이며, 이 값은 캐시됩니다.                                                          |
 | [values](#values)                                       | 폼 값을 업데이트하기 위한 반응형 값.                                   |
-| [errors](#errors)                                       | 폼 에러를 업데이트하기 위한 반응형 에러.                               |
+| [errors](#errors)                                       | 서버에서 반환된 에러로 폼을 업데이트합니다. **⚠ 중요:** 무한 리렌더링을 방지하기 위해 errors 객체의 참조를 안정적으로 유지하세요.                               |
 | [resetOptions](#resetOptions)                           | 새로운 폼 값을 업데이트할 때 폼 상태 업데이트를 초기화할 수 있는 옵션. |
 | [criteriaMode](#criteriaMode)                           | 모든 유효성 검사 에러를 한 번에 노출하거나 하나씩 노출.                |
 | [shouldFocusError](#shouldFocusError)                   | 내장된 포커스 관리를 활성화하거나 비활성화.                            |
@@ -330,7 +330,7 @@ useForm({
 
 - `reportValidity` 실행은 에러 입력 필드에 포커스를 주기 때문에, 이 기능은 `onSubmit` 및 `onChange` 모드에서만 동작합니다.
 - 각 등록된(registered) 필드의 유효성 검사 메시지는 브라우저에서 직접 표시되기 위해 문자열이어야 합니다.
-- 이 기능은 실제 DOM 참조와 연결된 `register` API와 `useController/Controller` 에서만 동작합니다.
+- 이 기능은 실제 DOM 참조와 연결된 `register` API와&nbsp; `useController/Controller` 에서만 동작합니다.
 
 **Examples:**
 
@@ -435,7 +435,9 @@ npm install @hookform/resolvers
 - resolver는 내장된 유효성 검사 (e.g.: required, min, etc.)와 함께 사용할 수 없습니다.
 - 사용자 정의 resolver를 만들 때:
   - 반환하는 객체가 `values`와 `errors` 속성을 모두 포함하도록 해야 합니다. 이들의 기본값은 빈 객체여야 합니다. 예를 들어: `{}`.
-  - `에러` 객체의 키는 필드의 `이름`값과 일치해야 합니다.
+  - `에러` 객체의 키는 필드의 `이름`과 일치해야 하지만, 깊은 에러의 경우 단일 키가 아닌 _계층적 구조여야만_ 합니다:
+  `❌ { "participants.1.name": someErr }`는 제대로 설정되거나 해제되지 않습니다 - 대신 `✅ { participants: [null, { name: someErr } ] }`형태를 사용하세요. 이렇게 하면 `errors.participants[1].name`으로 접근할 수 있습니다 - 평탄한 키를 사용하여 에러를 준비한 다음, zod resolver의 다음 함수를 사용하여 변환할 수 있습니다:
+  [toNestErrors(flatErrs, resolverOptions)](https://github.com/react-hook-form/resolvers/blob/master/src/toNestErrors.ts)
 
 </Admonition>
 
@@ -445,16 +447,11 @@ npm install @hookform/resolvers
 
 <TabGroup buttonLabels={["Yup","Zod","Joi","Ajv","Vest", "Custom"]}>
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-apply-validation-ts-forked-nmbyh"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-apply-validation-ts-forked-nmbyh"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
-
-type Inputs = {
-  name: string
-  age: string
-}
 
 const schema = yup
   .object()
@@ -465,7 +462,7 @@ const schema = yup
   .required()
 
 const App = () => {
-  const { register, handleSubmit } = useForm<Inputs>({
+  const { register, handleSubmit } = useForm({
     resolver: yupResolver(schema), // yup, joi 그리고 직접 작성한 유효성 검사 로직도 사용 가능.
   })
 
@@ -479,7 +476,7 @@ const App = () => {
 }
 ```
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-zod-resolver-ts-example-forked-w72vp"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-zod-resolver-ts-example-forked-w72vp"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -492,7 +489,7 @@ const schema = z.object({
 type Schema = z.infer<typeof schema>
 
 const App = () => {
-  const { register, handleSubmit } = useForm<Schema>({
+  const { register, handleSubmit } = useForm({
     resolver: zodResolver(schema),
   })
 
@@ -501,7 +498,11 @@ const App = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form 
+      onSubmit={handleSubmit((data) => {
+        // 입력 처리
+        console.log(data)
+      })}>
       <input {...register("name")} />
       <input {...register("age", { valueAsNumber: true })} type="number" />
       <input type="submit" />
@@ -510,41 +511,44 @@ const App = () => {
 }
 ```
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-joiresolver-v6-ts-forked-5pseh"
-import React from "react";
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-joiresolver-v6-ts-forked-5pseh"
 import { useForm } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
 import Joi from "joi";
 
 interface IFormInput {
-  name: string;
-  age: number;
+  name: string
+  age: number
 }
 
 const schema = Joi.object({
   name: Joi.string().required(),
-  age: Joi.number().required()
-});
+  age: Joi.number().required(),
+})
 
 const App = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm<IFormInput>({
-    resolver: joiResolver(schema)
-  });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IFormInput>({
+    resolver: joiResolver(schema),
+  })
   const onSubmit = (data: IFormInput) => {
-    console.log(data);
-  };
+    console.log(data)
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <input {...register("name"} />
-      <input type="number" {...register("age"} />
+      <input {...register("name")} />
+      <input type="number" {...register("age")} />
       <input type="submit" />
     </form>
   );
 }
 ```
 
-```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-ajvresolver-vr3imc"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-ajvresolver-vr3imc"
 import { useForm } from "react-hook-form"
 import { ajvResolver } from "@hookform/resolvers/ajv"
 
@@ -588,7 +592,7 @@ const App = () => {
 }
 ```
 
-```javascript copy sandbox="https://codesandbox.io/s/vest-8q874"
+```tsx copy sandbox="https://codesandbox.io/s/vest-8q874"
 import * as React from "react"
 import { useForm } from "react-hook-form"
 import { vestResolver } from "@hookform/resolvers/vest"
@@ -635,7 +639,7 @@ const App = () => {
 }
 ```
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-customresoliver-ts-v7-juc63"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-customresoliver-ts-v7-juc63"
 import * as React from "react"
 import { useForm } from "react-hook-form"
 import * as Joi from "joi"
