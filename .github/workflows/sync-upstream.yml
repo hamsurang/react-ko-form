@@ -66,7 +66,7 @@ jobs:
         id: changes
         run: |
           # .github, .cursor 디렉토리 제외한 변경 사항 확인
-          git diff upstream/master master -- . ':(exclude).github' ':(exclude).cursor' > changes.diff
+          git diff upstream/master master -- . ':(exclude).github' ':(exclude).cursor' ':(exclude)CLAUDE.md' > changes.diff
           if [ -s changes.diff ]; then
             echo "changes=true" >> $GITHUB_ENV
           else
@@ -104,7 +104,7 @@ jobs:
             git fetch origin "$pr_ref:$pr_ref-branch"
 
             echo "Comparing with upstream/master excluding .github and .cursor"
-            if ! git diff --quiet upstream/master "$pr_ref-branch" -- . ':(exclude).github' ':(exclude).cursor'; then
+            if ! git diff --quiet upstream/master "$pr_ref-branch" -- . ':(exclude).github' ':(exclude).cursor' ':(exclude)CLAUDE.md'; then
               ALL_EXISTING_INCLUDED=false
               break
             fi
@@ -188,7 +188,7 @@ jobs:
           cp package.json /tmp/pkg_old.json || true
 
           # 2) upstream/master → master-ko (src, .github, .cursor 제외) 복사 
-          git checkout upstream/master -- . ":(exclude)src" ":(exclude).github" ":(exclude).cursor"
+          git checkout upstream/master -- . ":(exclude)src" ":(exclude).github" ":(exclude).cursor" ":(exclude)CLAUDE.md"
 
           # 3) package.json 깊이 병합
           node <<'NODE'
@@ -248,7 +248,7 @@ jobs:
             echo "Fetching branch: $pr_ref"
             git fetch origin "$pr_ref:$pr_ref-branch"
             echo "Comparing updated master-ko with existing PR branch (excluding src and .cursor)"
-            if ! git diff --quiet master-ko "$pr_ref-branch" -- . ':(exclude)src' ':(exclude).cursor'; then
+            if ! git diff --quiet master-ko "$pr_ref-branch" -- . ':(exclude)src' ':(exclude).cursor' ':(exclude)CLAUDE.md'; then
               ALL_INCLUDED=false
               EXISTING_BRANCH=$pr_ref
               break

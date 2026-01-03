@@ -42,6 +42,8 @@ jobs:
           echo "components/layout.tsx"            >> $GITHUB_WORKSPACE/exclude.lst
           echo "react-ko-form/components/Banner*" >> $GITHUB_WORKSPACE/exclude.lst
           echo "src/components/seo.tsx"          >> $GITHUB_WORKSPACE/exclude.lst
+          echo ".cursor"                         >> $GITHUB_WORKSPACE/exclude.lst
+          echo "CLAUDE.md"                        >> $GITHUB_WORKSPACE/exclude.lst
           grep -IPlr --exclude-dir=.git '\p{Hangul}' src/ | sed 's|^src/||' >> $GITHUB_WORKSPACE/exclude.lst
           sort -u -o $GITHUB_WORKSPACE/exclude.lst $GITHUB_WORKSPACE/exclude.lst
 
