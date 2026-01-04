@@ -1,0 +1,72 @@
+---
+description: Translation rules for react-ko-form
+alwaysApply: true
+---
+
+# Translation Rules for React-Ko-Form 😎
+
+React-ko-form follows the rules below to provide consistent translations.
+
+## Standard Translation Rules
+
+1. form - Translate as `폼`
+
+2. method - Translate as `메서드`
+
+3. submission - Translate as `제출` (use English if "제출" sounds awkward in context)
+
+4. input - Translate as `인풋` or `입력` depending on context
+
+5. error - Translate as `에러`
+
+6. send - Translate as `전달`
+
+7. submit - Translate as `전송`
+
+8. prop - Translate as `속성`
+
+9. rerendering - Translate as `리렌더링`
+
+## Bilingual Notation Rules
+
+1. register/registered - Use `등록(register)`
+
+2. blur - Use `블러(blur)`
+
+3. optional array - Use `의존성 배열(optional array)`
+
+4. flat field array - Use `평면 필드 배열(flat field array)`
+
+5. properties - Use `속성(properties)`
+
+6. props - Use `속성(props)`
+
+7. touched - Use `터치된(touched)`
+
+8. dirty - Use `변경된(dirty)`
+
+9. render phase - Use `렌더 단계(render phase)`
+
+10. export - Use `내보내기(export)`
+
+11. dependency array - Use `의존성 배열(dependency array)`
+
+## Terms to Keep in English
+
+The following terms should remain in English as their Korean translations may lose technical precision:
+
+1. flush
+
+2. import
+
+3. dispatch
+
+## Section Titles
+
+Do NOT translate main section headings (Props, Examples, Rules).
+
+However, translate subtitles under these sections if they are descriptive phrases.
+
+For example, if there is a subtitle "Reset Field State" under "Examples" with related example code, translate `Reset Field State` to `필드 상태 초기화`.
+
+(Reference: <https://react-hook-form.com/docs/useform/resetfield>)

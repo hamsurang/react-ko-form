@@ -18,7 +18,7 @@ jobs:
         with:
           repository: ${{ github.repository }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0  # 모든 히스토리 가져오기
+          fetch-depth: 0 # 모든 히스토리 가져오기
 
       - name: Configure Git
         run: |
@@ -65,8 +65,8 @@ jobs:
       - name: Check for Changes
         id: changes
         run: |
-          # .github 디렉토리 제외한 변경 사항 확인
-          git diff upstream/master master -- . ':(exclude).github' > changes.diff
+          # .github, .cursor 디렉토리 제외한 변경 사항 확인
+          git diff upstream/master master -- . ':(exclude).github' ':(exclude).cursor' ':(exclude)CLAUDE.md' > changes.diff
           if [ -s changes.diff ]; then
             echo "changes=true" >> $GITHUB_ENV
           else
@@ -103,8 +103,8 @@ jobs:
             echo "Fetching branch: $pr_ref"
             git fetch origin "$pr_ref:$pr_ref-branch"
 
-            echo "Comparing with upstream/master excluding .github"
-            if ! git diff --quiet upstream/master "$pr_ref-branch" -- . ':(exclude).github'; then
+            echo "Comparing with upstream/master excluding .github and .cursor"
+            if ! git diff --quiet upstream/master "$pr_ref-branch" -- . ':(exclude).github' ':(exclude).cursor' ':(exclude)CLAUDE.md'; then
               ALL_EXISTING_INCLUDED=false
               break
             fi
@@ -187,15 +187,15 @@ jobs:
           # 1) master-ko 패키지 백업
           cp package.json /tmp/pkg_old.json || true
 
-          # 2) upstream/master → master-ko (src, .github 제외) 복사 
-          git checkout upstream/master -- . ":(exclude)src" ":(exclude).github"
+          # 2) upstream/master → master-ko (src, .github, .cursor 제외) 복사 
+          git checkout upstream/master -- . ":(exclude)src" ":(exclude).github" ":(exclude).cursor" ":(exclude)CLAUDE.md"
 
           # 3) package.json 깊이 병합
           node <<'NODE'
           const fs = require('fs');
           const oldPkg = fs.existsSync('/tmp/pkg_old.json') ? JSON.parse(fs.readFileSync('/tmp/pkg_old.json','utf8')) : {};
           const newPkg = JSON.parse(fs.readFileSync('package.json','utf8'));
-          
+
           // 의존성 스마트 병합: upstream과 master-ko 둘 다에 있으면 upstream 버전, master-ko에만 있으면 유지
           ['dependencies','devDependencies','peerDependencies'].forEach(k=>{
             const upstreamDeps = newPkg[k] || {};
@@ -210,13 +210,13 @@ jobs:
             }
             newPkg[k] = merged;
           });
-          
+
           // scripts는 기존 방식으로 병합 (중복되지 않는 것만 추가)
           const merge = (a,b)=>{for(const k in b){if(b[k]&&typeof b[k]==='object'&&!Array.isArray(b[k]))a[k]=merge(a[k]||{},b[k]);else if(!(k in a))a[k]=b[k];}return a;}
           if(oldPkg.scripts) {
             newPkg.scripts = merge(newPkg.scripts||{}, oldPkg.scripts);
           }
-          
+
           fs.writeFileSync('package.json',JSON.stringify(newPkg,null,2)+'\n');
           NODE
 
@@ -247,8 +247,8 @@ jobs:
           do
             echo "Fetching branch: $pr_ref"
             git fetch origin "$pr_ref:$pr_ref-branch"
-            echo "Comparing updated master-ko with existing PR branch (excluding src)"
-            if ! git diff --quiet master-ko "$pr_ref-branch" -- . ':(exclude)src'; then
+            echo "Comparing updated master-ko with existing PR branch (excluding src and .cursor)"
+            if ! git diff --quiet master-ko "$pr_ref-branch" -- . ':(exclude)src' ':(exclude).cursor' ':(exclude)CLAUDE.md'; then
               ALL_INCLUDED=false
               EXISTING_BRANCH=$pr_ref
               break
