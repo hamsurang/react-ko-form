@@ -8,7 +8,7 @@ sidebar: tsLinks
 
 ## \</> Resolver {#Resolver}
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-resolver-forked-mjsx7"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-resolver-forked-mjsx7"
 import React from "react"
 import { useForm, Resolver } from "react-hook-form"
 
@@ -56,7 +56,7 @@ export default function App() {
 
 ## \</> SubmitHandler {#SubmitHandler}
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-handlesubmit-ts-v7-z9z0g"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-handlesubmit-ts-v7-z9z0g"
 import React from "react"
 import { useForm, SubmitHandler } from "react-hook-form"
 
@@ -86,7 +86,7 @@ export default function App() {
 
 ## \</> SubmitErrorHandler {#SubmitErrorHandler}
 
-```typescript copy
+```tsx copy
 import React from "react"
 import { useForm, SubmitHandler, SubmitErrorHandler } from "react-hook-form"
 
@@ -104,8 +104,8 @@ export default function App() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onError)}>
-      <input {...(register("firstName"), { required: true })} />
-      <input {...(register("lastName"), { minLength: 2 })} />
+      <input {...register("firstName", { required: true })} />
+      <input {...register("lastName", { minLength: 2 })} />
       <input type="email" {...register("email")} />
 
       <input type="submit" />
@@ -118,7 +118,7 @@ export default function App() {
 
 ## \</> Control {#Control}
 
-```typescript copy sandbox="https://codesandbox.io/s/control-2mg07"
+```tsx copy sandbox="https://codesandbox.io/s/control-2mg07"
 import { useForm, useWatch, Control } from "react-hook-form"
 
 type FormValues = {
@@ -158,7 +158,7 @@ export default function App() {
 
 <TabGroup buttonLabels={["Type", "Code Example"]}>
 
-```typescript copy
+```tsx copy
 export type UseFormReturn<
   TFieldValues extends FieldValues = FieldValues,
   TContext = any,
@@ -182,7 +182,7 @@ export type UseFormReturn<
 }
 ```
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-UseFormReturn-forked-yl40u"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-UseFormReturn-forked-yl40u"
 import type { FieldValues, UseFormReturn, SubmitHandler } from "react-hook-form"
 import React from "react"
 import { useForm } from "react-hook-form"
@@ -268,7 +268,7 @@ export default function App() {
 
 ## \</> UseFormProps {#UseFormProps}
 
-```typescript copy
+```tsx copy
 export type UseFormProps<
   TFieldValues extends FieldValues = FieldValues,
   TContext extends object = object,
@@ -296,7 +296,7 @@ export type UseFormProps<
 
 ## \</> UseFieldArrayReturn {#UseFieldArrayReturn}
 
-```typescript copy
+```tsx copy
 export type UseFieldArrayReturn<
   TFieldValues extends FieldValues = FieldValues,
   TFieldArrayName extends FieldArrayPath<TFieldValues> = FieldArrayPath<TFieldValues>,
@@ -346,7 +346,7 @@ export type UseFieldArrayProps<
 
 ## \</> UseControllerReturn {#UseControllerReturn}
 
-```typescript copy
+```tsx copy
 export type UseControllerReturn<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
@@ -361,7 +361,7 @@ export type UseControllerReturn<
 
 ## \</> UseControllerProps {#UseControllerProps}
 
-```typescript copy
+```tsx copy
 export type UseControllerProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
@@ -382,7 +382,7 @@ export type UseControllerProps<
 
 ## \</> FieldError {#FieldError}
 
-```typescript copy
+```tsx copy
 export type FieldError = {
   type: LiteralUnion<keyof RegisterOptions, string>
   root?: FieldError
@@ -396,7 +396,7 @@ export type FieldError = {
 
 ## \</> FieldErrors {#FieldErrors}
 
-```typescript copy
+```tsx copy
 export type FieldErrors<T extends FieldValues = FieldValues> = Partial<
   FieldValues extends IsAny<FieldValues>
     ? any
@@ -410,7 +410,7 @@ export type FieldErrors<T extends FieldValues = FieldValues> = Partial<
 
 ## \</> Field {#Field}
 
-```typescript copy
+```tsx copy
 export type Field = {
   _f: {
     ref: Ref
@@ -427,7 +427,7 @@ export type Field = {
 
 이 타입은 커스텀 컴포넌트의 `name` 속성을 정의할 때 유용하며, 필드 경로에 대해 타입 검사를 수행합니다.
 
-```typescript copy
+```tsx copy
 export type FieldPath<TFieldValues extends FieldValues> = Path<TFieldValues>
 ```
 
@@ -437,7 +437,7 @@ export type FieldPath<TFieldValues extends FieldValues> = Path<TFieldValues>
 
 이 타입은 전달된 값과 일치하는 사용 가능한 모든 경로의 유니온 타입을 반환합니다.
 
-```typescript copy
+```tsx copy
 export type FieldPathByValue<TFieldValues extends FieldValues, TValue> = {
   [Key in FieldPath<TFieldValues>]: FieldPathValue<
     TFieldValues,
@@ -452,7 +452,7 @@ export type FieldPathByValue<TFieldValues extends FieldValues, TValue> = {
 
 ## \</> FieldValues {#FieldValues}
 
-```typescript copy
+```tsx copy
 export type FieldValues = Record<string, any>
 ```
 
@@ -460,7 +460,7 @@ export type FieldValues = Record<string, any>
 
 ## \</> FieldArrayWithId {#FieldArrayWithId}
 
-```typescript copy
+```tsx copy
 export type FieldArrayWithId<
   TFieldValues extends FieldValues = FieldValues,
   TFieldArrayName extends FieldArrayPath<TFieldValues> = FieldArrayPath<TFieldValues>,
@@ -472,7 +472,7 @@ export type FieldArrayWithId<
 
 ## \</> Mode {#Mode}
 
-```typescript copy
+```tsx copy
 export type ValidationMode = typeof VALIDATION_MODE
 
 export type Mode = keyof ValidationMode
@@ -482,7 +482,7 @@ export type Mode = keyof ValidationMode
 
 ## \</> RegisterOptions {#RegisterOptions}
 
-```typescript copy
+```tsx copy
 export type RegisterOptions<
   TFieldValues extends FieldValues = FieldValues,
   TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
@@ -529,7 +529,7 @@ export type RegisterOptions<
 
 ## \</> FormStateProxy {#FormStateProxy}
 
-```typescript copy
+```tsx copy
 export type FormStateProxy<TFieldValues extends FieldValues = FieldValues> = {
   isDirty: boolean
   isValidating: boolean
@@ -547,10 +547,10 @@ export type FormStateProxy<TFieldValues extends FieldValues = FieldValues> = {
 
 <TabGroup buttonLabels={["Code Example", "Type"]}>
 
-```typescript copy sandbox="https://codesandbox.io/s/react-hook-form-nestedvalue-lskdv"
+```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-nestedvalue-lskdv"
 import React from "react"
 import { useForm, NestedValue } from "react-hook-form"
-import { Autocomplete, TextField, Select } from "@material-ui/core"
+import { TextField, Select } from "@material-ui/core"
 import { Autocomplete } from "@material-ui/lab"
 
 type Option = {
@@ -605,7 +605,7 @@ export default function App() {
 
       <Select
         value=""
-        onChange={(e) => setValue("muiSelect", e.target.value as number[])}
+        onChange={(e) => setValue("select", e.target.value as number[])}
       >
         <MenuItem value={10}>Ten</MenuItem>
         <MenuItem value={20}>Twenty</MenuItem>
@@ -617,7 +617,7 @@ export default function App() {
 }
 ```
 
-```typescript copy
+```tsx copy
 import { useForm, NestedValue } from "react-hook-form"
 
 type FormValues = {
