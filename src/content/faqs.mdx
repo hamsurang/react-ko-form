@@ -108,11 +108,11 @@ function App() {
 
   ```javascript copy
   function App() {
-    const { data } = useQuery() // data returns { firstName: '', lastName: '' }
+    const { data } = useQuery() // data는 { firstName: '', lastName: '' }를 반환
     const { register, handleSubmit } = useForm({
       values: data,
       resetOptions: {
-        keepDirtyValues: true, // keep dirty fields unchanged, but update defaultValues
+        keepDirtyValues: true, // 변경된 필드는 그대로 유지하되, defaultValues는 업데이트
       },
     })
   }
