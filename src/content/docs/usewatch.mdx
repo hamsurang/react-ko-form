@@ -4,6 +4,15 @@ description: 입력의 변경을 구독하기 위한 React 훅
 sidebar: apiLinks
 ---
 
+<SelectNav
+  options={[
+    {
+      label: "Watch",
+      value: "/docs/usewatch/watch",
+    },
+  ]}
+/>
+
 ## \</> `useWatch:` <TypeText>`({ control?: Control, name?: string, defaultValue?: unknown, disabled?: boolean }) => object`</TypeText>
 
 `watch` API와 유사하게 동작하지만, 이 훅은 리렌더링을 커스텀 훅 레벨에서 격리하여 애플리케이션의 성능을 향상시킬 수 있습니다.
