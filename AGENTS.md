@@ -1,5 +1,3 @@
-# Claude Translation Guidelines for React-Ko-Form
-
 This document provides translation guidelines for React Hook Form documentation to ensure consistency when using Claude AI for translation tasks.
 
 ## Overview
@@ -116,3 +114,93 @@ For the complete and up-to-date translation rules, please refer to:
 - Code examples should never be translated
 - Maintain the original formatting and markdown structure
 - Technical accuracy is paramount - if a Korean translation feels awkward or unclear, consider keeping the English term or using bilingual notation
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+React-Ko-Form is an unofficial Korean translation project for the React Hook Form documentation (https://react-hook-form.com/docs). This is a Next.js website using Contentlayer for MDX content management.
+
+## Development Commands
+
+```bash
+pnpm install          # Install dependencies
+pnpm run dev          # Start development server
+pnpm run build        # Build for production
+pnpm run lint         # Run ESLint with auto-fix
+pnpm run typecheck    # Run TypeScript type checking
+pnpm run analyze      # Analyze bundle size (sets ANALYZE=true)
+```
+
+## Architecture
+
+### Content Structure
+- `src/content/` - MDX documentation files (Korean translations)
+- `origin-src/content/` - Original English documentation for reference
+- MDX files require frontmatter: `title`, `description`, and `sidebar` (enum: apiLinks, advancedLinks, tsLinks, faqLinks, getStartedLinks)
+
+### Key Components
+- `src/components/Menu/MenuLinks.ts` - Navigation sidebar links configuration
+- `src/pages/` - Next.js pages (some docs rendered via TSX, others via Contentlayer)
+- `contentlayer.config.ts` - MDX processing configuration with remark/rehype plugins
+
+### Content Processing
+Contentlayer processes MDX files from `src/content/` with:
+- `remark-gfm` - GitHub Flavored Markdown
+- `remark-custom-heading-id` - Custom heading IDs
+- `remark-emoji` - Emoji support
+- `rehype-mdx-code-props` - Code block properties
+
+## Git Workflow
+
+- **Default branch: `master-ko`** - The base branch for Korean translation work; all translation management happens here
+- `master` branch: Reserved for syncing with official docs updates
+- Create feature branches from `master-ko`
+- Commit message format: `Docs: <page name> 번역` (e.g., `Docs: useForm 페이지 번역`)
+
+## Translation Guidelines
+
+### Standard Korean Translations
+Translate the following terms consistently:
+
+| English | Korean |
+|---------|--------|
+| form | 폼 |
+| method | 메서드 |
+| submission | 제출 |
+| input | 인풋 or 입력 |
+| error | 에러 |
+| send | 전달 |
+| submit | 전송 |
+| prop | 속성 |
+| rerendering | 리렌더링 |
+
+### Bilingual Notation (Korean + English)
+
+| English | Korean Notation |
+|---------|----------------|
+| register | 등록(register) |
+| blur | 블러(blur) |
+| touched | 터치된(touched) |
+| dirty | 변경된(dirty) |
+| render phase | 렌더 단계(render phase) |
+| export | 내보내기(export) |
+| dependency array | 의존성 배열(dependency array) |
+| flat field array | 평면 필드 배열(flat field array) |
+| properties | 속성(properties) |
+| export | 내보내기(export) |
+
+
+### Keep in English
+- `flush`, `import`, `dispatch`
+
+### Section Titles
+- **Do NOT translate**: Main headings like `Props`, `Examples`, `Rules`, `TypeScript`, `API`
+- **DO translate**: Descriptive subtitles under main sections
+
+### Writing Style
+- End sentences with "~다" (declarative form)
+- For suggestions/recommendations, "~요" ending is acceptable
+- Remove awkward translation artifacts
+- Keep code examples unchanged
+- Reference: https://github.com/hamsurang/react-ko-form/wiki/react%E2%80%90ko%E2%80%90form%EC%9D%98-%EB%B2%88%EC%97%AD-%EA%B7%9C%EC%B9%99
