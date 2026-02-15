@@ -37,7 +37,7 @@ function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>React Hook Form - Simple React forms validation</title>
+        <title>React Hook Form - 간단한 리액트 폼 유효성 검사</title>
         <meta
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width"
