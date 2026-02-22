@@ -268,8 +268,7 @@ const onSubmit = (data) => {
         <p>
           <b className={typographyStyles.note}>Note:</b> only registered fields
           with a <code>ref</code> will work. Custom registered inputs do not
-          apply. For example:{" "}
-          <code>{`register('test') // doesn't work`}</code>{" "}
+          apply. For example: <code>{`register('test') // doesn't work`}</code>{" "}
         </p>
 
         <p>
@@ -2060,8 +2059,7 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
                     타입을 가집니다.
                     <p>
                       <b className={typographyStyles.note}>중요: </b>이 동작은
-                      <strong>내장된</strong>{" "}
-                       검증에만 적용됩니다.
+                      <strong>내장된</strong> 검증에만 적용됩니다.
                     </p>
                   </p>
                 </td>
@@ -2819,9 +2817,9 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
                 <p>
                   필드 레벨에서 <code>defaultValue</code>를 설정하거나{" "}
                   <code>useForm</code>의 <code>defaultValues</code>를 사용해야
-                  합니다. <code>undefined</code>는 유효한 값이 아닙니다. {" "}
-                  <code>useForm</code>에서{" "}
-                  <code>defaultValues</code>를 사용했다면, 이 prop은 사용하지 마세요.
+                  합니다. <code>undefined</code>는 유효한 값이 아닙니다.{" "}
+                  <code>useForm</code>에서 <code>defaultValues</code>를
+                  사용했다면, 이 prop은 사용하지 마세요.
                 </p>
               </li>
               <li>
@@ -2832,6 +2830,21 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ setValue를 �
                 </p>
               </li>
             </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <code>exact</code>
+          </td>
+          <td>
+            <code className={typographyStyles.typeText}>boolean = false</code>
+          </td>
+          <td></td>
+          <td>
+            <p>
+              이 속성은 인풋 이름 구독에 대해 정확한 일치를 활성화합니다.
+              기본값은 <code>true</code>입니다.
+            </p>
           </td>
         </tr>
       </tbody>
