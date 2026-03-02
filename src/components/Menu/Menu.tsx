@@ -73,7 +73,7 @@ function Menu({ pages = [] }: { pages: Pages }) {
         </ul>
         <div className={styles.ads}>
           <CarbonAds id={CARBON_SCRIPT_ID} />
-        </div>      
+        </div>
       </div>
     </aside>
   )
