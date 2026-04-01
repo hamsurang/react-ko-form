@@ -102,10 +102,17 @@ function App() {
       <input type="submit" />
 
       <FirstNameWatched control={control} />
+      <SelectNav
+        options={[
+          {
+            label: "Watch",
+            value: "/docs/usewatch/watch",
+          }
+        ]}
+      />
     </form>
   )
 }
-```
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-v7-usewatch-forked-9872t"
 import { useForm, useWatch } from "react-hook-form"
@@ -130,10 +137,17 @@ function App() {
     <form>
       <input {...register("firstName")} />
       <Child control={control} />
+      <SelectNav
+        options={[
+          {
+            label: "Watch",
+            value: "/docs/usewatch/watch",
+          }
+        ]}
+      />
     </form>
   )
 }
-```
 
 </TabGroup>
 
@@ -170,4 +184,3 @@ export const Calc = ({ control, setValue }) => {
 
   return <p>{output}</p>
 }
-```
