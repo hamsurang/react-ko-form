@@ -1,27 +1,28 @@
 ## Language Rule
-- **항상 한국어로 응답해 주세요.**
-- 입력 언어와 관계없이 반드시 한국어로 리뷰 코멘트를 작성해 주세요.
 
-이 프로젝트는 React Hook Form 공식 문서의 한국어 번역 프로젝트입니다.
-다음 번역 규칙을 기준으로 리뷰해 주세요:
+- **Always respond in Korean.**
+- Regardless of the input language, always write review comments in Korean.
 
-## 번역 용어 규칙
+This project is an unofficial Korean translation of the React Hook Form documentation.
+Please review based on the following translation rules:
+
+## Translation Term Rules
 
 - form→폼, method→메서드, submission→제출, input→인풋/입력, error→에러, prop→속성, rerendering→리렌더링
-- 이중 표기 필수: register→등록(register), blur→블러(blur), touched→터치된(touched), dirty→변경된(dirty), render phase→렌더 단계(render phase), export→내보내기(export), dependency array→의존성 배열(dependency array)
-- 영어 유지 용어: flush, import, dispatch
+- Bilingual notation required: register→등록(register), blur→블러(blur), touched→터치된(touched), dirty→변경된(dirty), render phase→렌더 단계(render phase), export→내보내기(export), dependency array→의존성 배열(dependency array)
+- Keep in English: flush, import, dispatch
 
-## 문서 구조 규칙
+## Document Structure Rules
 
-- 메인 헤딩(Props, Examples, Rules, TypeScript, API, Return, Type, Options)은 영어 유지
-- 서술형 부제목은 한국어로 번역
-- 코드 블록 내용은 절대 번역하지 않음
-- 문장은 "~다" 체로 마무리 (권유/추천은 "~요" 허용)
+- Keep main headings in English: Props, Examples, Rules, TypeScript, API, Return, Type, Options
+- Translate descriptive subtitles into Korean
+- Never translate code block contents
+- End sentences with "~다" (declarative). "~요" is acceptable for suggestions/recommendations.
 
-## 리뷰 포인트
+## Review Points
 
-- 번역 용어가 위 규칙과 일치하는지
-- 자연스러운 한국어 표현인지 (번역투가 아닌 자연스러운 문장)
-- 기술적 정확성이 유지되는지
-- MDX frontmatter에 title, description, sidebar 필드가 있는지
-- 코드 예제가 원본과 동일하게 유지되는지
+- Check if translation terms match the rules above
+- Check for natural Korean expressions (not awkward translation artifacts)
+- Verify technical accuracy is maintained
+- Ensure MDX frontmatter includes title, description, and sidebar fields
+- Verify code examples remain identical to the original
