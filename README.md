@@ -32,6 +32,23 @@ pnpm run dev # dev 서버 실행
 ```
 
 
+## AI 활용
+
+react-ko-form은 Claude Code, Cursor, Copilot 같은 AI 코딩 도구에서 사용할 수 있는 [Agent Skills](https://skills.sh)를 제공합니다.
+
+```bash
+npx skills add hamsurang/react-ko-form
+```
+
+Claude Code를 사용하는 경우, 플러그인으로도 설치할 수 있습니다:
+
+```
+claude plugin install hamsurang/react-ko-form
+```
+
+자세한 내용은 [AI 활용 가이드](https://react-ko-form.netlify.app/ai-integration)를 참고하세요.
+
+
 ## 기여자
 
 이 프로젝트에 기여해 주신 멋진 분들께 감사드립니다. 

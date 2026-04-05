@@ -20,6 +20,7 @@ export const Doc = defineDocumentType(() => ({
         "tsLinks",
         "faqLinks",
         "getStartedLinks",
+        "aiIntegrationLinks",
       ],
       required: true,
     },
