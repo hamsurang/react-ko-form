@@ -45,13 +45,15 @@ export default function CopyMarkdownButton({ slug }: { slug: string }) {
   }, [slug, state])
 
   return (
-    <button
-      className={`${styles.button} ${state !== "idle" ? styles[state] : ""}`}
-      onClick={handleClick}
-      disabled={state === "loading"}
-      aria-label={ARIA_LABELS[state]}
-    >
-      {LABELS[state]}
-    </button>
+    <div className={styles.wrapper}>
+      <button
+        className={`${styles.button} ${state !== "idle" ? styles[state] : ""}`}
+        onClick={handleClick}
+        disabled={state === "loading"}
+        aria-label={ARIA_LABELS[state]}
+      >
+        {LABELS[state]}
+      </button>
+    </div>
   )
 }

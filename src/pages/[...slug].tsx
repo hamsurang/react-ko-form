@@ -59,7 +59,7 @@ export default function Page({
         <div className={containerStyles.wrapper}>
           <Menu pages={doc.pages as Pages} />
 
-          <main style={{ position: "relative" }}>
+          <main>
             <CopyMarkdownButton slug={doc._raw.flattenedPath} />
             <MDXContent components={MDXComponents} />
 
