@@ -146,6 +146,10 @@ function restoreCodeFences(content: string, blocks: string[]): string {
 // ── JSX Stripping ───────────────────────────────────────────────────────────
 
 function stripJsx(content: string): string {
+  // Pass 0: 이스케이프된 꺾쇠(\< \>)를 플레이스홀더로 보호
+  content = content.replace(/\\</g, "%%ESC_LT%%");
+  content = content.replace(/\\>/g, "%%ESC_GT%%");
+
   // Pass 1: 셀프 클로징 커스텀 컴포넌트 제거 (<YouTube .../>, <PrettyObject .../>)
   content = content.replace(/<[A-Z]\w+\s[^>]*\/>/g, "");
 
@@ -171,6 +175,10 @@ function stripJsx(content: string): string {
   content = content.replace(/\n{3,}/g, "\n\n");
 
   return content;
+}
+
+function restoreEscapedBrackets(content: string): string {
+  return content.replace(/%%ESC_LT%%/g, "<").replace(/%%ESC_GT%%/g, ">");
 }
 
 function cleanCodeFenceMeta(content: string): string {
@@ -298,18 +306,21 @@ function generatePerPageMd(docs: DocMeta[]): void {
     const body = processBody(doc.body);
     const content = `# ${doc.title}\n\n> ${doc.description}\n\n${body}`;
 
+    // 개별 파일 잔여 JSX 검증 (이스케이프 복원 전에 수행)
+    validateNoResidualJsx(content);
+
+    // 이스케이프된 꺾쇠를 리터럴로 복원 후 파일 쓰기
+    const finalContent = restoreEscapedBrackets(content);
+
     // slug: "/docs/useform/register" → "docs/useform/register"
     const relativePath = doc.slug.replace(/^\//, "");
     const outPath = path.join(MD_OUTPUT_DIR, `${relativePath}.md`);
 
     fs.mkdirSync(path.dirname(outPath), { recursive: true });
-    fs.writeFileSync(outPath, content, "utf-8");
-
-    // 개별 파일 잔여 JSX 검증
-    validateNoResidualJsx(content);
+    fs.writeFileSync(outPath, finalContent, "utf-8");
 
     count++;
-    totalBytes += Buffer.byteLength(content);
+    totalBytes += Buffer.byteLength(finalContent);
   }
 
   console.log(`  ✅ public/md/ (${count} files, ${(totalBytes / 1024).toFixed(1)} KB total)`);
@@ -346,14 +357,16 @@ function main() {
   fs.writeFileSync(path.join(OUTPUT_DIR, "llms.txt"), llmsTxt, "utf-8");
   console.log(`  ✅ public/llms.txt (${(Buffer.byteLength(llmsTxt) / 1024).toFixed(1)} KB)`);
 
-  // 3. llms-full.txt 생성
-  const llmsFullTxt = generateLlmsFullTxt(docs);
+  // 3. llms-full.txt 생성 (검증 후 이스케이프 복원)
+  const llmsFullTxtRaw = generateLlmsFullTxt(docs);
+
+  // 4. 잔여 JSX 검증 (이스케이프 복원 전에 수행)
+  validateNoResidualJsx(llmsFullTxtRaw);
+  console.log("  ✅ No residual JSX tags found");
+
+  const llmsFullTxt = restoreEscapedBrackets(llmsFullTxtRaw);
   fs.writeFileSync(path.join(OUTPUT_DIR, "llms-full.txt"), llmsFullTxt, "utf-8");
   console.log(`  ✅ public/llms-full.txt (${(Buffer.byteLength(llmsFullTxt) / 1024).toFixed(1)} KB)`);
-
-  // 4. 잔여 JSX 검증
-  validateNoResidualJsx(llmsFullTxt);
-  console.log("  ✅ No residual JSX tags found");
 
   // 5. 페이지별 .md 파일 생성
   generatePerPageMd(docs);
