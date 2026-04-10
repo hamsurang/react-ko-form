@@ -33,9 +33,12 @@ const Search = ({
       },
       handleSelected(_input, event, suggestion) {
         event.preventDefault()
-        const url = new URL(suggestion.url)
-        const path = url.pathname + url.hash
-        router.push(path)
+        try {
+          const url = new URL(suggestion.url)
+          router.push(url.pathname + url.hash)
+        } catch {
+          router.push(suggestion.url)
+        }
       },
     })
 
