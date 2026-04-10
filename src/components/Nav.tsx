@@ -169,6 +169,16 @@ export default function Nav() {
               </div>
               <span>DevTools</span>
             </Link>
+
+            <Link
+              className={router.asPath == "/ai-integration" ? "active" : ""}
+              href="/ai-integration"
+            >
+              <div className={styles.iconWrapper}>
+                <div className="laptop icon" />
+              </div>
+              <span>AI 활용</span>
+            </Link>
           </nav>
         </Animate>
       )}
@@ -250,7 +260,8 @@ export default function Nav() {
             className="desktopOnly"
             style={
               pathname.includes("dev-tools") ||
-              pathname.includes("form-builder")
+              pathname.includes("form-builder") ||
+              pathname.includes("ai-integration")
                 ? {
                     borderBottom: "1px solid #bf1650",
                   }
@@ -307,6 +318,14 @@ export default function Nav() {
                     href="/dev-tools"
                   >
                     {nav.tools.devTools}
+                  </Link>
+                  <Link
+                    className={
+                      router.pathname == "/ai-integration" ? "active" : ""
+                    }
+                    href="/ai-integration"
+                  >
+                    {nav.tools.aiIntegration}
                   </Link>
                 </div>
               </div>
@@ -411,6 +430,18 @@ export default function Nav() {
               <div className="edit icon" />
             </div>
             <span>{nav.builder}</span>
+          </Link>
+          <Link
+            className={clsx(
+              styles.mobileNav,
+              router.pathname == "/ai-integration" ? "active" : ""
+            )}
+            href="/ai-integration"
+          >
+            <div className={styles.iconWrapper}>
+              <div className="laptop icon" />
+            </div>
+            <span>{nav.tools.aiIntegration}</span>
           </Link>
           <a
             href="https://github.com/react-hook-form/react-hook-form/releases"

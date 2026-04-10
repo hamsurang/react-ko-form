@@ -1,0 +1,67 @@
+---
+title: AI 활용
+description: AI 코딩 도구에서 React Hook Form 한국어 문서를 활용하는 방법
+sidebar: aiIntegrationLinks
+---
+
+## Agent Skills {#AgentSkills}
+
+react-ko-form은 AI 코딩 도구가 React Hook Form을 효과적으로 이해하고 사용할 수 있도록 돕는 [Agent Skills](https://skills.sh)를 제공합니다. Claude Code, Cursor, Copilot, Windsurf 등 다양한 도구에서 사용할 수 있습니다.
+
+### 설치
+
+npx를 사용하여 모든 AI 도구에서 설치할 수 있습니다:
+
+```bash copy
+npx skills add hamsurang/react-ko-form
+```
+
+Claude Code를 사용하는 경우, 플러그인으로도 설치할 수 있습니다:
+
+``` copy
+claude plugin install hamsurang/react-ko-form
+```
+
+### 사용 가능한 스킬
+
+| 스킬 | 설명 |
+| --- | --- |
+| **guide** | React Hook Form 설치, 설정, 훅 사용 가이드 |
+| **recommend** | 상황에 맞는 React Hook Form API 추천 |
+| **form-builder** | 자연어로 폼 코드를 자동 생성 |
+
+### 사용 예시
+
+```
+/react-ko-form:guide useForm 기본 사용법을 알려주세요
+/react-ko-form:recommend 동적 필드 배열을 관리하고 싶어요
+/react-ko-form:form-builder 로그인 폼 (이메일, 비밀번호)
+```
+
+---
+
+## llms.txt {#llmstxt}
+
+react-ko-form은 [llms.txt](https://llmstxt.org/) 파일을 제공합니다. llms.txt는 AI 어시스턴트와 대규모 언어 모델(LLM)이 프로젝트 문서를 더 효과적으로 이해할 수 있도록 돕는 표준입니다.
+
+### `/llms.txt`
+
+React Hook Form 한국어 문서의 구조화된 목차로, 개별 페이지로의 링크를 포함합니다. AI 도구가 특정 API나 주제를 찾아볼 때 유용합니다.
+
+- **URL**: [https://react-ko-form.netlify.app/llms.txt](https://react-ko-form.netlify.app/llms.txt)
+
+### `/llms-full.txt`
+
+모든 문서 페이지의 전체 내용을 하나의 파일로 합친 것입니다. AI 도구에 React Hook Form 한국어 문서의 포괄적인 컨텍스트를 제공하고 싶을 때 유용합니다.
+
+- **URL**: [https://react-ko-form.netlify.app/llms-full.txt](https://react-ko-form.netlify.app/llms-full.txt)
+
+### AI 도구에서 활용하기
+
+많은 AI 도구와 LLM 기반 애플리케이션이 llms.txt 표준을 지원합니다. 이 엔드포인트를 사용하면 AI 어시스턴트에게 React Hook Form의 API와 기능에 대한 전체 한국어 컨텍스트를 제공할 수 있습니다.
+
+예를 들어, AI 코딩 어시스턴트에게 URL을 제공하면 코드 작성을 도와줄 때 React Hook Form 한국어 문서를 참고할 수 있습니다:
+
+```
+React Hook Form을 사용해 주세요. 문서: https://react-ko-form.netlify.app/llms-full.txt
+```

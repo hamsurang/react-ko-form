@@ -6,6 +6,7 @@ const Nav = {
     nav: "Tools",
     devTools: "DevTools",
     formBuilder: "Form Builder",
+    aiIntegration: "AI 활용",
   },
   builder: (
     <>

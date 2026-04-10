@@ -22,6 +22,7 @@ const SECTION_ORDER = [
   "advancedLinks",
   "faqLinks",
   "tsLinks",
+  "aiIntegrationLinks",
 ] as const;
 
 const SECTION_LABELS: Record<string, string> = {
@@ -30,6 +31,7 @@ const SECTION_LABELS: Record<string, string> = {
   advancedLinks: "고급 사용법",
   faqLinks: "FAQ",
   tsLinks: "TypeScript",
+  aiIntegrationLinks: "AI 활용",
 };
 
 const SIDEBAR_BASE_PATH: Record<string, string> = {
@@ -37,6 +39,7 @@ const SIDEBAR_BASE_PATH: Record<string, string> = {
   advancedLinks: "/advanced-usage",
   faqLinks: "/faqs",
   tsLinks: "/ts",
+  aiIntegrationLinks: "/ai-integration",
 };
 
 // API 계층 구조 (MenuLinks.ts 기반)

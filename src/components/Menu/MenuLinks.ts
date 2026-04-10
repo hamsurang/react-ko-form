@@ -263,6 +263,17 @@ export const tsLinks: Pages = [
   },
 ]
 
+export const aiIntegrationLinks: Pages = [
+  {
+    name: "Agent Skills",
+    pathname: "#AgentSkills",
+  },
+  {
+    name: "llms.txt",
+    pathname: "#llmstxt",
+  },
+]
+
 export const getStartedLinks: Pages = [
   {
     name: "빠른 시작",
