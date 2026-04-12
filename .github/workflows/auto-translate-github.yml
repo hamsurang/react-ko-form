@@ -514,8 +514,10 @@ jobs:
               continue
             fi
 
-            # 코드 펜스 래퍼 제거
-            TRANSLATED=$(echo "$TRANSLATED" | strip_fences)
+            # 코드 펜스 래퍼 제거 (A 케이스만 - M 케이스는 translate_and_patch 내부에서 처리됨)
+            if [ "$kind" = "A" ]; then
+              TRANSLATED=$(echo "$TRANSLATED" | strip_fences)
+            fi
 
             # 번역 결과 저장
             TARGET="src/$file"
