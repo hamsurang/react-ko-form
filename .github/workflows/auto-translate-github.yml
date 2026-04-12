@@ -244,7 +244,7 @@ jobs:
 
             # 1) 번역이 필요한 줄 수집 (> 로 시작하는 줄 = 추가/변경된 영문)
             local to_translate_file=$(mktemp)
-            echo "$diff_out" | grep '^> ' | sed 's/^> //' > "$to_translate_file"
+            { echo "$diff_out" | grep '^> ' | sed 's/^> //' > "$to_translate_file"; } || true
             local total_lines=$(wc -l < "$to_translate_file" | tr -d ' ')
 
             # 2) 번역 API 호출 (변경된 줄만 전송)
@@ -498,7 +498,7 @@ jobs:
               fi
 
               # 변경된 줄 수 표시
-              CHANGED_LINES=$(diff "$OLD_ORIGIN_FILE" "$NEW_ORIGIN_FILE" | grep '^> ' | wc -l | tr -d ' ')
+              CHANGED_LINES=$(diff "$OLD_ORIGIN_FILE" "$NEW_ORIGIN_FILE" | grep -c '^> ' || true)
               echo "  🔧 diff 기반 패치: ${CHANGED_LINES}줄 번역 필요"
 
               TRANSLATED=$(translate_and_patch "$OLD_ORIGIN_FILE" "$NEW_ORIGIN_FILE" "$KO_FILE")
