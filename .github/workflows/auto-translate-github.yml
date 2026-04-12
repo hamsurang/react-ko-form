@@ -71,86 +71,71 @@ jobs:
         run: |
           set -Eeuo pipefail
 
-          # 번역 규칙 로드
-          RULES=$(cat AGENTS.md)
-          SKILL_RULES=$(cat .claude/skills/translate.md 2>/dev/null || echo "")
-
+          # 시스템 프롬프트 (GitHub Models 8000 토큰 제한에 맞게 축소)
           read -r -d '' SYSTEM_PROMPT << 'SYSPROMPT' || true
-          당신은 React Hook Form 문서 한국어 번역 전문가입니다. 아래 번역 규칙을 반드시 따르세요.
+          React Hook Form 문서 한국어 번역 전문가. 아래 규칙을 따르세요.
 
-          <translation-rules>
-          PLACEHOLDER_RULES
-          </translation-rules>
-
-          <additional-translation-guidelines>
-          PLACEHOLDER_SKILL_RULES
-          </additional-translation-guidelines>
-
-          <tone-and-style-examples>
-          아래는 기존 번역의 톤앤매너 예시입니다. 이 스타일을 따르세요.
-
-          예시 1 (설명문):
-          EN: This custom hook allows you to access the form context.
-          KO: 이 커스텀 훅은 폼 컨텍스트에 접근할 수 있게 해줍니다.
-
-          예시 2 (기술 용어 이중 표기):
-          EN: The name of the registered input field.
-          KO: 등록(register)된 인풋 필드의 이름입니다.
-
-          예시 3 (Admonition 컴포넌트):
-          EN: <Admonition type="important" title="Rules">You must wrap your form with FormProvider.</Admonition>
-          KO: <Admonition type="important" title="Rules">`useFormContext`가 제대로 작동하려면, 먼저 폼을 [`FormProvider`](/docs/formprovider) 컴포넌트로 감싸야 합니다.</Admonition>
-
-          예시 4 (Props 테이블):
-          EN: | name | string | Required. The name of the input field. |
-          KO: | name | string | 필수. 인풋 필드의 이름입니다. |
-
-          예시 5 (코드 블록 주석만 번역):
-          EN: // all useForm return props
-          KO: // useForm이 반환하는 모든 props
-          </tone-and-style-examples>
-
-          중요:
-          - 번역된 MDX 콘텐츠만 출력하세요. 코드 펜스로 감싸지 마세요.
-          - 프론트매터의 title, description은 한국어로 번역하세요.
-          - 코드 블록, JSX, import는 변경하지 마세요.
-          - 마크다운 구조(헤딩, 리스트, 테이블)를 유지하세요.
-          - 볼드 처리된 부제목(**Examples:**, **Return**, **Type** 등)은 번역하지 마세요. 영문 그대로 유지합니다.
-          - 테이블 헤더(첫 번째 행)는 번역하지 마세요. 예: | Name | Type | Description | 은 영문 그대로 유지합니다.
+          번역어: form→폼, method→메서드, submission→제출, input→인풋/입력, error→에러, send→전달, submit→전송, prop→속성, rerendering→리렌더링
+          이중표기: register→등록(register), blur→블러(blur), touched→터치된(touched), dirty→변경된(dirty), render phase→렌더 단계(render phase), export→내보내기(export), dependency array→의존성 배열(dependency array), properties→속성(properties), props→속성(props)
+          영문유지: flush, import, dispatch
+          섹션제목(Props, Examples, Rules, TypeScript, API)은 영문 유지. 설명적 부제목은 번역.
+          볼드 부제목(**Examples:**, **Return**, **Type** 등)은 영문 유지.
+          테이블 헤더(첫 행)는 영문 유지.
+          코드블록/JSX/import 변경 금지. 주석만 한국어 번역.
+          마크다운 구조(헤딩, 리스트, 테이블) 유지.
+          프론트매터 title은 영문 유지, description은 한국어 번역.
+          번역된 MDX만 출력. 코드 펜스로 감싸지 마세요.
+          문장은 "~다" 체로 종결.
           SYSPROMPT
 
-          # 플레이스홀더를 실제 값으로 치환
-          SYSTEM_PROMPT="${SYSTEM_PROMPT//PLACEHOLDER_RULES/$RULES}"
-          SYSTEM_PROMPT="${SYSTEM_PROMPT//PLACEHOLDER_SKILL_RULES/$SKILL_RULES}"
-
-          # API 호출 함수
+          # API 호출 함수 (429 재시도 포함)
           call_api() {
             local user_msg="$1"
-            local http_code
-            local response
-            local tmpfile
-            tmpfile=$(mktemp)
+            local max_retries=5
+            local retry=0
+            local wait_sec=10
 
-            http_code=$(curl -s -o "$tmpfile" -w "%{http_code}" --max-time 120 \
-              "https://models.github.ai/inference/chat/completions" \
-              -H "Content-Type: application/json" \
-              -H "Authorization: Bearer $GITHUB_TOKEN" \
-              -d "$(jq -n \
-                --arg model "openai/gpt-4o" \
-                --arg system "$SYSTEM_PROMPT" \
-                --arg user "$user_msg" \
-                '{model: $model, messages: [
-                  {role: "system", content: $system},
-                  {role: "user", content: $user}
-                ], max_tokens: 4096}')" 2>/dev/null) || http_code="000"
+            while [ "$retry" -lt "$max_retries" ]; do
+              local http_code
+              local response
+              local tmpfile
+              tmpfile=$(mktemp)
 
-            response=$(cat "$tmpfile")
-            rm -f "$tmpfile"
+              http_code=$(curl -s -o "$tmpfile" -w "%{http_code}" --max-time 120 \
+                "https://models.github.ai/inference/chat/completions" \
+                -H "Content-Type: application/json" \
+                -H "Authorization: Bearer $GITHUB_TOKEN" \
+                -d "$(jq -n \
+                  --arg model "openai/gpt-4o" \
+                  --arg system "$SYSTEM_PROMPT" \
+                  --arg user "$user_msg" \
+                  '{model: $model, messages: [
+                    {role: "system", content: $system},
+                    {role: "user", content: $user}
+                  ], max_tokens: 4096}')" 2>/dev/null) || http_code="000"
 
-            if [ "$http_code" != "200" ]; then
-              echo "⚠️ API HTTP $http_code: $(echo "$response" | jq -r '.error.message // .message // "unknown error"' 2>/dev/null | head -1)" >&2
-            fi
-            printf '%s' "$response"
+              response=$(cat "$tmpfile")
+              rm -f "$tmpfile"
+
+              # 429 rate limit → 대기 후 재시도
+              if [ "$http_code" = "429" ]; then
+                retry=$((retry + 1))
+                echo "⚠️ API HTTP 429: Rate limited. ${wait_sec}초 대기 후 재시도 ($retry/$max_retries)..." >&2
+                sleep "$wait_sec"
+                wait_sec=$((wait_sec * 2))
+                continue
+              fi
+
+              if [ "$http_code" != "200" ]; then
+                echo "⚠️ API HTTP $http_code: $(echo "$response" | jq -r '.error.message // .message // "unknown error"' 2>/dev/null | head -1)" >&2
+              fi
+              printf '%s' "$response"
+              return
+            done
+
+            # 모든 재시도 실패
+            echo "⚠️ API 호출 실패: $max_retries회 재시도 후에도 429 에러" >&2
+            echo '{}'
           }
 
           # 코드 펜스 제거 함수
@@ -158,9 +143,20 @@ jobs:
             sed '/^```\(mdx\|markdown\|md\)\?$/d; /^```$/d'
           }
 
-          # 토큰 초과 에러 확인 함수
+          # 토큰 초과 에러 확인 함수 (413 + tokens_limit_reached 둘 다 감지)
           is_token_error() {
-            echo "$1" | jq -r '.error.code // empty' 2>/dev/null | grep -q "tokens_limit_reached"
+            local resp="$1"
+            local err_code
+            err_code=$(echo "$resp" | jq -r '.error.code // empty' 2>/dev/null)
+            if echo "$err_code" | grep -q "tokens_limit_reached"; then
+              return 0
+            fi
+            local err_msg
+            err_msg=$(echo "$resp" | jq -r '.error.message // empty' 2>/dev/null)
+            if echo "$err_msg" | grep -qi "too large\|max size"; then
+              return 0
+            fi
+            return 1
           }
 
           # 헤딩 기준 청크 분할 함수
@@ -438,6 +434,9 @@ jobs:
             printf '%s\n' "$TRANSLATED" > "$TARGET"
             TRANSLATED_COUNT=$((TRANSLATED_COUNT + 1))
             echo "✅ 번역 완료: $file"
+
+            # Rate limit 방지: 파일 간 대기
+            sleep 5
 
           done < changes.list
 
