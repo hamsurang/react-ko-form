@@ -35,7 +35,7 @@ sidebar: apiLinks
   setValue("array.0.test2", "2")
   ```
 
-- 존재하지 않는 필드를 대상으로 지정하면 이 메서드는 새 필드를 생성하지 않습니다.
+- 존재하지 않는 필드를 대상으로 지정하면 이 메서드는 새 필드를 생성하지 않는다.
 
   ```javascript
   const { replace } = useFieldArray({ name: "test" })
@@ -47,12 +47,12 @@ sidebar: apiLinks
   replace([{ data: "test" }])
   ```
 
-- 다음 조건에서만 리렌더링이 트리거됩니다:
+- 다음 조건에서만 리렌더링이 트리거된다:
 
   - 값 업데이트로 인해 에러가 발생하거나 수정된 경우.
   - `setValue`가 dirty나 touched와 같은 상태 업데이트를 유발하는 경우.
 
-  - 두 번째 인자를 중첩된 객체로 만드는 것보다 필드 이름을 대상으로 설정하는 것이 좋습니다.
+  - 두 번째 인자를 중첩된 객체로 만드는 것보다 필드 이름을 대상으로 설정하는 것이 좋다.
 
   ```javascript
   setValue("yourDetails.firstName", "value") // ✅ 성능이 뛰어남
@@ -63,21 +63,21 @@ sidebar: apiLinks
   setValue("nestedValue", { test: "updatedData" }) // ✅ setValue가 입력을 찾고 업데이트
   ```
 
-- `setValue`를 호출하기 전에 입력의 이름을 등록하는 것이 좋습니다. `전체 필드 배열`을 업데이트하려면, `useFieldArray` 훅이 먼저 실행되고 있는지 확인하세요.
+- `setValue`를 호출하기 전에 입력의 이름을 등록하는 것이 좋다. `전체 필드 배열`을 업데이트하려면, `useFieldArray` 훅이 먼저 실행되고 있는지 확인하라.
 
-  **중요:** 전체 필드 배열을 업데이트할 때는 `setValue` 대신 `useFieldArray`의 `replace`를 사용하세요. `setValue`를 사용한 전체 필드 배열 업데이트는 다음 메이저 버전에서 제거될 예정입니다.
+  **중요:** 전체 필드 배열을 업데이트할 때는 `setValue` 대신 `useFieldArray`의 `replace`를 사용해야 한다. `setValue`를 사용한 전체 필드 배열 업데이트는 다음 메이저 버전에서 제거될 예정이다.
 
   ```javascript
-  // 전체 필드 배열을 업데이트할 수 있습니다.
+  // 전체 필드 배열을 업데이트할 수 있다.
   setValue("fieldArray", [{ test: "1" }, { test: "2" }]) // ✅
 
-  // 등록되지 않은(unregistered) 입력 필드에도 setValue를 설정할 수 있습니다.
+  // 등록되지 않은(unregistered) 입력 필드에도 setValue를 설정할 수 있다.
   setValue("notRegisteredInput", "value") // ✅ prefer to be registered
 
-  // 다음 코드는 (register를 호출하지 않은 상태에서) 단일 입력 필드를 등록(register)합니다.
+  // 다음 코드는 (register를 호출하지 않은 상태에서) 단일 입력 필드를 등록(register)한다.
   setValue("resultSingleNestedField", { test: "1", test2: "2" }) // 🤔
 
-  // 등록된(registered) 입력 필드가 있을 경우, setValue가 두 입력을 모두 올바르게 업데이트합니다.
+  // 등록된(registered) 입력 필드가 있을 경우, setValue가 두 입력을 모두 올바르게 업데이트한다.
   register("notRegisteredInput.test", "1")
   register("notRegisteredInput.test2", "2")
   setValue("notRegisteredInput", { test: "1", test2: "2" }) // ✅ 두 번 setValue를 호출하는 것과 같은 문법적 설탕(sugar syntax)
@@ -116,7 +116,6 @@ const App = () => {
     </form>
   )
 }
-```
 
 **Dependant Fields**
 
@@ -167,7 +166,6 @@ export default function App() {
     </form>
   )
 }
-```
 
 ### Video
 

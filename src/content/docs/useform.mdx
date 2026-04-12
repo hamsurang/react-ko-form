@@ -79,7 +79,7 @@ sidebar: apiLinks
 
 ## \</> `useForm:` [`UseFormProps`](/ts#UseFormProps)
 
-`useForm`은 폼을 쉽게 관리하기 위한 사용자 정의 훅입니다. **선택적** 인자로 하나의 객체를 받습니다. 다음 예제에서는 모든 속성과 기본값을 함께 확인할 수 있습니다.
+`useForm`은 폼을 쉽게 관리하기 위한 사용자 정의 훅입니다. **선택적** 인자로 하나의 객체를 받습니다. 다음 예제에서는 모든 속성과 기본값을 함께 확인할 수 있다.
 
 **일반적인 속성:**
 
@@ -113,27 +113,27 @@ sidebar: apiLinks
 
 ---
 
-이 옵션을 사용하면 사용자가 폼을 제출하기 전에 유효성 검사 전략을 세울 수 있습니다. 유효성 검사는 [`handleSubmit`](/docs/useform/handlesubmit) 함수를 호출하여 트리거되는 `onSubmit` 이벤트 동안 발생합니다.
+이 옵션을 사용하면 사용자가 폼을 제출하기 전에 유효성 검사 전략을 세울 수 있다. 유효성 검사는 [`handleSubmit`](/docs/useform/handlesubmit) 함수를 호출하여 트리거되는 `onSubmit` 이벤트 동안 발생한다.
 
 | Name      | Type                        | Description                                                                                                                                                                                                      |
 | --------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| onSubmit  | <TypeText>string</TypeText> | 유효성 검사는 `submit` 이벤트에서 트리거되며, 입력은 `onChange` 이벤트 리스너와 연결되어 자신을 재검증합니다.                                                                                                    |
-| onBlur    | <TypeText>string</TypeText> | 유효성 검사는 `blur` 이벤트에서 트리거됩니다.                                                                                                                                                                    |
-| onChange  | <TypeText>string</TypeText> | 유효성 검사는 각 입력에 대한 `change` 이벤트에서 트리거되어 여러 번의 리렌더링을 발생시킵니다. 경고: 이는 성능에 상당한 영향을 미칠 수 있습니다.                                                                 |
-| onTouched | <TypeText>string</TypeText> | 유효성 검사는 처음에 첫 번째 `blur` 이벤트에서 트리거됩니다. 그 이후에는, 모든 `change` 이벤트에서 트리거됩니다.<br/><br/>**참고:** `Controller`와 함께 사용할 때는, `render` 속성에 `onBlur`를 연결해야 합니다. |
-| all       | <TypeText>string</TypeText> | 유효성 검사는 `blur`와 `change` 이밴트에서 모두 트리거됩니다.                                                                                                                                                    |
+| onSubmit  | <TypeText>string</TypeText> | 유효성 검사는 `submit` 이벤트에서 트리거되며, 입력은 `onChange` 이벤트 리스너와 연결되어 자신을 재검증한다.                                                                                                    |
+| onBlur    | <TypeText>string</TypeText> | 유효성 검사는 `blur` 이벤트에서 트리거된다.                                                                                                                                                                    |
+| onChange  | <TypeText>string</TypeText> | 유효성 검사는 각 입력에 대한 `change` 이벤트에서 트리거되어 여러 번의 리렌더링을 발생시킨다. 경고: 이는 성능에 상당한 영향을 미칠 수 있다.                                                                 |
+| onTouched | <TypeText>string</TypeText> | 유효성 검사는 처음에 첫 번째 `blur` 이벤트에서 트리거된다. 그 이후에는, 모든 `change` 이벤트에서 트리거된다.<br/><br/>**참고:** `Controller`와 함께 사용할 때는, `render` 속성에 `onBlur`를 연결해야 한다. |
+| all       | <TypeText>string</TypeText> | 유효성 검사는 `blur`와 `change` 이밴트에서 모두 트리거된다.                                                                                                                                                    |
 
 #### reValidateMode: <TypeText>onChange | onBlur | onSubmit = 'onChange' </TypeText> <Popup top={3} message="React Native: Custom register or using Controller" /> {#reValidateMode}
 
 ---
 
-이 옵션을 사용하면 사용자가 폼을 제출한 **후** (즉, `onSubmit` 이벤트와 [`handleSubmit`](/docs/useform/handlesubmit) 함수가 실행된 후) 에러가 있는 입력이 다시 검증될 때의 유효성 검사 전략을 세울 수 있습니다. 기본적으로 재검증은 입력 change 이벤트 중 발생합니다.
+이 옵션을 사용하면 사용자가 폼을 제출한 **후** (즉, `onSubmit` 이벤트와 [`handleSubmit`](/docs/useform/handlesubmit) 함수가 실행된 후) 에러가 있는 입력이 다시 검증될 때의 유효성 검사 전략을 세울 수 있다. 기본적으로 재검증은 입력 change 이벤트 중 발생한다.
 
 #### defaultValues: <TypeText>`FieldValues | () => Promise<FieldValues>`</TypeText> {#defaultValues}
 
 ---
 
-`defaultValues` 속성은 전체 폼을 기본값으로 채워줍니다. 이는 기본값의 동기 및 비동기 할당을 모두 지원합니다. 입력의 기본값을 설정할 때 `defaultValue` 나 `defaultChecked`를 사용할 수 있지만 [(공식 리액트 문서에 자세히 설명)](https://react.dev/reference/react-dom/components/input), 전체 폼에는 `defaultValues`를 사용하는 것이 **좋습니다**.
+`defaultValues` 속성은 전체 폼을 기본값으로 채워준다. 이는 기본값의 동기 및 비동기 할당을 모두 지원한다. 입력의 기본값을 설정할 때 `defaultValue` 나 `defaultChecked`를 사용할 수 있지만 [(공식 리액트 문서에 자세히 설명)](https://react.dev/reference/react-dom/components/input), 전체 폼에는 `defaultValues`를 사용하는 것이 **좋다**.
 
 ```javascript copy
 useForm({
@@ -147,15 +147,14 @@ useForm({
 useForm({
   defaultValues: async () => fetch('/api-endpoint');
 })
-```
 
 <Admonition type="important" title="Rules">
 
-- `undefined`를 기본값으로 제공하면 제어 컴포넌트의 기본 상태와 충돌하므로, `undefined`는 기본값으로 제공하면 **안됩니다**.
-- `defaultValues`는 캐시됩니다. 이를 재설정하려면 [reset](/docs/useform/reset) API를 사용하세요.
-- 기본적으로 `defaultValues`는 submission 결과에 포함됩니다.
-- `defaultValues`로 `Moment` 나 `Luxon`과 같은 프로토타입 메서드를 포함하는 사용자 정의 객체는 사용하지 않는 것이 좋습니다.
-- 폼 데이터를 포함하는 다른 옵션도 있습니다:
+- `undefined`를 기본값으로 제공하면 제어 컴포넌트의 기본 상태와 충돌하므로, `undefined`는 기본값으로 제공하면 **안된다**.
+- `defaultValues`는 캐시된다. 이를 재설정하려면 [reset](/docs/useform/reset) API를 사용해야 한다.
+- 기본적으로 `defaultValues`는 submission 결과에 포함된다.
+- `defaultValues`로 `Moment` 나 `Luxon`과 같은 프로토타입 메서드를 포함하는 사용자 정의 객체는 사용하지 않는 것이 좋다.
+- 폼 데이터를 포함하는 다른 옵션도 있다:
 
   ```javascript
   // 숨겨진 입력 추가
@@ -178,7 +177,7 @@ useForm({
 
 ---
 
-`values` 속성은 변경 사항에 반응하여 폼 값을 업데이트하며, 이는 폼이 외부 상태나 서버 데이터에 의해 업데이트되어야 할 때 유용합니다. `values` 속성은 `defaultValues` 속성을 덮어쓰지만, `useForm`에 `resetOptions: { keepDefaultValues: true }`가 설정되어 있는 경우 덮어쓰지 않습니다.
+`values` 속성은 변경 사항에 반응하여 폼 값을 업데이트하며, 이는 폼이 외부 상태나 서버 데이터에 의해 업데이트되어야 할 때 유용하다. `values` 속성은 `defaultValues` 속성을 덮어쓰지만, `useForm`에 `resetOptions: { keepDefaultValues: true }`가 설정되어 있는 경우 덮어쓰지 않는다.
 
 ```javascript copy
 // 기본값을 동기적으로 설정
@@ -199,13 +198,12 @@ function App() {
     values, // values가 반환되면 업데이트
   })
 }
-```
 
 #### errors: <TypeText>FieldErrors</TypeText> {#errors}
 
 ---
 
-`errors` 속성은 변경 사항에 반응하여 서버 에러 상태를 업데이트합니다. 이는 폼이 외부 서버에서 반환된 에러에 의해 업데이트되어야 할 때 유용합니다.
+`errors` 속성은 변경 사항에 반응하여 서버 에러 상태를 업데이트한다. 이는 폼이 외부 서버에서 반환된 에러에 의해 업데이트되어야 할 때 유용하다.
 
 ```javascript copy
 function App() {
@@ -215,29 +213,27 @@ function App() {
     errors, // errors가 반환되면 업데이트
   })
 }
-```
 
 #### resetOptions: <TypeText>KeepStateOptions</TypeText> {#resetOptions}
 
 ---
 
-이 속성은 값 업데이트 동작과 관련이 있습니다. `values` 나 `defaultValues`가 업데이트될 때, 내부적으로 `reset` API가 호출됩니다. `values` 나 `defaultValues`가 비동기적으로 업데이트된 후 원하는 동작을 지정하는 것이 중요합니다. 이 설정 옵션 자체는 [reset](/docs/useform/reset) 메서드의 옵션을 참조합니다.
+이 속성은 값 업데이트 동작과 관련이 있다. `values` 나 `defaultValues`가 업데이트될 때, 내부적으로 `reset` API가 호출된다. `values` 나 `defaultValues`가 비동기적으로 업데이트된 후 원하는 동작을 지정하는 것이 중요하다. 이 설정 옵션 자체는 [reset](/docs/useform/reset) 메서드의 옵션을 참조한다.
 
 ```javascript copy
-// 기본적으로 비동기 value or defaultValues가 업데이트되면 폼 값이 리셋됩니다.
+// 기본적으로 비동기 value or defaultValues가 업데이트되면 폼 값이 리셋된다.
 useForm({ values })
 useForm({ defaultValues: async () => await fetch() })
 
 // 동작을 설정할 수 있는 옵션들
-// eg: 사용자가 상호작용한/변경된 값은 유지하고, 사용자 에러를 제거하지 않기를 원합니다.
+// eg: 사용자가 상호작용한/변경된 값은 유지하고, 사용자 에러를 제거하지 않기를 원한다.
 useForm({
   values,
   resetOptions: {
-    keepDirtyValues: true, // 사용자가 상호작용한 입력은 유지됩니다.
-    keepErrors: true, // 값이 업데이트되더라도 입력 에러는 유지됩니다.
+    keepDirtyValues: true, // 사용자가 상호작용한 입력은 유지된다.
+    keepErrors: true, // 값이 업데이트되더라도 입력 에러는 유지된다.
   },
 })
-```
 
 #### context: <TypeText>object</TypeText> {#context}
 
@@ -245,7 +241,7 @@ useForm({
 
 |                                                                                                                                                  |                                                                      |
 | ------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
-| 이 context `객체`는 변경이 가능하며 `resolver`의 두번째 인자 또는 [Yup](https://github.com/jquense/yup) 유효성 검사의 context 객체에 주입됩니다. | <CodeSandbox url="https://codesandbox.io/s/resolver-context-d9jqy"/> |
+| 이 context `객체`는 변경이 가능하며 `resolver`의 두번째 인자 또는 [Yup](https://github.com/jquense/yup) 유효성 검사의 context 객체에 주입된다. | <CodeSandbox url="https://codesandbox.io/s/resolver-context-d9jqy"/> |
 
 #### criteriaMode: <TypeText>firstError | all</TypeText> {#criteriaMode}
 
@@ -253,19 +249,19 @@ useForm({
 
 |                                                                                                                                                            |                                                                                                         |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| <ul><li> `firstError` (기본값)로 설정하면, 각 필드에서 첫 번째 에러만 수집됩니다.</li> <li> `all`로 설정하면, 각 필드의 모든 에러가 수집됩니다. </li></ul> | <CodeSandbox url="https://codesandbox.io/s/react-hook-form-v6-errors-validatecriteriamode-all-p9xm6" /> |
+| <ul><li> `firstError` (기본값)로 설정하면, 각 필드에서 첫 번째 에러만 수집된다.</li> <li> `all`로 설정하면, 각 필드의 모든 에러가 수집된다. </li></ul> | <CodeSandbox url="https://codesandbox.io/s/react-hook-form-v6-errors-validatecriteriamode-all-p9xm6" /> |
 
 #### shouldFocusError: <TypeText>boolean = true</TypeText> {#shouldFocusError}
 
 ---
 
-`true` (기본값)로 설정하면, 사용자가 유효성 검사를 통과하지 못한 폼을 제출하는 경우 에러가 있는 첫 번째 필드가 포커스됩니다.
+`true` (기본값)로 설정하면, 사용자가 유효성 검사를 통과하지 못한 폼을 제출하는 경우 에러가 있는 첫 번째 필드가 포커스된다.
 
 <Admonition type="note">
 
-- `ref`와 등록(registered)된 필드만 동작합니다. 사용자 정의 등록(registered) 입력은 적용되지 않습니다.
-  예를 들어: `register('test') // 는 동작하지 않습니다`
-- 포커스 순서는 `register` 순서에 따라 결정됩니다.
+- `ref`와 등록(registered)된 필드만 동작한다. 사용자 정의 등록(registered) 입력은 적용되지 않는다.
+  예를 들어: `register('test') // 는 동작하지 않는다`
+- 포커스 순서는 `register` 순서에 따라 결정된다.
 
 </Admonition>
 
@@ -275,35 +271,35 @@ useForm({
 
 |                                                                                                                                                                            |                                                                        |
 | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| 이 설정은 에러 상태가 사용자에게 표시되는 것을 지정된 밀리초만큼 지연시킵니다. 만약 사용자가 에러가 발생한 입력을 수정하면 에러는 즉시 제거되며, 지연이 적용되지 않습니다. | <CodeSandbox url="https://codesandbox.io/s/useform-delayerror-q6c2d"/> |
+| 이 설정은 에러 상태가 사용자에게 표시되는 것을 지정된 밀리초만큼 지연시킨다. 만약 사용자가 에러가 발생한 입력을 수정하면 에러는 즉시 제거되며, 지연이 적용되지 않는다. | <CodeSandbox url="https://codesandbox.io/s/useform-delayerror-q6c2d"/> |
 
 #### shouldUnregister: <TypeText>boolean = false</TypeText> {#shouldUnregister}
 
 ---
 
-기본적으로 입력값은 입력이 제거되는 경우에도 유지됩니다. 그러나 `shouldUnregister`를 `true`로 설정하면 언마운트 시 입력을 등록 해제(`unregister`)할 수 있습니다.
+기본적으로 입력값은 입력이 제거되는 경우에도 유지된다. 그러나 `shouldUnregister`를 `true`로 설정하면 언마운트 시 입력을 등록 해제(`unregister`)할 수 있다.
 
-- 이는 하위 레벨(child-level) 설정을 오버라이드하는 전역 설정입니다. 독립적인 동작을 원한다면, `useForm`이 아닌 컴포넌트나 훅 레벨에서 설정해야 합니다.
-- 기본적으로 `shouldUnregister: false`의 경우, 언마운트된 필드는 내장된 **유효성 검사를 받지 않습니다**.
-- `useForm` 레벨에서 `shouldUnregister`를 true로 설정하면 , `defaultValues`는 제출 결과와 합쳐지지 **않습니다**.
-- `shouldUnregister: true` 로 설정하면 폼이 기본 HTML 폼과 더 유사하게 동작합니다.
+- 이는 하위 레벨(child-level) 설정을 오버라이드하는 전역 설정이다. 독립적인 동작을 원한다면, `useForm`이 아닌 컴포넌트나 훅 레벨에서 설정해야 한다.
+- 기본적으로 `shouldUnregister: false`의 경우, 언마운트된 필드는 내장된 **유효성 검사를 받지 않는다**.
+- `useForm` 레벨에서 `shouldUnregister`를 true로 설정하면 , `defaultValues`는 제출 결과와 합쳐지지 **않는다**.
+- `shouldUnregister: true` 로 설정하면 폼이 기본 HTML 폼과 더 유사하게 동작한다.
 
-  - 폼 값은 입력 자체에 저장됩니다.
-  - 입력 필드를 언마운트하면 해당 값이 제거됩니다.
-  - 숨겨진 데이터는 `hidden` 속성을 사용하여 저장해야 합니다.
-  - 등록된(registered) 입력만 submission 데이터에 포함됩니다.
-  - hook form이 입력 필드가 DOM에서 언마운트되었는지 확인하려면 언마운트된 입력 필드는 `useForm` 또는 `useWatch`의 `useEffect`에서 알려야 합니다.
+  - 폼 값은 입력 자체에 저장된다.
+  - 입력 필드를 언마운트하면 해당 값이 제거된다.
+  - 숨겨진 데이터는 `hidden` 속성을 사용하여 저장해야 한다.
+  - 등록된(registered) 입력만 submission 데이터에 포함된다.
+  - hook form이 입력 필드가 DOM에서 언마운트되었는지 확인하려면 언마운트된 입력 필드는 `useForm` 또는 `useWatch`의 `useEffect`에서 알려야 한다.
 
     ````javascript
     const NotWork = () => {
     const [show, setShow] = React.useState(false)
-    // ❌ 알림을 받지 못하면, unregister를 호출해야 함.
+    // ❌ 알림을 받지 못하면, unregister를 호출해야 한다.
     return show && <input {...register("test")} />
     }
 
         const Work = ({ control }) => {
           const { show } = useWatch({ control })
-          // ✅ useEffect에서 알려줌.
+          // ✅ useEffect에서 알려준다.
           return show && <input {...register("test1")} />
         }
 
@@ -312,7 +308,7 @@ useForm({
           const { control } = useForm({ shouldUnregister: true })
           return (
             <div>
-              // ✅ useForm의 useEffect에서 알려줌.
+              // ✅ useForm의 useEffect에서 알려준다.
               {show && <input {...register("test2")} />}
               <NotWork />
               <Work control={control} />
@@ -326,11 +322,11 @@ useForm({
 
 ---
 
-이 설정은 [브라우저의 기본 유효성 검사](https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation)를 활성화합니다. 또한 CSS 선택자 `:valid` 및 `:invalid`를 활성화하여 입력 필드의 스타일링을 쉽게 할 수 있습니다. 클라이언트 측 유효성 검사가 비활성화된 경우에도 이러한 선택자를 사용할 수 있습니다.
+이 설정은 [브라우저의 기본 유효성 검사](https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation)를 활성화한다. 또한 CSS 선택자 `:valid` 및 `:invalid`를 활성화하여 입력 필드의 스타일링을 쉽게 할 수 있다. 클라이언트 측 유효성 검사가 비활성화된 경우에도 이러한 선택자를 사용할 수 있다.
 
-- `reportValidity` 실행은 에러 입력 필드에 포커스를 주기 때문에, 이 기능은 `onSubmit` 및 `onChange` 모드에서만 동작합니다.
-- 각 등록된(registered) 필드의 유효성 검사 메시지는 브라우저에서 직접 표시되기 위해 문자열이어야 합니다.
-- 이 기능은 실제 DOM 참조와 연결된 `register` API와&nbsp; `useController/Controller` 에서만 동작합니다.
+- `reportValidity` 실행은 에러 입력 필드에 포커스를 주기 때문에, 이 기능은 `onSubmit` 및 `onChange` 모드에서만 동작한다.
+- 각 등록된(registered) 필드의 유효성 검사 메시지는 브라우저에서 직접 표시되기 위해 문자열이어야 한다.
+- 이 기능은 실제 DOM 참조와 연결된 `register` API와&nbsp; `useController/Controller` 에서만 동작한다.
 
 **Examples:**
 
@@ -358,14 +354,13 @@ export default function App() {
     </form>
   )
 }
-```
 
 #### disabled: <TypeText>boolean = false</TypeText> {#disabled}
 
 ---
 
-이 설정을 `true`로 지정하면 전체 폼과 해당 폼에 포함된 모든 입력을 비활성화할 수 있습니다.<br />
-이는 비동기 작업 중이거나 입력이 일시적으로 반응하지 않아야 하는 기타 상황에서 사용자 상호작용을 방지하는 데 유용합니다.
+이 설정을 `true`로 지정하면 전체 폼과 해당 폼에 포함된 모든 입력을 비활성화할 수 있다.<br />
+이는 비동기 작업 중이거나 입력이 일시적으로 반응하지 않아야 하는 기타 상황에서 사용자 상호작용을 방지하는 데 유용하다.
 
 **Examples:**
 
@@ -405,381 +400,9 @@ const App = () => {
     </form>
   )
 }
-```
 
 #### resolver: [Resolver](/ts#Resolver) {#resolver}
 
 ---
 
-이 함수는 [Yup](https://github.com/jquense/yup), [Zod](https://github.com/vriad/zod), [Joi](https://github.com/hapijs/joi), [Vest](https://github.com/ealush/vest), [Ajv](https://github.com/ajv-validator/ajv) 등과 같은 외부 유효성 검사 라이브러리를 사용할 수 있게 해줍니다. 목표는 원하는 유효성 검사 라이브러리를 원활하게 통합할 수 있도록 하는 것입니다. 라이브러리를 사용하지 않는 경우에는 언제든 직접 로직을 작성하여 폼의 유효성을 검사할 수 있습니다.
-
-```bash copy
-npm install @hookform/resolvers
-```
-
-##### Props
-
----
-
-| Name      | Type                                                                                                                      | Description                                                                                                                      |
-| --------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `values`  | <TypeText>object</TypeText>                                                                                               | 이 객체에는 전체 폼 값이 포함됩니다.                                                                                             |
-| `context` | <TypeText>object</TypeText>                                                                                               | 이 객체는 `useForm` 설정에 전달할 수 있는 `context` 객체입니다. 이는 렌더링을 할 때마다 변경될 수 있는 변경 가능한 `객체`입니다. |
-| `options` | <TypeText><pre>{JSON.stringify({ criteriaMode: "string", fields: "object", names: "string[]" }, null,2)}</pre></TypeText> | 이 객체는 `useForm`에서 유효성 검사가 완료된 필드, 필드 이름 및 `criteriaMode`에 대한 정보를 포함하는 옵션 객체입니다.           |
-
-<Admonition type="important" title="Rules">
-
-- 스키마 유효성 검사는 필드 수준의 에러 리포트에 중점을 둡니다. 상위 수준 (Parent-level)의 에러 검사는 바로 위 상위 부모로 제한되며, 그룹 체크박스와 같은 구성 요소에 적용됩니다.
-- 이 함수는 캐시됩니다.
-- 사용자가 상호작용을 하는 동안 하나의 필드에서만 입력의 유효성 검사가 다시 이뤄집니다. 라이브러리 자체에서 `에러` 객체를 평가하여 적절하게 리렌더링을 트리거합니다.
-- resolver는 내장된 유효성 검사 (e.g.: required, min, etc.)와 함께 사용할 수 없습니다.
-- 사용자 정의 resolver를 만들 때:
-  - 반환하는 객체가 `values`와 `errors` 속성을 모두 포함하도록 해야 합니다. 이들의 기본값은 빈 객체여야 합니다. 예를 들어: `{}`.
-  - `에러` 객체의 키는 필드의 `이름`과 일치해야 하지만, 깊은 에러의 경우 단일 키가 아닌 _계층적 구조여야만_ 합니다:
-  `❌ { "participants.1.name": someErr }`는 제대로 설정되거나 해제되지 않습니다 - 대신 `✅ { participants: [null, { name: someErr } ] }`형태를 사용하세요. 이렇게 하면 `errors.participants[1].name`으로 접근할 수 있습니다 - 평탄한 키를 사용하여 에러를 준비한 다음, zod resolver의 다음 함수를 사용하여 변환할 수 있습니다:
-  [toNestErrors(flatErrs, resolverOptions)](https://github.com/react-hook-form/resolvers/blob/master/src/toNestErrors.ts)
-
-</Admonition>
-
-**Examples:**
-
----
-
-<TabGroup buttonLabels={["Yup","Zod","Joi","Ajv","Vest", "Custom"]}>
-
-```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-apply-validation-ts-forked-nmbyh"
-import React from "react"
-import { useForm } from "react-hook-form"
-import { yupResolver } from "@hookform/resolvers/yup"
-import * as yup from "yup"
-
-const schema = yup
-  .object()
-  .shape({
-    name: yup.string().required(),
-    age: yup.number().required(),
-  })
-  .required()
-
-const App = () => {
-  const { register, handleSubmit } = useForm({
-    resolver: yupResolver(schema), // yup, joi 그리고 직접 작성한 유효성 검사 로직도 사용 가능.
-  })
-
-  return (
-    <form onSubmit={handleSubmit((d) => console.log(d))}>
-      <input {...register("name")} />
-      <input type="number" {...register("age")} />
-      <input type="submit" />
-    </form>
-  )
-}
-```
-
-```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-zod-resolver-ts-example-forked-w72vp"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-
-const schema = z.object({
-  name: z.string(),
-  age: z.number(),
-})
-
-type Schema = z.infer<typeof schema>
-
-const App = () => {
-  const { register, handleSubmit } = useForm({
-    resolver: zodResolver(schema),
-  })
-
-  const onSubmit = (data: Schema) => {
-    console.log(data)
-  }
-
-  return (
-    <form 
-      onSubmit={handleSubmit((data) => {
-        // 입력 처리
-        console.log(data)
-      })}>
-      <input {...register("name")} />
-      <input {...register("age", { valueAsNumber: true })} type="number" />
-      <input type="submit" />
-    </form>
-  )
-}
-```
-
-```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-joiresolver-v6-ts-forked-5pseh"
-import { useForm } from "react-hook-form";
-import { joiResolver } from "@hookform/resolvers/joi";
-import Joi from "joi";
-
-interface IFormInput {
-  name: string
-  age: number
-}
-
-const schema = Joi.object({
-  name: Joi.string().required(),
-  age: Joi.number().required(),
-})
-
-const App = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<IFormInput>({
-    resolver: joiResolver(schema),
-  })
-  const onSubmit = (data: IFormInput) => {
-    console.log(data)
-  }
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <input {...register("name")} />
-      <input type="number" {...register("age")} />
-      <input type="submit" />
-    </form>
-  );
-}
-```
-
-```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-ajvresolver-vr3imc"
-import { useForm } from "react-hook-form"
-import { ajvResolver } from "@hookform/resolvers/ajv"
-
-// must use `minLength: 1` to implement required field
-const schema = {
-  type: "object",
-  properties: {
-    username: {
-      type: "string",
-      minLength: 1,
-      errorMessage: { minLength: "username field is required" },
-    },
-    password: {
-      type: "string",
-      minLength: 1,
-      errorMessage: { minLength: "password field is required" },
-    },
-  },
-  required: ["username", "password"],
-  additionalProperties: false,
-}
-
-const App = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: ajvResolver(schema),
-  })
-
-  return (
-    <form onSubmit={handleSubmit((data) => console.log(data))}>
-      <input {...register("username")} />
-      {errors.username && <p>{errors.username.message}</p>}
-      <input {...register("password")} />
-      {errors.password && <p>{errors.password.message}</p>}
-      <button type="submit">submit</button>
-    </form>
-  )
-}
-```
-
-```tsx copy sandbox="https://codesandbox.io/s/vest-8q874"
-import * as React from "react"
-import { useForm } from "react-hook-form"
-import { vestResolver } from "@hookform/resolvers/vest"
-import vest, { test, enforce } from "vest"
-
-const validationSuite = vest.create((data = {}) => {
-  test("username", "Username is required", () => {
-    enforce(data.username).isNotEmpty()
-  })
-
-  test("username", "Must be longer than 3 chars", () => {
-    enforce(data.username).longerThan(3)
-  })
-
-  test("password", "Password is required", () => {
-    enforce(data.password).isNotEmpty()
-  })
-
-  test("password", "Password must be at least 5 chars", () => {
-    enforce(data.password).longerThanOrEquals(5)
-  })
-
-  test("password", "Password must contain a digit", () => {
-    enforce(data.password).matches(/[0-9]/)
-  })
-
-  test("password", "Password must contain a symbol", () => {
-    enforce(data.password).matches(/[^A-Za-z0-9]/)
-  })
-})
-
-const App = () => {
-  const { register, handleSubmit } = useForm({
-    resolver: vestResolver(validationSuite),
-  })
-
-  return (
-    <form onSubmit={handleSubmit((data) => console.log(data))}>
-      <input {...register("username")} />
-      <input {...register("password")} />
-      <input type="submit" />
-    </form>
-  )
-}
-```
-
-```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-customresoliver-ts-v7-juc63"
-import * as React from "react"
-import { useForm } from "react-hook-form"
-import * as Joi from "joi"
-
-interface IFormInputs {
-  username: string
-}
-
-const validationSchema = Joi.object({
-  username: Joi.string().alphanum().min(3).max(30).required(),
-})
-
-const App = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<IFormInputs>({
-    resolver: async (data) => {
-      const { error, value: values } = validationSchema.validate(data, {
-        abortEarly: false,
-      })
-
-      return {
-        values: error ? {} : values,
-        errors: error
-          ? error.details.reduce((previous, currentError) => {
-              return {
-                ...previous,
-                [currentError.path[0]]: currentError,
-              }
-            }, {})
-          : {},
-      }
-    },
-  })
-
-  const onSubmit = (data: IFormInputs) => console.log(data)
-
-  return (
-    <div className="App">
-      <h1>resolver</h1>
-
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <label>Username</label>
-        <input {...register("username")} />
-        {errors.username && <p>errors.username.message</p>}
-        <input type="submit" />
-      </form>
-    </div>
-  )
-}
-```
-
-</TabGroup>
-
-더 필요하신가요? [Resolver Documentation](https://github.com/react-hook-form/resolvers#quickstart)를 확인하세요.
-
-<Admonition type="tip" >
-
-다음 코드 스니펫을 통해 스키마를 디버그할 수 있습니다:
-
-```javascript copy
-resolver: async (data, context, options) => {
-  // 여기에서 유효성 검사 스키마를 디버그할 수 있습니다.
-  console.log("formData", data)
-  console.log(
-    "validation result",
-    await anyResolver(schema)(data, context, options)
-  )
-  return anyResolver(schema)(data, context, options)
-}
-```
-
-</Admonition>
-
-#### `useForm` return and `useEffect` dependencies
-
-앞으로의 주요 릴리스에서, 성능 최적화와 `formState`의 변경 사항 반영을 위해 `useForm`의 반환값이 메모이제이션될 예정입니다.
-따라서, `useEffect`의 의존성 배열에 `useForm`의 전체 반환값을 추가하면 무한 루프가 발생할 수 있습니다.
-
-<Admonition type="warning" >
-
-다음 코드는 이러한 상황을 발생시킬 가능성이 있습니다:
-
-```javascript
-const methods = useForm()
-
-useEffect(() => {
-  methods.reset({ ... })
-}, [methods])
-```
-
-</Admonition>
-
-아래와 같이 관련된 메서드만 전달하면 이러한 종류의 문제를 피할 수 있습니다:
-
-```javascript
-const methods = useForm()
-
-useEffect(() => {
-  methods.reset({ ... })
-}, [methods.reset])
-```
-
-<Admonition type="tip" >
-
-권장하는 방법은 구조 분해한 메서드를 `useEffect`의 의존성 배열에 전달하는 것입니다.
-
-```javascript
-const { reset } = useForm()
-
-useEffect(() => {
-  reset({ ... })
-}, [reset])
-```
-
-</Admonition>
-
-[더 자세한 정보는 이 이슈에서 확인할 수 있습니다](https://github.com/react-hook-form/react-hook-form/issues/12463)
-
-#### Return
-
----
-
-다음 목록에는 `useForm`이 반환하는 속성에 대한 레퍼런스가 포함되어 있습니다.
-
-- [register](/docs/useform/register)
-- [unregister](/docs/useform/unregister)
-- [formState](/docs/useform/formstate)
-- [watch](/docs/useform/watch)
-- [handleSubmit](/docs/useform/handlesubmit)
-- [reset](/docs/useform/reset)
-- [resetField](/docs/useform/resetfield)
-- [setError](/docs/useform/seterror)
-- [clearErrors](/docs/useform/clearerrors)
-- [setValue](/docs/useform/setvalue)
-- [setFocus](/docs/useform/setfocus)
-- [getValues](/docs/useform/getvalues)
-- [getFieldState](/docs/useform/getfieldstate)
-- [trigger](/docs/useform/trigger)
-- [control](/docs/useform/control)
-- [Form](/docs/useform/form)
+이 함수는 [Yup](https://github.com/jquense/yup), [Zod](https://github.com/vriad/zod), [Joi](https://github.com/hapijs/joi), [Vest](https://github.com/ealush/vest), [Ajv](https://

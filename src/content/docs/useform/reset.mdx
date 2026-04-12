@@ -32,7 +32,7 @@ sidebar: apiLinks
 - 제어 컴포넌트의 경우 `defaultValues`를 `useForm`에 전달해야 `Controller` 컴포넌트의 값을 `reset`할 수 있습니다.
 - `reset` API에 `defaultValues`가 제공되지 않으면, HTML 기본 [reset](https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/reset) API가 호출되어 폼이 복원됩니다.
 - `useForm`의 `useEffect`가 호출되기 전에 `reset`을 호출하는 것을 피하세요. 이는 `useForm`의 구독이 준비된 후에만 `reset`이 신호를 보내 폼 상태 업데이트를 flush할 수 있기 때문입니다.
-- submission 후 `useEffect` 내부에서 `reset`을 호출하는 것이 좋습니다.
+- 제출 후 `useEffect` 내부에서 `reset`을 호출하는 것이 좋습니다. <code>defaultValues</code>를 제공하는 것이 항상 권장됩니다. 이는 모든 인풋, 특히 제어 컴포넌트가 올바르게 복원되도록 하기 위함입니다.
   ```javascript
   useEffect(() => {
     reset({
@@ -97,7 +97,6 @@ export default function Form() {
     </form>
   )
 }
-```
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-reset-v7-r7m5s"
 import React, { useCallback } from "react"
@@ -147,7 +146,6 @@ export default function App() {
     </form>
   )
 }
-```
 
 </TabGroup>
 
@@ -200,7 +198,6 @@ export default function App() {
     </form>
   )
 }
-```
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-v7-controller-5h1q5"
 import { useForm, Controller } from "react-hook-form"
@@ -240,7 +237,6 @@ export default function App() {
     </form>
   )
 }
-```
 
 </TabGroup>
 
@@ -276,7 +272,6 @@ function App() {
     </form>
   )
 }
-```
 
 **필드 배열**
 
@@ -336,7 +331,6 @@ function App() {
     </form>
   )
 }
-```
 
 ### Videos
 

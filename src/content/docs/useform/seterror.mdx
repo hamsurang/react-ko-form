@@ -31,7 +31,7 @@ sidebar: apiLinks
   setError("notRegisteredInput", { type: "custom", message: "custom message" })
   // 해당 에러를 제거하려면 clearErrors()를 수동으로 호출해야 합니다.
   ```
-- `root`를 키로 서버 또는 전역 에러를 설정할 수 있습니다. 이러한 유형의 에러는 각 submission마다 유지되지 않습니다.
+- `root`를 키로 서버 또는 전역 에러를 설정할 수 있습니다. 이러한 유형의 에러는 각 제출마다 유지되지 않습니다.
   ```javascript
   setError("root.serverError", {
     type: "400",
@@ -42,8 +42,8 @@ sidebar: apiLinks
   ```
 - 이 메서드는 비동기 유효성 검사 후, 사용자에게 에러 피드백을 제공하려는 경우, `handleSubmit` 메서드에서 유용할 수 있습니다. (예: API에서 유효성 검사 에러 반환 시)
 - `shouldFocus`는 입력 필드가 비활성화된 경우 작동하지 않습니다.
-- 이 메서드는 `isValid` 폼 상태를 `false`로 강제 설정합니다. 그러나 `isValid`는 항상 입력 등록 규칙 또는 스키마 결과의 유효성 검사 결과에서 파생된다는 점에 유의해야 합니다.
-- 타입 검사를 방해하지 않기 위해 `type`과 `types`라는 키워드는 피해야 합니다.
+- 이 메서드는 `isValid` 폼 상태를 `false`로 강제 설정한다. 그러나 `isValid`는 항상 입력 등록 규칙 또는 스키마 결과의 유효성 검사 결과에서 파생된다는 점에 유의해야 한다.
+- 타입 검사를 방해하지 않기 위해 `type`과 `types`라는 키워드는 피해야 한다.
 
 </Admonition>
 
@@ -90,7 +90,6 @@ const App = () => {
     </form>
   )
 }
-```
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-v7-seterror-btbf8"
 import { useForm } from "react-hook-form"
@@ -119,7 +118,6 @@ const App = () => {
     </form>
   )
 }
-```
 
 </TabGroup>
 
@@ -183,7 +181,6 @@ const App = () => {
     </form>
   )
 }
-```
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-v7-seterror-3y1op"
 import * as React from "react"
@@ -236,7 +233,6 @@ const App = () => {
     </form>
   )
 }
-```
 
 </TabGroup>
 
@@ -287,7 +283,6 @@ const App = () => {
     </form>
   )
 }
-```
 
 ```javascript copy sandbox="https://codesandbox.io/s/seterror-single-field-errors-79wcr9"
 import * as React from "react"
@@ -329,7 +324,6 @@ const App = () => {
     </form>
   )
 }
-```
 
 </TabGroup>
 
@@ -363,7 +357,6 @@ const App = () => {
     </form>
   );
 };
-```
 
 ### Video
 

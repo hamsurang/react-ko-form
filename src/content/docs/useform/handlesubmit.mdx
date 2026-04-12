@@ -80,7 +80,6 @@ export default function App() {
     </form>
   )
 }
-```
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-handlesubmit-v7-uqmiy"
 import { useForm } from "react-hook-form"
@@ -98,7 +97,6 @@ export default function App() {
     </form>
   )
 }
-```
 
 </TabGroup>
 
@@ -123,13 +121,12 @@ function App() {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <label htmlFor="username">User Name</label>
-      <input placeholder="Bill" {...register("username"} />
+      <input placeholder="Bill" {...register("username")} />
 
       <input type="submit" />
     </form>
   );
 }
-```
 
 ### Video
 
