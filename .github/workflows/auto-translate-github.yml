@@ -67,7 +67,7 @@ jobs:
       - name: Translate changed files
         if: env.has_changes == 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
         run: |
           set -Eeuo pipefail
 
@@ -126,7 +126,12 @@ jobs:
           # API 호출 함수
           call_api() {
             local user_msg="$1"
-            curl -s --max-time 120 \
+            local http_code
+            local response
+            local tmpfile
+            tmpfile=$(mktemp)
+
+            http_code=$(curl -s -o "$tmpfile" -w "%{http_code}" --max-time 120 \
               "https://models.github.ai/inference/chat/completions" \
               -H "Content-Type: application/json" \
               -H "Authorization: Bearer $GITHUB_TOKEN" \
@@ -137,7 +142,15 @@ jobs:
                 '{model: $model, messages: [
                   {role: "system", content: $system},
                   {role: "user", content: $user}
-                ], max_tokens: 4096}')" || true
+                ], max_tokens: 4096}')" 2>/dev/null) || http_code="000"
+
+            response=$(cat "$tmpfile")
+            rm -f "$tmpfile"
+
+            if [ "$http_code" != "200" ]; then
+              echo "⚠️ API HTTP $http_code: $(echo "$response" | jq -r '.error.message // .message // "unknown error"' 2>/dev/null | head -1)" >&2
+            fi
+            printf '%s' "$response"
           }
 
           # 코드 펜스 제거 함수
@@ -430,6 +443,11 @@ jobs:
 
           echo "translated_count=$TRANSLATED_COUNT" >> "$GITHUB_ENV"
           echo "=== 번역 완료: ${TRANSLATED_COUNT}개 파일 ==="
+
+          if [ "$TRANSLATED_COUNT" -eq 0 ]; then
+            echo "❌ 모든 파일 번역 실패. API 응답을 확인하세요."
+            exit 1
+          fi
 
       - name: Create translation PR
         if: env.has_changes == 'true' && env.translated_count != '0'
