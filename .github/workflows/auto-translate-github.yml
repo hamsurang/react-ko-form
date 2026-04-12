@@ -141,7 +141,7 @@ jobs:
                 -H "Content-Type: application/json" \
                 -H "Authorization: Bearer $GITHUB_TOKEN" \
                 -d "$(jq -n \
-                  --arg model "openai/gpt-4o" \
+                  --arg model "openai/gpt-4o-mini" \
                   --arg system "$SYSTEM_PROMPT" \
                   --arg user "$user_msg" \
                   '{model: $model, messages: [
@@ -580,7 +580,7 @@ jobs:
           $TRANSLATION_DETAILS
 
           ### 사용 모델
-          - \`openai/gpt-4o\` via GitHub Models API
+          - \`openai/gpt-4o-mini\` via GitHub Models API
 
           ### 참고
           - 번역 규칙: \`AGENTS.md\`, \`.claude/skills/translate.md\`
