@@ -102,39 +102,33 @@ By selecting the register option, the API table below will get updated.
 
 <ul>
   <li>
-    이름은 **필수**이며 **고유**해야 합니다(기본 라디오 및 체크박스 제외).
-    입력 이름은 점과 대괄호 구문을 모두 지원하므로 중첩된 폼 필드를 쉽게 만들 수 있습니다.
-  </li>
+<strong>이름</strong>은 <strong>필수</strong>이며 <strong>고유</strong>해야 합니다  
+(기본 라디오 및 체크박스 인풋을 제외하고).  
   <li>
     이름은 은 숫자로 시작하거나 키 이름으로 숫자를 사용할 수 없습니다. 특수 문자의 사용도 피해야 합니다.
-  </li>
-  <li>
-    TypeScript 사용 시 일관성을 위해 점 구문만을 사용하고 있으므로, 배열 폼 값에는 대괄호 `[]` 를 사용할 수 없습니다.
-    
-```javascript
-register('test.0.firstName'); // ✅
-register('test[0]firstName'); // ❌
-```
+이름은 숫자로 시작하거나 숫자를 단독 키로 사용할 수 없으며, 특수 문자는 피해야 합니다.  
+타입스크립트 일관성을 위해 점(dot) 문법만 지원되며, 대괄호(bracket) 문법(<code>[]</code>)은 배열 폼 값에 작동하지 않습니다.  
 
-  </li>
+register("test.0.firstName") // ✅  
+register("test[0].firstName") // ❌  
   
   <li>비활성화된 입력은 undefined 폼 값을 결과로 제공합니다. 사용자가 입력을 업데이트하지 못하도록 하려면 `readOnly`를 사용하거나 전체 `fieldset`을 비활성화할 수 있습니다. 다음은 [예제](https://codesandbox.io/s/react-hook-form-disabled-inputs-oihxx)입니다.</li>
   
   <li>필드 배열을 생성하려면 입력 이름 뒤에 점과 숫자를 붙여야 합니다. 예: `test.0.data`</li>
-  
-  <li>렌더링할 때마다 이름을 변경하면 새로운 입력이 등록(registered)됩니다. 따라서 각 등록된(registered) 입력에 대해 고정된 이름을 사용하는 것이 좋습니다.</li>
-  
+<li> 비활성화된 인풋은 <code>undefined</code>를 폼 값으로 반환합니다.  
+        값을 유지하면서 사용자 수정 방지를 해야 한다면, <code>readOnly</code>를 사용하거나 전체 <code>fieldset</code>을 비활성화하세요. 여기 [예제](https://codesandbox.io/s/react-hook-form-disabled-inputs-oihxx)가 있습니다.</li>  
+<li>각 렌더링에서 인풋의 <code>name</code>을 변경하면 새로운 필드로 다시 등록됩니다.  
   <li>언마운트에 따라 입력 값과 참조는 더 이상 제거되지 않습니다. 해당 값과 참조를 제거하려면 unregister를 호출할 수 있습니다.</li>
-  
+        일관된 동작을 보장하려면 렌더링 간에 인풋 이름을 안정적으로 유지하세요.</li>  
+<li>인풋 값 및 참조는 언마운트 시 자동으로 제거되지 않습니다.  
   <li>
-  개별 register 옵션은 `undefined`나 `{}`로 제거할 수 없습니다. 대신 개별 속성을 업데이트할 수 있습니다.
+        필요할 때 <a href="/docs/useform/unregister"><code>unregister</code></a>를 사용하여 명시적으로 제거하세요.</li>  
   
 ```javascript
 register('test', { required: true });
 register('test', {}); // ❌
 register('test', undefined); // ❌
 register('test', { required: false });  // ✅
-```
   
   </li>
 
@@ -194,7 +188,6 @@ export default function App() {
     </form>
   )
 }
-```
 
 **Custom async validation**
 
@@ -235,7 +228,6 @@ export default function App() {
     </form>
   )
 }
-```
 
 ### Video
 
@@ -261,7 +253,6 @@ const { onChange, onBlur, name, ref } = register('firstName');
 />
 // 위와 같음
 <input {...register('firstName')} />
-```
 
 #### 커스텀 Register
 
@@ -273,7 +264,6 @@ const { onChange, onBlur, name, ref } = register('firstName');
 register('firstName', { required: true, min: 8 });
 
 <TextInput onTextChange={(value) => setValue('lastChange', value))} />
-```
 
 #### `innerRef`, `inputRef`로 어떻게 작업할까?
 
@@ -290,4 +280,3 @@ const firstName = register('firstName', { required: true })
   onBlur={firstName.onBlur}
   inputRef={firstName.ref} // innerRef와 같은 다른 ref 이름에도 동일하게 구현할 수 있습니다.
 />
-```

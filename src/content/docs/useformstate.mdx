@@ -7,8 +7,12 @@ sidebar: apiLinks
 <SelectNav
   options={[
     {
-      label: "FormStateSubscribe",
+      label: "폼 상태 구독(FormStateSubscribe)",
       value: "/docs/useformstate/formstatesubscribe",
+    },
+    {
+      label: "FormStateSubscribe",
+      value: "/docs/useformstate/errormessage",
     },
     {
       label: "ErrorMessage",
@@ -60,7 +64,6 @@ sidebar: apiLinks
 ```javascript
 const { isDirty } = useFormState() // ✅
 const formState = useFormState() // ❌ should deconstruct the formState
-```
 
 </Admonition>
 
@@ -94,4 +97,3 @@ export default function App() {
     </form>
   )
 }
-```
