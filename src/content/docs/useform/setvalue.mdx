@@ -35,6 +35,22 @@ sidebar: apiLinks
   setValue("array.0.test2", "2")
   ```
 
+- 다음 조건에서만 리렌더링이 트리거됩니다:
+
+  - 값 업데이트로 인해 에러가 발생하거나 수정된 경우.
+  - `setValue`가 dirty나 touched와 같은 상태 업데이트를 유발하는 경우.
+
+- 두 번째 인자를 중첩된 객체로 만드는 것보다 필드 이름을 대상으로 설정하는 것이 좋습니다.
+
+  ```javascript
+  setValue("yourDetails.firstName", "value") // ✅ 성능이 뛰어남
+  setValue("yourDetails", { firstName: "value" }) ❌ // 성능이 떨어짐
+
+  register("nestedValue", { value: { test: "data" } }) // 중첩된 입력값을 등록(register)
+  setValue("nestedValue.test", "updatedData") // ❌ 관련 필드를 찾지 못함
+  setValue("nestedValue", { test: "updatedData" }) // ✅ setValue가 입력을 찾고 업데이트
+  ```
+
 - 존재하지 않는 필드를 대상으로 지정하면 이 메서드는 새 필드를 생성하지 않습니다.
 
   ```javascript
@@ -45,22 +61,6 @@ sidebar: apiLinks
 
   // ✅ 전체 필드 배열을 새로 고침
   replace([{ data: "test" }])
-  ```
-
-- 다음 조건에서만 리렌더링이 트리거됩니다:
-
-  - 값 업데이트로 인해 에러가 발생하거나 수정된 경우.
-  - `setValue`가 dirty나 touched와 같은 상태 업데이트를 유발하는 경우.
-
-  - 두 번째 인자를 중첩된 객체로 만드는 것보다 필드 이름을 대상으로 설정하는 것이 좋습니다.
-
-  ```javascript
-  setValue("yourDetails.firstName", "value") // ✅ 성능이 뛰어남
-  setValue("yourDetails", { firstName: "value" }) ❌ // 성능이 떨어짐
-
-  register("nestedValue", { value: { test: "data" } }) // 중첩된 입력값을 등록(register)
-  setValue("nestedValue.test", "updatedData") // ❌ 관련 필드를 찾지 못함
-  setValue("nestedValue", { test: "updatedData" }) // ✅ setValue가 입력을 찾고 업데이트
   ```
 
 - `setValue`를 호출하기 전에 입력의 이름을 등록하는 것이 좋습니다. `전체 필드 배열`을 업데이트하려면, `useFieldArray` 훅이 먼저 실행되고 있는지 확인하세요.
@@ -116,7 +116,6 @@ const App = () => {
     </form>
   )
 }
-```
 
 **Dependant Fields**
 
@@ -167,7 +166,6 @@ export default function App() {
     </form>
   )
 }
-```
 
 ### Video
 

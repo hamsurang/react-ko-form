@@ -3,11 +3,23 @@ title: register
 description: 비제어/제어 입력 필드 등록(register)
 sidebar: apiLinks
 ---
-
 ## \</> `register:` <TypeText>`(name: string, options?: RegisterOptions) => ({ ref, name, onChange, onBlur })`</TypeText>
 
 이 메서드를 사용하면 입력 또는 선택 요소를 등록(register)하고 React Hook Form에 유효성 검사 규칙을 적용할 수 있습니다. 유효성 검사 규칙은 모두 HTML 표준을 기반으로 하며 사용자 정의 유효성 검사 메서드도 허용합니다.
 
+- **`name`**은 **필수**이며 **고유해야** 합니다(**네이티브 라디오 및 체크박스 입력은 예외**).
+- 입력 필드의 이름은 점(dot) 표기법 또는 대괄호(bracket) 문법을 사용할 수 있으며, 이를 통해 중첩된 폼 필드를 손쉽게 생성할 수 있습니다.
+
+```jsx
+register("test.0.firstName") // ✅
+register("test[0].firstName") // ❌
+
+- 이름은 숫자로 시작할 수 없으며, 숫자가 단독 키 이름으로 쓰이지 않아야 합니다. 특수 문자의 사용은 피하세요.
+- TypeScript 일관성을 위해 점(dot) 표기법만 지원됩니다. 따라서 배열 형식의 폼 값에는 대괄호 표기법(`[ ]`)을 사용할 수 없습니다.
+- 비활성화된 입력 요소는 `undefined` 값을 반환합니다. 입력 값 변경을 막고 싶지만 값을 유지하려면 `readOnly`를 사용하거나 전체 `fieldset`을 비활성화하세요. 자세한 내용은 [예제](https://codesandbox.io/s/react-hook-form-disabled-inputs-oihxx)를 참고하세요.
+- 필드 배열을 생성하려면 입력 필드 이름 뒤에 점과 숫자를 추가하세요. 예: `test.0.data`
+- 입력의 `<code>name</code>`을 렌더링할 때마다 변경하면 해당 입력이 새로운 필드로 다시 등록됩니다. 일관된 동작을 보장하려면 입력 이름을 렌더 간에 고정하세요.
+- 인풋 값과 참조는 언마운트 시 자동으로 제거되지 않습니다. 필요할 경우, [<code>unregister</code>](https://react-hook-form.com/docs/useform/unregister)을 호출하여 명시적으로 제거하세요.
 ### Props
 
 ---
@@ -17,6 +29,21 @@ sidebar: apiLinks
 | `name`    | <TypeText>string</TypeText>          | 입력 필드의 이름. |
 | `options` | <TypeText>RegisterOptions</TypeText> | 입력 필드의 동작. |
 
+---
+
+- `name`은 **필수**이고 **고유**해야 합니다(네이티브 라디오 및 체크박스는 제외).
+- `name`은 점(dot) 표기법과 대괄호(bracket) 표기법을 모두 지원하여 네스티드 폼 필드를 쉽게 생성할 수 있습니다. 하지만, **TypeScript 사용의 일관성을 위해 점 표기법만 지원**하며, 대괄호([]) 표기법은 배열 형태의 폼 값에서 작동하지 않습니다. 
+  
+  ```jsx
+  register("test.0.firstName") // ✅
+  register("test[0].firstName") // ❌
+  ```
+
+- `name`은 숫자로 시작하거나 숫자를 단독 키 이름으로 사용할 수 없으며, 특수 문자의 사용도 피해야 합니다.
+- 비활성화된(disabled) 인풋은 `undefined` 값으로 처리됩니다. 인풋의 값을 유지하면서도 사용자가 편집하지 못하도록 하려면, `readOnly`를 사용하거나 `fieldset` 전체를 비활성화하십시오. [예제](https://codesandbox.io/s/react-hook-form-disabled-inputs-oihxx)를 참고하세요.
+- 필드 배열을 생성하려면, 입력 이름 뒤에 점과 숫자를 사용하세요. 예: `test.0.data`
+- 매 렌더링 시 이름을 변경하면 새로운 인풋이 등록되므로, 등록(register)된 각 인풋에 대해 이름을 고정하는 것이 좋습니다.
+- 인풋 값과 레퍼런스는 언마운트 시 자동으로 제거되지 않습니다. 필요할 경우, 명시적으로 제거하려면 [`unregister`](/docs/useform/unregister)를 호출하세요.
 ### Return
 
 ---
@@ -32,14 +59,15 @@ sidebar: apiLinks
 
 제출된 값은 다음과 같은 형태로 표시됩니다:
 
-| Input Name                                        | Submit Result                                             |
-| ------------------------------------------------- | --------------------------------------------------------- |
-| <TypeText>register("firstName")</TypeText>        | <TypeText>`{ firstName: value }`</TypeText>               |
-| <TypeText>register("name.firstName")</TypeText>   | <TypeText>`{ name: { firstName: value } }`</TypeText>     |
-| <TypeText>register("name.firstName.0")</TypeText> | <TypeText>`{ name: { firstName: [ value ] } }`</TypeText> |
+| Input Name                                          | Submit Result                                             |
+| --------------------------------------------------- | --------------------------------------------------------- |
+| <TypeText>register("firstName")</TypeText>          | <TypeText>`{ firstName: value }`</TypeText>               |
+| <TypeText>register("name.firstName")</TypeText>     | <TypeText>`{ name: { firstName: value } }`</TypeText>     |
+| <TypeText>register("name.firstName.0")</TypeText>   | <TypeText>`{ name: { firstName: [ value ] } }`</TypeText> |
+| <TypeText>register("test.0.firstName")</TypeText>   | <TypeText>`{ test: [ { firstName: value } ] }`</TypeText> |
+| <TypeText>register("test[0].firstName")</TypeText>  | <TypeText>`{}` (지원 안 됨)                               |
 
 </Admonition>
-
 ### Options
 
 ---
@@ -114,7 +142,6 @@ By selecting the register option, the API table below will get updated.
 ```javascript
 register('test.0.firstName'); // ✅
 register('test[0]firstName'); // ❌
-```
 
   </li>
   
@@ -134,7 +161,6 @@ register('test', { required: true });
 register('test', {}); // ❌
 register('test', undefined); // ❌
 register('test', { required: false });  // ✅
-```
   
   </li>
 
@@ -194,7 +220,6 @@ export default function App() {
     </form>
   )
 }
-```
 
 **Custom async validation**
 
@@ -235,14 +260,11 @@ export default function App() {
     </form>
   )
 }
-```
-
 ### Video
 
 ---
 
 <YouTube youTubeId="JFIpCoajYkA" />
-
 ### Tips
 
 ---
@@ -261,7 +283,6 @@ const { onChange, onBlur, name, ref } = register('firstName');
 />
 // 위와 같음
 <input {...register('firstName')} />
-```
 
 #### 커스텀 Register
 
@@ -270,10 +291,9 @@ const { onChange, onBlur, name, ref } = register('firstName');
 필드를 수동으로 등록(register)한다면, [setValue](/docs/useform/setvalue)를 사용하여 입력 값을 직접 업데이트해야 합니다.
 
 ```javascript
-register('firstName', { required: true, min: 8 });
+register("firstName", { required: true, min: 8 });
 
 <TextInput onTextChange={(value) => setValue('lastChange', value))} />
-```
 
 #### `innerRef`, `inputRef`로 어떻게 작업할까?
 
@@ -281,13 +301,12 @@ register('firstName', { required: true, min: 8 });
 
 ```javascript
 // 동작하지 않음. ref가 할당되지 않았기 때문
-<TextInput {...register('test')} />
+<TextInput {...register("test")} />
 
-const firstName = register('firstName', { required: true })
+const firstName = register("firstName", { required: true });
 <TextInput
   name={firstName.name}
   onChange={firstName.onChange}
   onBlur={firstName.onBlur}
   inputRef={firstName.ref} // innerRef와 같은 다른 ref 이름에도 동일하게 구현할 수 있습니다.
 />
-```

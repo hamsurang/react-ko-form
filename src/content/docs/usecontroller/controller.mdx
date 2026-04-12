@@ -3,11 +3,13 @@ title: Controller
 description: 제어 입력 필드를 위한 래퍼(Wrapper) 컴포넌트
 sidebar: apiLinks
 ---
-
 ## \</> `Controller`: <TypeText>Component</TypeText>
 
 React Hook Form은 비제어 컴포넌트와 기본 입력 요소를 지향하지만, [React-Select](https://github.com/JedWatson/react-select), [AntD](https://github.com/ant-design/ant-design), [MUI](https://mui.com/)와 같은 외부 제어 컴포넌트와 React Hook Form을 함께 사용하는 상황은 피하기 어렵습니다. 이 래퍼 컴포넌트는 이러한 작업을 더욱 쉽게 만들어줍니다.
 
+| 이름                | <TypeText>타입</TypeText>                                            | 필수     | 설명                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+|-------------------|------------------------------------------------------------------------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `exact`           | <TypeText>boolean = false</TypeText>                             |          | 이 속성은 인풋 이름 구독에 대한 정확한 매칭을 활성화하며, 기본값은 true입니다.                                                                                                                                                                                                                                                                                                                                               | 
 ### Props
 
 ---
@@ -24,7 +26,6 @@ React Hook Form은 비제어 컴포넌트와 기본 입력 요소를 지향하�
 | `disabled`         | <TypeText>boolean = false`</TypeText>                              |          | `disabled` prop은 `field` prop에서 반환됩니다. 제어 입력 필드는 비활성화되며, 그 값은 제출 데이터에서 제외됩니다.                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `defaultValue`     | <TypeText>unknown</TypeText>                                       |          | **중요:** `useForm`의 `defaultValues` 또는 `defaultValue`에 `undefined`를 적용할 수 없습니다. <ul><li>필드 레벨에서 `defaultValue`를 설정하거나 `useForm`의 `defaultValues`를 사용해야 합니다. <code>useForm</code>에서 <code>defaultValues</code>를 사용한 경우, 이 prop은 생략하세요.</li><li>폼이 기본값으로 `reset`을 호출할 예정이라면, `useForm`에 `defaultValues`를 제공해야 합니다.</li><li>`undefined`를 사용하여 `onChange`를 호출하는 것은 유효하지 않습니다. 대신 `null` 또는 빈 문자열을 기본값/초기화된 값으로 사용해야 합니다.</li></ul> |
 | `exact`            | <TypeText>boolean = false</TypeText>                               |          | 이 속성은 인풋 이름 구독에 대해 정확한 일치를 활성화합니다. 기본값은 `true`입니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-
 ### Return
 
 ---
@@ -55,6 +56,7 @@ React Hook Form은 비제어 컴포넌트와 기본 입력 요소를 지향하�
 | `formState`                            | `isValid`            | <TypeText>boolean</TypeText>                | 에러가 없는 경우 `true`로 설정합니다.<br/><br/>`setError`는 formState의 `isValid` 값에 영향을 주지 않으며, `isValid`는 항상 전체 폼 유효성 검사 결과를 통해 계산됩니다.                                                                                                                                                                                                                                                                                                                           |
 | `formState`                            | `isValidating`       | <TypeText>boolean</TypeText>                | 유효성 검사를 하고 있는 동안 `true`로 설정합니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | `formState`                            | `errors`             | <TypeText>object</TypeText>                 | 필드 에러를 담고 있는 객체. 에러 메세지를 쉽게 가져올 수 있도록 도와주는 [ErrorMessage](/docs/useformstate/errormessage) 컴포넌트도 제공됩니다.                                                                                                                                                                                                                                                                                                                                                   |
+| `formState`                            | `exact`              | <TypeText>boolean = false</TypeText>        | 이 속성(prop)은 입력 필드 이름 구독의 정확한 매칭을 활성화하며, 기본값은 `true`입니다.                                                                                                                                                                                                                                                                                                                                                                                                            |
 
 **Examples:**
 
@@ -94,7 +96,6 @@ function App() {
     </form>
   )
 }
-```
 
 ```javascript copy sandbox="https://codesandbox.io/s/react-hook-form-v7-controller-5h1q5"
 import ReactDatePicker from "react-datepicker"
@@ -122,7 +123,6 @@ function App() {
     </form>
   )
 }
-```
 
 </TabGroup>
 
@@ -184,8 +184,6 @@ export default function App() {
     </View>
   )
 }
-```
-
 ### Video
 
 ---
@@ -204,6 +202,7 @@ export default function App() {
   - **name**: 입력 필드에 고유한 이름을 부여. 다음 코드샌드박스는 사용 예시를 보여줍니다:
   - [MUI와 다른 컴포넌트](https://codesandbox.io/s/react-hook-form-v7-controller-5h1q5)
   - [Chakra UI 컴포넌트](https://codesandbox.io/s/chakra-ui-5mp8g)
+  - **exact**: 이 속성(prop)을 true로 설정하면 인풋 필드 이름 구독에 대해 정확히 일치하는지를 확인합니다. 기본값은 true입니다.
 - 입력을 다시 등록(`register`)하지 마세요. 이 컴포넌트는 입력 필드의 등록(registration) 과정을 처리하도록 설계되어 있습니다.
 
   ```javascript

@@ -76,7 +76,6 @@ sidebar: apiLinks
     },
   ]}
 />
-
 ## \</> `useForm:` [`UseFormProps`](/ts#UseFormProps)
 
 `useForm`은 폼을 쉽게 관리하기 위한 사용자 정의 훅입니다. **선택적** 인자로 하나의 객체를 받습니다. 다음 예제에서는 모든 속성과 기본값을 함께 확인할 수 있습니다.
@@ -97,6 +96,8 @@ sidebar: apiLinks
 | [shouldUseNativeValidation](#shouldUseNativeValidation) | 브라우저 내장 폼 제약 조건 API 사용.                                   |
 | [shouldUnregister](#shouldUnregister)                   | 언마운트 후 입력의 등록 취소(unregister)를 활성화하거나 비활성화.      |
 | [disabled](#disabled)                                   | 전체 폼과 해당 폼에 포함된 모든 입력을 비활성화합니다.                 |
+| [validate](#validate)                                   | 폼 레벨 유효성 검사는 내장된 유효성 검사 메서드로만 제한됩니다.                                           |
+| [progressive](/docs/useform/form)                       | `Form` 컴포넌트를 사용할 때 네이티브 폼 제출에 대한 점진적 향상을 활성화합니다.                                    |
 
 **스키마 유효성 검사 속성:**
 
@@ -105,6 +106,38 @@ sidebar: apiLinks
 | [resolver](#resolver) | 선호하는 스키마 유효성 검사 라이브러리와 통합됩니다.  |
 | [context](#context)   | 스키마 유효성 검사를 위해 제공할 컨텍스트 객체입니다. |
 
+#### validate: <TypeText>Function</TypeText> {#validate}
+
+---
+
+이 예제는 React 애플리케이션에서 **새로운 `validate` API**를 `useForm`과 결합하여 **폼 레벨 유효성 검사**를 수행하는 방법을 보여줍니다.
+
+`validate` 함수는 전체 폼 객체를 전달받으며, 이 함수를 통해 **구조화된 에러**를 반환하여 `formState.errors`와 통합할 수 있습니다.
+
+**Examples:**
+
+---
+
+```javascript
+const {
+  register,
+  formState: { errors },
+} = useForm({
+  validate: async ({ formValues }: FormValidateResult) => {
+    if (formValues.test1.length > formValues.test.length) {
+      return {
+        type: "formError",
+        message: "something is wrong here",
+      }
+    }
+
+    if (formValue.test === "test") {
+      return "direct error message"
+    }
+
+    return true
+  },
+})
 ### Props
 
 ---
@@ -147,7 +180,6 @@ useForm({
 useForm({
   defaultValues: async () => fetch('/api-endpoint');
 })
-```
 
 <Admonition type="important" title="Rules">
 
@@ -199,7 +231,6 @@ function App() {
     values, // values가 반환되면 업데이트
   })
 }
-```
 
 #### errors: <TypeText>FieldErrors</TypeText> {#errors}
 
@@ -215,7 +246,6 @@ function App() {
     errors, // errors가 반환되면 업데이트
   })
 }
-```
 
 #### resetOptions: <TypeText>KeepStateOptions</TypeText> {#resetOptions}
 
@@ -237,7 +267,6 @@ useForm({
     keepErrors: true, // 값이 업데이트되더라도 입력 에러는 유지됩니다.
   },
 })
-```
 
 #### context: <TypeText>object</TypeText> {#context}
 
@@ -358,7 +387,6 @@ export default function App() {
     </form>
   )
 }
-```
 
 #### disabled: <TypeText>boolean = false</TypeText> {#disabled}
 
@@ -405,7 +433,6 @@ const App = () => {
     </form>
   )
 }
-```
 
 #### resolver: [Resolver](/ts#Resolver) {#resolver}
 
@@ -415,7 +442,6 @@ const App = () => {
 
 ```bash copy
 npm install @hookform/resolvers
-```
 
 ##### Props
 
@@ -474,7 +500,6 @@ const App = () => {
     </form>
   )
 }
-```
 
 ```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-zod-resolver-ts-example-forked-w72vp"
 import { useForm } from "react-hook-form"
@@ -509,7 +534,6 @@ const App = () => {
     </form>
   )
 }
-```
 
 ```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-joiresolver-v6-ts-forked-5pseh"
 import { useForm } from "react-hook-form";
@@ -546,7 +570,6 @@ const App = () => {
     </form>
   );
 }
-```
 
 ```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-ajvresolver-vr3imc"
 import { useForm } from "react-hook-form"
@@ -590,7 +613,6 @@ const App = () => {
     </form>
   )
 }
-```
 
 ```tsx copy sandbox="https://codesandbox.io/s/vest-8q874"
 import * as React from "react"
@@ -637,7 +659,6 @@ const App = () => {
     </form>
   )
 }
-```
 
 ```tsx copy sandbox="https://codesandbox.io/s/react-hook-form-customresoliver-ts-v7-juc63"
 import * as React from "react"
@@ -692,7 +713,6 @@ const App = () => {
     </div>
   )
 }
-```
 
 </TabGroup>
 
@@ -712,7 +732,6 @@ resolver: async (data, context, options) => {
   )
   return anyResolver(schema)(data, context, options)
 }
-```
 
 </Admonition>
 
@@ -731,7 +750,6 @@ const methods = useForm()
 useEffect(() => {
   methods.reset({ ... })
 }, [methods])
-```
 
 </Admonition>
 
@@ -743,7 +761,6 @@ const methods = useForm()
 useEffect(() => {
   methods.reset({ ... })
 }, [methods.reset])
-```
 
 <Admonition type="tip" >
 
@@ -755,7 +772,6 @@ const { reset } = useForm()
 useEffect(() => {
   reset({ ... })
 }, [reset])
-```
 
 </Admonition>
 
