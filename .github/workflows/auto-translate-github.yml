@@ -525,7 +525,7 @@ jobs:
             echo "✅ 번역 완료: $file"
 
             # Rate limit 방지: 파일 간 대기
-            sleep 5
+            sleep 15
 
           done < changes.list
 
