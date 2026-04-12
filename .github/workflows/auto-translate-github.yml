@@ -71,22 +71,57 @@ jobs:
         run: |
           set -Eeuo pipefail
 
-          # 시스템 프롬프트 (GitHub Models 8000 토큰 제한에 맞게 축소)
-          read -r -d '' SYSTEM_PROMPT << 'SYSPROMPT' || true
-          React Hook Form 문서 한국어 번역 전문가. 아래 규칙을 따르세요.
+          # 번역 규칙 로드
+          RULES=$(cat AGENTS.md)
+          SKILL_RULES=$(cat .claude/skills/translate.md 2>/dev/null || echo "")
 
-          번역어: form→폼, method→메서드, submission→제출, input→인풋/입력, error→에러, send→전달, submit→전송, prop→속성, rerendering→리렌더링
-          이중표기: register→등록(register), blur→블러(blur), touched→터치된(touched), dirty→변경된(dirty), render phase→렌더 단계(render phase), export→내보내기(export), dependency array→의존성 배열(dependency array), properties→속성(properties), props→속성(props)
-          영문유지: flush, import, dispatch
-          섹션제목(Props, Examples, Rules, TypeScript, API)은 영문 유지. 설명적 부제목은 번역.
-          볼드 부제목(**Examples:**, **Return**, **Type** 등)은 영문 유지.
-          테이블 헤더(첫 행)는 영문 유지.
-          코드블록/JSX/import 변경 금지. 주석만 한국어 번역.
-          마크다운 구조(헤딩, 리스트, 테이블) 유지.
-          프론트매터 title은 영문 유지, description은 한국어 번역.
-          번역된 MDX만 출력. 코드 펜스로 감싸지 마세요.
-          문장은 "~다" 체로 종결.
+          read -r -d '' SYSTEM_PROMPT << 'SYSPROMPT' || true
+          당신은 React Hook Form 문서 한국어 번역 전문가입니다. 아래 번역 규칙을 반드시 따르세요.
+
+          <translation-rules>
+          PLACEHOLDER_RULES
+          </translation-rules>
+
+          <additional-translation-guidelines>
+          PLACEHOLDER_SKILL_RULES
+          </additional-translation-guidelines>
+
+          <tone-and-style-examples>
+          아래는 기존 번역의 톤앤매너 예시입니다. 이 스타일을 따르세요.
+
+          예시 1 (설명문):
+          EN: This custom hook allows you to access the form context.
+          KO: 이 커스텀 훅은 폼 컨텍스트에 접근할 수 있게 해줍니다.
+
+          예시 2 (기술 용어 이중 표기):
+          EN: The name of the registered input field.
+          KO: 등록(register)된 인풋 필드의 이름입니다.
+
+          예시 3 (Admonition 컴포넌트):
+          EN: <Admonition type="important" title="Rules">You must wrap your form with FormProvider.</Admonition>
+          KO: <Admonition type="important" title="Rules">`useFormContext`가 제대로 작동하려면, 먼저 폼을 [`FormProvider`](/docs/formprovider) 컴포넌트로 감싸야 합니다.</Admonition>
+
+          예시 4 (Props 테이블):
+          EN: | name | string | Required. The name of the input field. |
+          KO: | name | string | 필수. 인풋 필드의 이름입니다. |
+
+          예시 5 (코드 블록 주석만 번역):
+          EN: // all useForm return props
+          KO: // useForm이 반환하는 모든 props
+          </tone-and-style-examples>
+
+          중요:
+          - 번역된 MDX 콘텐츠만 출력하세요. 코드 펜스로 감싸지 마세요.
+          - 프론트매터의 title, description은 한국어로 번역하세요.
+          - 코드 블록, JSX, import는 변경하지 마세요.
+          - 마크다운 구조(헤딩, 리스트, 테이블)를 유지하세요.
+          - 볼드 처리된 부제목(**Examples:**, **Return**, **Type** 등)은 번역하지 마세요. 영문 그대로 유지합니다.
+          - 테이블 헤더(첫 번째 행)는 번역하지 마세요. 예: | Name | Type | Description | 은 영문 그대로 유지합니다.
           SYSPROMPT
+
+          # 플레이스홀더를 실제 값으로 치환
+          SYSTEM_PROMPT="${SYSTEM_PROMPT//PLACEHOLDER_RULES/$RULES}"
+          SYSTEM_PROMPT="${SYSTEM_PROMPT//PLACEHOLDER_SKILL_RULES/$SKILL_RULES}"
 
           # API 호출 함수 (429 재시도 포함)
           call_api() {
