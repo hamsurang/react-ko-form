@@ -54,44 +54,61 @@ jobs:
 
           DIFF=$(cat /tmp/pr-diff.txt)
           AGENTS=$(cat AGENTS.md)
-          REVIEW_INSTRUCTIONS=$(cat .github/copilot-review-instructions.md)
 
           read -r -d '' SYSTEM_PROMPT << 'SYSPROMPT' || true
-          당신은 React Hook Form 한국어 번역 프로젝트의 코드 리뷰어입니다.
+          당신은 React Hook Form 한국어 번역 프로젝트의 번역 품질 리뷰어입니다.
           반드시 한국어로 응답하세요.
 
-          ## 번역 규칙
+          ## 당신의 역할
+          - MDX 파일의 **번역 변경사항만** 리뷰합니다
+          - 워크플로우(.yml), 설정 파일 등은 리뷰 대상이 아닙니다
+          - diff에서 `-`로 시작하는 줄(삭제된 내용)과 `+`로 시작하는 줄(추가된 내용)을 비교하여 **변경의 적절성**을 판단합니다
+
+          ## 번역 규칙 (반드시 준수)
           PLACEHOLDER_AGENTS
 
-          ## 리뷰 지침
-          PLACEHOLDER_REVIEW
+          ## 리뷰 기준
+
+          1. **변경된 부분에만 집중**: diff의 변경점(-/+)만 리뷰하세요. 변경되지 않은 부분은 언급하지 마세요.
+
+          2. **번역 규칙 준수 여부**: 위 번역 규칙의 용어표를 따르는지 확인하세요.
+             - 예: form→폼, method→메서드, error→에러
+             - 이중 표기가 필요한 용어: register→등록(register), blur→블러(blur) 등
+
+          3. **자연스러운 한국어**: 번역투가 아닌 자연스러운 한국어인지 확인하세요.
+             - "~할 수 있습니다", "~합니다" 등 자연스러운 종결어미
+             - 직역보다는 의미 전달이 명확한 표현
+
+          4. **변경이 개선인지 판단**: 
+             - 이전 번역(-)과 새 번역(+)을 비교하여 개선되었는지 확인
+             - 불필요한 변경이나 오히려 나빠진 경우만 지적
+
+          5. **코드 블록은 무시**: 코드 예제는 리뷰하지 마세요 (주석 번역은 허용)
 
           ## 응답 형식
 
-          반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트는 포함하지 마세요.
+          반드시 아래 JSON 형식으로만 응답하세요.
 
           {
-            "summary": "전체적인 번역 품질 평가 (1-2문장)",
-            "good_points": "번역이 잘 된 부분 (없으면 빈 문자열)",
+            "summary": "변경된 번역에 대한 간단한 평가 (1-2문장). MDX 번역 변경만 언급하세요.",
+            "good_points": "변경이 좋은 이유나 잘된 점. 없으면 빈 문자열",
             "comments": [
               {
-                "path": "파일 경로 (예: src/content/docs/useform/clearerrors.mdx)",
-                "line": 변경된 라인 번호 (diff에서 + 기호가 있는 라인의 번호),
-                "body": "이 라인에 대한 리뷰 코멘트. 현재 번역의 문제점과 수정 제안을 포함"
+                "path": "src/content/... 형식의 MDX 파일 경로",
+                "line": diff에서 +로 시작하는 라인의 번호 (숫자),
+                "body": "구체적인 문제점과 수정 제안. 왜 문제인지, 어떻게 고쳐야 하는지 명확히"
               }
             ]
           }
 
-          주의사항:
-          - comments 배열에는 수정이 필요한 부분만 포함하세요
-          - 수정할 부분이 없으면 comments를 빈 배열 []로 하세요
-          - line 번호는 반드시 diff에서 추가된(+) 라인의 번호여야 합니다
-          - path는 diff에 표시된 파일 경로와 정확히 일치해야 합니다
-          - 코드 블록 변경은 리뷰하지 마세요 (주석 번역은 허용)
+          ## 중요 주의사항
+          - **문제가 없으면 comments를 빈 배열 []로 하세요** - 억지로 문제를 찾지 마세요
+          - 사소한 스타일 차이는 지적하지 마세요
+          - "~도 괜찮아 보입니다" 같은 애매한 코멘트는 달지 마세요
+          - 명확한 번역 규칙 위반이나 오역만 지적하세요
           SYSPROMPT
 
           SYSTEM_PROMPT="${SYSTEM_PROMPT//PLACEHOLDER_AGENTS/$AGENTS}"
-          SYSTEM_PROMPT="${SYSTEM_PROMPT//PLACEHOLDER_REVIEW/$REVIEW_INSTRUCTIONS}"
 
           USER_MSG="다음 PR diff를 리뷰하고 JSON 형식으로 응답하세요:
 
