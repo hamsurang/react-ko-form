@@ -68,6 +68,7 @@ jobs:
         if: env.has_changes == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_MODELS_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
         run: |
           set -Eeuo pipefail
 
@@ -133,7 +134,7 @@ jobs:
             response=$(curl -s -w "\n%{http_code}" --max-time 120 \
               "https://models.github.ai/inference/chat/completions" \
               -H "Content-Type: application/json" \
-              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -H "Authorization: Bearer $GH_MODELS_TOKEN" \
               -d "$(jq -n \
                 --arg model "openai/gpt-4o" \
                 --arg system "$SYSTEM_PROMPT" \
