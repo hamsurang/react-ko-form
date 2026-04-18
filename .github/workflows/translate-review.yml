@@ -29,6 +29,7 @@ jobs:
             echo "No MDX files changed."
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "$FILES" > /tmp/changed-files.txt
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -46,6 +47,8 @@ jobs:
           GH_MODELS_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -Eeuo pipefail
 
@@ -63,46 +66,39 @@ jobs:
           ## 리뷰 지침
           PLACEHOLDER_REVIEW
 
-          ## 리뷰 형식
+          ## 응답 형식
 
-          PR diff를 분석하고 번역 품질을 리뷰하세요.
-          다음 항목을 중심으로 검토합니다:
+          반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트는 포함하지 마세요.
 
-          1. **번역 용어 규칙 준수**: AGENTS.md의 번역 용어 표를 따르는지
-          2. **자연스러운 한국어 표현**: 어색한 번역투가 없는지
-          3. **기술적 정확성**: 원문의 의미가 정확히 전달되는지
-          4. **문서 구조**: MDX frontmatter, 섹션 제목 규칙을 따르는지
-          5. **코드 블록**: 코드 예제가 변경되지 않았는지 (주석 번역은 허용)
+          {
+            "summary": "전체적인 번역 품질 평가 (1-2문장)",
+            "good_points": "번역이 잘 된 부분 (없으면 빈 문자열)",
+            "comments": [
+              {
+                "path": "파일 경로 (예: src/content/docs/useform/clearerrors.mdx)",
+                "line": 변경된 라인 번호 (diff에서 + 기호가 있는 라인의 번호),
+                "body": "이 라인에 대한 리뷰 코멘트. 현재 번역의 문제점과 수정 제안을 포함"
+              }
+            ]
+          }
 
-          리뷰 결과를 다음 형식으로 작성하세요:
-
-          ### 요약
-          전체적인 번역 품질에 대한 간단한 평가 (1-2문장)
-
-          ### 수정 제안
-          수정이 필요한 부분이 있다면 각각:
-          - **파일**: 파일 경로
-          - **위치**: 해당 내용
-          - **현재**: 현재 번역
-          - **제안**: 수정 제안
-          - **이유**: 수정 이유
-
-          수정할 부분이 없으면 "수정 제안 없음"이라고 작성하세요.
-
-          ### 잘된 점
-          번역이 잘 된 부분이 있다면 간단히 언급하세요.
+          주의사항:
+          - comments 배열에는 수정이 필요한 부분만 포함하세요
+          - 수정할 부분이 없으면 comments를 빈 배열 []로 하세요
+          - line 번호는 반드시 diff에서 추가된(+) 라인의 번호여야 합니다
+          - path는 diff에 표시된 파일 경로와 정확히 일치해야 합니다
+          - 코드 블록 변경은 리뷰하지 마세요 (주석 번역은 허용)
           SYSPROMPT
 
           SYSTEM_PROMPT="${SYSTEM_PROMPT//PLACEHOLDER_AGENTS/$AGENTS}"
           SYSTEM_PROMPT="${SYSTEM_PROMPT//PLACEHOLDER_REVIEW/$REVIEW_INSTRUCTIONS}"
 
-          USER_MSG="다음 PR diff를 리뷰해주세요:
+          USER_MSG="다음 PR diff를 리뷰하고 JSON 형식으로 응답하세요:
 
           \`\`\`diff
           $DIFF
           \`\`\`"
 
-          # JSON 페이로드 생성
           PAYLOAD=$(jq -n \
             --arg model "openai/gpt-4o" \
             --arg system "$SYSTEM_PROMPT" \
@@ -110,7 +106,7 @@ jobs:
             '{model: $model, messages: [
               {role: "system", content: $system},
               {role: "user", content: $user}
-            ], max_tokens: 4096}')
+            ], max_tokens: 4096, response_format: {type: "json_object"}}')
 
           echo "Calling GitHub Models API..."
 
@@ -131,27 +127,76 @@ jobs:
             exit 1
           fi
 
-          REVIEW_TEXT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // empty')
+          REVIEW_JSON=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // empty')
 
-          if [ -z "$REVIEW_TEXT" ]; then
+          if [ -z "$REVIEW_JSON" ]; then
             echo "Response body: $RESPONSE"
-            echo "::error::No review text in response"
+            echo "::error::No review content in response"
             exit 1
           fi
+
+          echo "Review JSON: $REVIEW_JSON"
 
           INPUT_TOKENS=$(echo "$RESPONSE" | jq -r '.usage.prompt_tokens // 0')
           OUTPUT_TOKENS=$(echo "$RESPONSE" | jq -r '.usage.completion_tokens // 0')
           echo "Tokens used - input: $INPUT_TOKENS, output: $OUTPUT_TOKENS"
 
-          COMMENT_BODY=$(cat << EOF
-          ## 번역 리뷰 (GitHub Models)
+          SUMMARY=$(echo "$REVIEW_JSON" | jq -r '.summary // "요약 없음"')
+          GOOD_POINTS=$(echo "$REVIEW_JSON" | jq -r '.good_points // ""')
+          COMMENTS_COUNT=$(echo "$REVIEW_JSON" | jq '.comments | length')
 
-          $REVIEW_TEXT
+          echo "Summary: $SUMMARY"
+          echo "Good points: $GOOD_POINTS"
+          echo "Comments count: $COMMENTS_COUNT"
+
+          if [ "$COMMENTS_COUNT" -gt 0 ]; then
+            echo "Creating PR review with inline comments..."
+
+            REVIEW_COMMENTS=$(echo "$REVIEW_JSON" | jq '[.comments[] | {path: .path, line: .line, body: .body}]')
+
+            REVIEW_BODY="## 번역 리뷰 (GitHub Models)
+
+          ### 요약
+          $SUMMARY
+
+          ### 잘된 점
+          ${GOOD_POINTS:-"특별히 언급할 사항 없음"}
 
           ---
-          <sub>GPT-4o via GitHub Models | tokens: ${INPUT_TOKENS} in / ${OUTPUT_TOKENS} out</sub>
-          EOF
-          )
+          <sub>GPT-4o via GitHub Models | tokens: ${INPUT_TOKENS} in / ${OUTPUT_TOKENS} out | 인라인 코멘트: ${COMMENTS_COUNT}개</sub>"
 
-          gh pr comment "$PR_NUMBER" --body "$COMMENT_BODY"
-          echo "Review comment posted successfully."
+            REVIEW_PAYLOAD=$(jq -n \
+              --arg body "$REVIEW_BODY" \
+              --arg commit_id "$HEAD_SHA" \
+              --arg event "COMMENT" \
+              --argjson comments "$REVIEW_COMMENTS" \
+              '{body: $body, commit_id: $commit_id, event: $event, comments: $comments}')
+
+            echo "Submitting review..."
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              "/repos/$REPO/pulls/$PR_NUMBER/reviews" \
+              --input - <<< "$REVIEW_PAYLOAD"
+
+          else
+            echo "No inline comments, posting summary only..."
+
+            COMMENT_BODY="## 번역 리뷰 (GitHub Models)
+
+          ### 요약
+          $SUMMARY
+
+          ### 잘된 점
+          ${GOOD_POINTS:-"특별히 언급할 사항 없음"}
+
+          ### 수정 제안
+          수정 제안 없음
+
+          ---
+          <sub>GPT-4o via GitHub Models | tokens: ${INPUT_TOKENS} in / ${OUTPUT_TOKENS} out</sub>"
+
+            gh pr comment "$PR_NUMBER" --body "$COMMENT_BODY"
+          fi
+
+          echo "Review posted successfully."
