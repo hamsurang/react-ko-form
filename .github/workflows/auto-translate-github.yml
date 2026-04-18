@@ -126,7 +126,11 @@ jobs:
           # API 호출 함수
           call_api() {
             local user_msg="$1"
-            curl -s --max-time 120 \
+            local response
+            local http_code
+            
+            # HTTP 상태 코드와 응답 본문을 함께 캡처
+            response=$(curl -s -w "\n%{http_code}" --max-time 120 \
               "https://models.github.ai/inference/chat/completions" \
               -H "Content-Type: application/json" \
               -H "Authorization: Bearer $GITHUB_TOKEN" \
@@ -137,7 +141,17 @@ jobs:
                 '{model: $model, messages: [
                   {role: "system", content: $system},
                   {role: "user", content: $user}
-                ], max_tokens: 4096}')" || true
+                ], max_tokens: 4096}')" || true)
+            
+            http_code=$(echo "$response" | tail -n1)
+            response=$(echo "$response" | sed '$d')
+            
+            # HTTP 상태 코드 로깅
+            if [ "$http_code" != "200" ]; then
+              echo "⚠️ API HTTP $http_code: $(echo "$response" | jq -r '.error.message // .message // "Unknown error"' 2>/dev/null || echo "$response" | head -c 200)" >&2
+            fi
+            
+            echo "$response"
           }
 
           # 코드 펜스 제거 함수
