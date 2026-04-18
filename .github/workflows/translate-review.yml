@@ -1,0 +1,140 @@
+name: Translation Review (GitHub Models)
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - "src/content/**/*.mdx"
+
+permissions:
+  contents: read
+  pull-requests: write
+  models: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed MDX files
+        id: changed
+        run: |
+          FILES=$(gh pr diff ${{ github.event.pull_request.number }} --name-only | grep '\.mdx$' || true)
+          if [ -z "$FILES" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "No MDX files changed."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Save PR diff to file
+        if: steps.changed.outputs.skip == 'false'
+        run: |
+          gh pr diff ${{ github.event.pull_request.number }} > /tmp/pr-diff.txt
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Review with GitHub Models
+        if: steps.changed.outputs.skip == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -Eeuo pipefail
+
+          DIFF=$(cat /tmp/pr-diff.txt)
+          AGENTS=$(cat AGENTS.md)
+          REVIEW_INSTRUCTIONS=$(cat .github/copilot-review-instructions.md)
+
+          read -r -d '' SYSTEM_PROMPT << 'SYSPROMPT' || true
+          당신은 React Hook Form 한국어 번역 프로젝트의 코드 리뷰어입니다.
+          반드시 한국어로 응답하세요.
+
+          ## 번역 규칙
+          PLACEHOLDER_AGENTS
+
+          ## 리뷰 지침
+          PLACEHOLDER_REVIEW
+
+          ## 리뷰 형식
+
+          PR diff를 분석하고 번역 품질을 리뷰하세요.
+          다음 항목을 중심으로 검토합니다:
+
+          1. **번역 용어 규칙 준수**: AGENTS.md의 번역 용어 표를 따르는지
+          2. **자연스러운 한국어 표현**: 어색한 번역투가 없는지
+          3. **기술적 정확성**: 원문의 의미가 정확히 전달되는지
+          4. **문서 구조**: MDX frontmatter, 섹션 제목 규칙을 따르는지
+          5. **코드 블록**: 코드 예제가 변경되지 않았는지 (주석 번역은 허용)
+
+          리뷰 결과를 다음 형식으로 작성하세요:
+
+          ### 요약
+          전체적인 번역 품질에 대한 간단한 평가 (1-2문장)
+
+          ### 수정 제안
+          수정이 필요한 부분이 있다면 각각:
+          - **파일**: 파일 경로
+          - **위치**: 해당 내용
+          - **현재**: 현재 번역
+          - **제안**: 수정 제안
+          - **이유**: 수정 이유
+
+          수정할 부분이 없으면 "수정 제안 없음"이라고 작성하세요.
+
+          ### 잘된 점
+          번역이 잘 된 부분이 있다면 간단히 언급하세요.
+          SYSPROMPT
+
+          SYSTEM_PROMPT="${SYSTEM_PROMPT//PLACEHOLDER_AGENTS/$AGENTS}"
+          SYSTEM_PROMPT="${SYSTEM_PROMPT//PLACEHOLDER_REVIEW/$REVIEW_INSTRUCTIONS}"
+
+          USER_MSG="다음 PR diff를 리뷰해주세요:
+
+          \`\`\`diff
+          $DIFF
+          \`\`\`"
+
+          RESPONSE=$(curl -s --max-time 120 \
+            "https://models.github.ai/inference/chat/completions" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -d "$(jq -n \
+              --arg model "openai/gpt-4o" \
+              --arg system "$SYSTEM_PROMPT" \
+              --arg user "$USER_MSG" \
+              '{model: $model, messages: [
+                {role: "system", content: $system},
+                {role: "user", content: $user}
+              ], max_tokens: 4096}')")
+
+          REVIEW_TEXT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // empty')
+
+          if [ -z "$REVIEW_TEXT" ]; then
+            echo "Error response: $RESPONSE"
+            echo "::error::No review text returned from GitHub Models"
+            exit 1
+          fi
+
+          INPUT_TOKENS=$(echo "$RESPONSE" | jq -r '.usage.prompt_tokens // 0')
+          OUTPUT_TOKENS=$(echo "$RESPONSE" | jq -r '.usage.completion_tokens // 0')
+          echo "Tokens used - input: $INPUT_TOKENS, output: $OUTPUT_TOKENS"
+
+          COMMENT_BODY=$(cat << EOF
+          ## 번역 리뷰 (GitHub Models)
+
+          $REVIEW_TEXT
+
+          ---
+          <sub>GPT-4o via GitHub Models | tokens: ${INPUT_TOKENS} in / ${OUTPUT_TOKENS} out</sub>
+          EOF
+          )
+
+          gh pr comment "$PR_NUMBER" --body "$COMMENT_BODY"
+          echo "Review comment posted successfully."
