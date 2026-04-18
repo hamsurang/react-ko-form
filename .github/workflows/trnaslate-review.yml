@@ -1,0 +1,151 @@
+name: Translation Review (GitHub Models)
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - "src/content/**/*.mdx"
+
+permissions:
+  contents: read
+  pull-requests: write
+  models: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed MDX files
+        id: changed
+        run: |
+          FILES=$(gh pr diff ${{ github.event.pull_request.number }} --name-only | grep '\.mdx$' || true)
+          if [ -z "$FILES" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "No MDX files changed."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Save PR diff to file
+        if: steps.changed.outputs.skip == 'false'
+        run: |
+          gh pr diff ${{ github.event.pull_request.number }} > /tmp/pr-diff.txt
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Review with GitHub Models
+        if: steps.changed.outputs.skip == 'false'
+        uses: actions/github-script@v7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          script: |
+            const fs = require("fs");
+
+            const diff = fs.readFileSync("/tmp/pr-diff.txt", "utf8");
+            const agents = fs.readFileSync("AGENTS.md", "utf8");
+            const reviewInstructions = fs.readFileSync(
+              ".github/copilot-review-instructions.md",
+              "utf8"
+            );
+
+            const systemPrompt = [
+              "당신은 React Hook Form 한국어 번역 프로젝트의 코드 리뷰어입니다.",
+              "반드시 한국어로 응답하세요.",
+              "",
+              "## 번역 규칙",
+              agents,
+              "",
+              "## 리뷰 지침",
+              reviewInstructions,
+              "",
+              "## 리뷰 형식",
+              "",
+              "PR diff를 분석하고 번역 품질을 리뷰하세요.",
+              "다음 항목을 중심으로 검토합니다:",
+              "",
+              "1. **번역 용어 규칙 준수**: AGENTS.md의 번역 용어 표를 따르는지",
+              "2. **자연스러운 한국어 표현**: 어색한 번역투가 없는지",
+              "3. **기술적 정확성**: 원문의 의미가 정확히 전달되는지",
+              "4. **문서 구조**: MDX frontmatter, 섹션 제목 규칙을 따르는지",
+              "5. **코드 블록**: 코드 예제가 변경되지 않았는지 (주석 번역은 허용)",
+              "",
+              "리뷰 결과를 다음 형식으로 작성하세요:",
+              "",
+              "### 요약",
+              "전체적인 번역 품질에 대한 간단한 평가 (1-2문장)",
+              "",
+              "### 수정 제안",
+              "수정이 필요한 부분이 있다면 각각:",
+              "- **파일**: 파일 경로",
+              "- **위치**: 해당 내용",
+              "- **현재**: 현재 번역",
+              "- **제안**: 수정 제안",
+              "- **이유**: 수정 이유",
+              "",
+              '수정할 부분이 없으면 "수정 제안 없음"이라고 작성하세요.',
+              "",
+              "### 잘된 점",
+              "번역이 잘 된 부분이 있다면 간단히 언급하세요.",
+            ].join("\n");
+
+            const userMessage = "다음 PR diff를 리뷰해주세요:\n\n```diff\n" + diff + "\n```";
+
+            const response = await fetch("https://models.github.ai/inference/chat/completions", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.GITHUB_TOKEN}`,
+              },
+              body: JSON.stringify({
+                model: "openai/gpt-4o",
+                messages: [
+                  { role: "system", content: systemPrompt },
+                  { role: "user", content: userMessage },
+                ],
+                max_tokens: 4096,
+              }),
+            });
+
+            if (!response.ok) {
+              const error = await response.text();
+              core.setFailed(`GitHub Models API error: ${response.status} ${error}`);
+              return;
+            }
+
+            const data = await response.json();
+            const reviewText = data.choices?.[0]?.message?.content;
+
+            if (!reviewText) {
+              core.setFailed("No review text returned from GitHub Models.");
+              return;
+            }
+
+            const usage = data.usage || {};
+            const inputTokens = usage.prompt_tokens || 0;
+            const outputTokens = usage.completion_tokens || 0;
+            core.info(`Tokens used - input: ${inputTokens}, output: ${outputTokens}`);
+
+            // Post review as PR comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: [
+                "## 번역 리뷰 (GitHub Models)",
+                "",
+                reviewText,
+                "",
+                "---",
+                `<sub>GPT-4o via GitHub Models | tokens: ${inputTokens} in / ${outputTokens} out</sub>`,
+              ].join("\n"),
+            });
+
+            core.info("Review comment posted successfully.");
