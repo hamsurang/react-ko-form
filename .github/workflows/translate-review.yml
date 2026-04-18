@@ -1,7 +1,7 @@
 name: Translation Review (GitHub Models)
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize]
     paths:
       - "src/content/**/*.mdx"
@@ -18,7 +18,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       - name: Get changed MDX files
@@ -44,7 +43,8 @@ jobs:
       - name: Review with GitHub Models
         if: steps.changed.outputs.skip == 'false'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_MODELS_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -Eeuo pipefail
@@ -117,7 +117,7 @@ jobs:
           HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" --max-time 120 \
             "https://models.github.ai/inference/chat/completions" \
             -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Authorization: Bearer $GH_MODELS_TOKEN" \
             -d "$PAYLOAD")
 
           HTTP_STATUS=$(echo "$HTTP_RESPONSE" | tail -n1)
