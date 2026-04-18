@@ -101,24 +101,40 @@ jobs:
           $DIFF
           \`\`\`"
 
-          RESPONSE=$(curl -s --max-time 120 \
+          # JSON 페이로드 생성
+          PAYLOAD=$(jq -n \
+            --arg model "openai/gpt-4o" \
+            --arg system "$SYSTEM_PROMPT" \
+            --arg user "$USER_MSG" \
+            '{model: $model, messages: [
+              {role: "system", content: $system},
+              {role: "user", content: $user}
+            ], max_tokens: 4096}')
+
+          echo "Calling GitHub Models API..."
+
+          HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" --max-time 120 \
             "https://models.github.ai/inference/chat/completions" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $GITHUB_TOKEN" \
-            -d "$(jq -n \
-              --arg model "openai/gpt-4o" \
-              --arg system "$SYSTEM_PROMPT" \
-              --arg user "$USER_MSG" \
-              '{model: $model, messages: [
-                {role: "system", content: $system},
-                {role: "user", content: $user}
-              ], max_tokens: 4096}')")
+            -d "$PAYLOAD")
+
+          HTTP_STATUS=$(echo "$HTTP_RESPONSE" | tail -n1)
+          RESPONSE=$(echo "$HTTP_RESPONSE" | sed '$d')
+
+          echo "HTTP Status: $HTTP_STATUS"
+
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "API Error Response: $RESPONSE"
+            echo "::error::GitHub Models API returned status $HTTP_STATUS"
+            exit 1
+          fi
 
           REVIEW_TEXT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // empty')
 
           if [ -z "$REVIEW_TEXT" ]; then
-            echo "Error response: $RESPONSE"
-            echo "::error::No review text returned from GitHub Models"
+            echo "Response body: $RESPONSE"
+            echo "::error::No review text in response"
             exit 1
           fi
 
