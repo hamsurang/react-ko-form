@@ -67,7 +67,7 @@ jobs:
       - name: Translate changed files
         if: env.has_changes == 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
         run: |
           set -Eeuo pipefail
 
@@ -123,21 +123,54 @@ jobs:
           SYSTEM_PROMPT="${SYSTEM_PROMPT//PLACEHOLDER_RULES/$RULES}"
           SYSTEM_PROMPT="${SYSTEM_PROMPT//PLACEHOLDER_SKILL_RULES/$SKILL_RULES}"
 
-          # API 호출 함수
+          # API 호출 함수 (429 재시도 포함)
           call_api() {
             local user_msg="$1"
-            curl -s --max-time 120 \
-              "https://models.github.ai/inference/chat/completions" \
-              -H "Content-Type: application/json" \
-              -H "Authorization: Bearer $GITHUB_TOKEN" \
-              -d "$(jq -n \
-                --arg model "openai/gpt-4o" \
-                --arg system "$SYSTEM_PROMPT" \
-                --arg user "$user_msg" \
-                '{model: $model, messages: [
-                  {role: "system", content: $system},
-                  {role: "user", content: $user}
-                ], max_tokens: 4096}')" || true
+            local max_retries=5
+            local retry=0
+            local wait_sec=10
+
+            while [ "$retry" -lt "$max_retries" ]; do
+              local http_code
+              local response
+              local tmpfile
+              tmpfile=$(mktemp)
+
+              http_code=$(curl -s -o "$tmpfile" -w "%{http_code}" --max-time 120 \
+                "https://models.github.ai/inference/chat/completions" \
+                -H "Content-Type: application/json" \
+                -H "Authorization: Bearer $GITHUB_TOKEN" \
+                -d "$(jq -n \
+                  --arg model "openai/gpt-4o-mini" \
+                  --arg system "$SYSTEM_PROMPT" \
+                  --arg user "$user_msg" \
+                  '{model: $model, messages: [
+                    {role: "system", content: $system},
+                    {role: "user", content: $user}
+                  ], max_tokens: 4096}')" 2>/dev/null) || http_code="000"
+
+              response=$(cat "$tmpfile")
+              rm -f "$tmpfile"
+
+              # 429 rate limit → 대기 후 재시도
+              if [ "$http_code" = "429" ]; then
+                retry=$((retry + 1))
+                echo "⚠️ API HTTP 429: Rate limited. ${wait_sec}초 대기 후 재시도 ($retry/$max_retries)..." >&2
+                sleep "$wait_sec"
+                wait_sec=$((wait_sec * 2))
+                continue
+              fi
+
+              if [ "$http_code" != "200" ]; then
+                echo "⚠️ API HTTP $http_code: $(echo "$response" | jq -r '.error.message // .message // "unknown error"' 2>/dev/null | head -1)" >&2
+              fi
+              printf '%s' "$response"
+              return
+            done
+
+            # 모든 재시도 실패
+            echo "⚠️ API 호출 실패: $max_retries회 재시도 후에도 429 에러" >&2
+            echo '{}'
           }
 
           # 코드 펜스 제거 함수
@@ -145,9 +178,162 @@ jobs:
             sed '/^```\(mdx\|markdown\|md\)\?$/d; /^```$/d'
           }
 
-          # 토큰 초과 에러 확인 함수
+          # 토큰 초과 에러 확인 함수 (413 + tokens_limit_reached 둘 다 감지)
           is_token_error() {
-            echo "$1" | jq -r '.error.code // empty' 2>/dev/null | grep -q "tokens_limit_reached"
+            local resp="$1"
+            local err_code
+            err_code=$(echo "$resp" | jq -r '.error.code // empty' 2>/dev/null)
+            if echo "$err_code" | grep -q "tokens_limit_reached"; then
+              return 0
+            fi
+            local err_msg
+            err_msg=$(echo "$resp" | jq -r '.error.message // empty' 2>/dev/null)
+            if echo "$err_msg" | grep -qi "too large\|max size"; then
+              return 0
+            fi
+            return 1
+          }
+
+          # === diff 기반 패치 헬퍼 함수 ===
+
+          # 줄 삽입: file의 line_num 뒤에 text_file 내용 삽입
+          _insert_after() {
+            local file="$1" line_num="$2" text_file="$3"
+            local tmp=$(mktemp)
+            if [ "$line_num" -eq 0 ]; then
+              cat "$text_file" "$file" > "$tmp"
+            else
+              awk -v n="$line_num" -v tf="$text_file" '
+                { print }
+                NR == n { while ((getline line < tf) > 0) print line }
+              ' "$file" > "$tmp"
+            fi
+            mv "$tmp" "$file"
+          }
+
+          # 줄 교체: file의 start~end 줄을 text_file 내용으로 교체
+          _replace_range() {
+            local file="$1" start="$2" end="$3" text_file="$4"
+            local tmp=$(mktemp)
+            awk -v s="$start" -v e="$end" -v tf="$text_file" '
+              NR == s { while ((getline line < tf) > 0) print line }
+              NR < s || NR > e { print }
+            ' "$file" > "$tmp"
+            mv "$tmp" "$file"
+          }
+
+          # 줄 삭제: file의 start~end 줄 삭제
+          _delete_range() {
+            local file="$1" start="$2" end="$3"
+            local tmp=$(mktemp)
+            awk -v s="$start" -v e="$end" 'NR < s || NR > e' "$file" > "$tmp"
+            mv "$tmp" "$file"
+          }
+
+          # diff 기반 번역 및 패치
+          # 변경된 줄만 API로 번역 → 한국어 파일에 프로그래밍 방식으로 적용
+          translate_and_patch() {
+            local old_en="$1" new_en="$2" ko_file="$3"
+
+            # ed 스타일 diff (OLD 파일 기준 줄 번호 제공)
+            local diff_out
+            diff_out=$(diff "$old_en" "$new_en" 2>/dev/null) || true
+            if [ -z "$diff_out" ]; then
+              cat "$ko_file"; return 0
+            fi
+
+            # 1) 번역이 필요한 줄 수집 (> 로 시작하는 줄 = 추가/변경된 영문)
+            local to_translate_file=$(mktemp)
+            { echo "$diff_out" | grep '^> ' | sed 's/^> //' > "$to_translate_file"; } || true
+            local total_lines=$(wc -l < "$to_translate_file" | tr -d ' ')
+
+            # 2) 번역 API 호출 (변경된 줄만 전송)
+            local translated_file=$(mktemp)
+            if [ "$total_lines" -gt 0 ]; then
+              local to_translate=$(cat "$to_translate_file")
+              local user_msg="다음은 React Hook Form 영문 문서에서 추가/변경된 ${total_lines}줄입니다.
+          각 줄을 한국어로 번역하세요.
+
+          규칙:
+          - 정확히 ${total_lines}줄을 출력하세요 (줄 수 변경 절대 금지)
+          - 빈 줄도 그대로 빈 줄로 출력하세요
+          - 마크다운 테이블 구문(|), HTML/JSX 태그, 코드는 변경 금지
+          - 번역 결과만 출력 (코드 펜스, 설명, 번호 붙이기 금지)
+
+          <lines>
+          ${to_translate}
+          </lines>"
+
+              local response
+              response=$(call_api "$user_msg")
+              echo "$response" | jq -r '.choices[0].message.content // empty' | strip_fences > "$translated_file"
+
+              # 줄 수 검증
+              local translated_count=$(wc -l < "$translated_file" | tr -d ' ')
+              if [ "$translated_count" -ne "$total_lines" ]; then
+                echo "  ⚠️ 번역 줄 수 불일치 (기대: $total_lines, 실제: $translated_count)" >&2
+              fi
+
+              if [ ! -s "$translated_file" ]; then
+                echo "  ⚠️ 번역 API 실패" >&2
+                rm -f "$to_translate_file" "$translated_file"
+                cat "$ko_file"; return 1
+              fi
+            fi
+
+            # 3) diff 명령어 파싱 → 작업 목록 생성
+            #    형식: "OP OLD_START OLD_END GT_LINE_START GT_LINE_END"
+            local ops_file=$(mktemp)
+            local gt_counter=0
+            local prev_op="" prev_start="" prev_end="" prev_gt_start=""
+
+            while IFS= read -r line; do
+              if [[ "$line" =~ ^([0-9]+)(,([0-9]+))?([acd]) ]]; then
+                if [ -n "$prev_op" ]; then
+                  echo "$prev_op $prev_start $prev_end $prev_gt_start $gt_counter" >> "$ops_file"
+                fi
+                prev_op="${BASH_REMATCH[4]}"
+                prev_start="${BASH_REMATCH[1]}"
+                prev_end="${BASH_REMATCH[3]:-${BASH_REMATCH[1]}}"
+                prev_gt_start=$((gt_counter + 1))
+              elif [[ "$line" == "> "* ]]; then
+                gt_counter=$((gt_counter + 1))
+              fi
+            done <<< "$diff_out"
+
+            if [ -n "$prev_op" ]; then
+              echo "$prev_op $prev_start $prev_end $prev_gt_start $gt_counter" >> "$ops_file"
+            fi
+
+            # 4) 한국어 파일에 변경 적용 (아래→위 순서로 줄 번호 보존)
+            local work_file=$(mktemp)
+            cp "$ko_file" "$work_file"
+
+            tac "$ops_file" | while IFS=' ' read -r op start end gt_start gt_end; do
+              case "$op" in
+                d)
+                  echo "  🗑️ 삭제: ${start}-${end}줄" >&2
+                  _delete_range "$work_file" "$start" "$end"
+                  ;;
+                a)
+                  echo "  ➕ 삽입: ${start}줄 뒤에 ${gt_start}-${gt_end}번 번역" >&2
+                  local chunk_file=$(mktemp)
+                  sed -n "${gt_start},${gt_end}p" "$translated_file" > "$chunk_file"
+                  _insert_after "$work_file" "$start" "$chunk_file"
+                  rm -f "$chunk_file"
+                  ;;
+                c)
+                  echo "  🔄 교체: ${start}-${end}줄 → ${gt_start}-${gt_end}번 번역" >&2
+                  local chunk_file=$(mktemp)
+                  sed -n "${gt_start},${gt_end}p" "$translated_file" > "$chunk_file"
+                  _replace_range "$work_file" "$start" "$end" "$chunk_file"
+                  rm -f "$chunk_file"
+                  ;;
+              esac
+            done
+
+            cat "$work_file"
+            rm -f "$to_translate_file" "$translated_file" "$ops_file" "$work_file"
           }
 
           # 헤딩 기준 청크 분할 함수
@@ -295,116 +481,28 @@ jobs:
               fi
 
             elif [ "$kind" = "M" ]; then
-              # --- 수정 번역 ---
-              OLD_ORIGIN=$(cat "origin-src/$file" 2>/dev/null || echo "")
-              EXISTING_KO=$(cat "src/$file" 2>/dev/null || echo "")
-              DIFF=$(diff <(echo "$OLD_ORIGIN") <(echo "$NEW_CONTENT") || true)
+              # --- 수정 번역 (diff 기반 패치) ---
+              # 변경된 줄만 API로 번역하고, 프로그래밍 방식으로 한국어 파일에 적용
+              OLD_ORIGIN_FILE="origin-src/$file"
+              NEW_ORIGIN_FILE="$WORK/src/$file"
+              KO_FILE="src/$file"
 
-              if [ -z "$DIFF" ]; then
-                echo "⏭️ diff 없음, 스킵: $file"
-                continue
-              fi
-              if [ -z "$EXISTING_KO" ]; then
+              if [ ! -f "$KO_FILE" ]; then
                 echo "⏭️ 기존 번역 없음, 스킵: $file"
                 continue
               fi
 
-              USER_MSG="원본 영문 문서가 아래와 같이 변경되었습니다. 기존 한국어 번역에서 변경된 부분만 업데이트하세요.
-          변경되지 않은 부분은 그대로 유지하고, diff에 해당하는 부분만 한국어로 번역하여 반영하세요.
-          전체 문서를 출력하세요.
-
-          <diff>
-          $DIFF
-          </diff>
-
-          <existing-korean-translation>
-          $EXISTING_KO
-          </existing-korean-translation>"
-
-              RESPONSE=$(call_api "$USER_MSG")
-
-              if is_token_error "$RESPONSE"; then
-                echo "🔄 토큰 초과, ## 기준 청크 분할: $file"
-
-                # 영문 원본(old/new)과 한국어를 ## 기준으로 분할
-                OLD_CHUNK_DIR=$(mktemp -d)
-                NEW_CHUNK_DIR=$(mktemp -d)
-                KO_CHUNK_DIR=$(mktemp -d)
-                split_by_heading "$OLD_ORIGIN" "$OLD_CHUNK_DIR" "h2"
-                split_by_heading "$NEW_CONTENT" "$NEW_CHUNK_DIR" "h2"
-                split_by_heading "$EXISTING_KO" "$KO_CHUNK_DIR" "h2"
-
-                TRANSLATED=""
-                CHANGED_SECTIONS=0
-                SKIPPED_SECTIONS=0
-
-                for ko_chunk_file in "$KO_CHUNK_DIR"/chunk_*.txt; do
-                  idx=$(basename "$ko_chunk_file" .txt)
-                  old_chunk_file="$OLD_CHUNK_DIR/$idx.txt"
-                  new_chunk_file="$NEW_CHUNK_DIR/$idx.txt"
-                  KO_CHUNK=$(cat "$ko_chunk_file")
-
-                  # old와 new 영문 섹션이 동일하면 → 변경 없음, 기존 번역 유지
-                  if [ -f "$old_chunk_file" ] && [ -f "$new_chunk_file" ] && \
-                     diff -q "$old_chunk_file" "$new_chunk_file" > /dev/null 2>&1; then
-                    echo "⏭️ 변경 없음, 기존 번역 유지: $(head -1 "$ko_chunk_file")"
-                    TRANSLATED="${TRANSLATED}${KO_CHUNK}
-          "
-                    SKIPPED_SECTIONS=$((SKIPPED_SECTIONS + 1))
-                    continue
-                  fi
-
-                  # 변경된 섹션 → 해당 섹션의 diff 생성 후 번역
-                  echo "🔄 변경 감지, 번역 중: $(head -1 "$ko_chunk_file")"
-                  SECTION_DIFF=""
-                  if [ -f "$old_chunk_file" ] && [ -f "$new_chunk_file" ]; then
-                    SECTION_DIFF=$(diff "$old_chunk_file" "$new_chunk_file" || true)
-                  elif [ -f "$new_chunk_file" ]; then
-                    SECTION_DIFF="(새로운 섹션 추가)"
-                  fi
-
-                  CHUNK_MSG="원본 영문 문서의 이 섹션이 변경되었습니다. 기존 한국어 번역을 업데이트하세요.
-          변경된 부분만 반영하고, 나머지는 그대로 유지하세요. 이 섹션의 번역만 출력하세요.
-
-          <section-diff>
-          $SECTION_DIFF
-          </section-diff>
-
-          <existing-korean-section>
-          $KO_CHUNK
-          </existing-korean-section>"
-
-                  CHUNK_RESULT=$(translate_chunk "$CHUNK_MSG" "$KO_CHUNK" "$KO_CHUNK" "modify" "$SECTION_DIFF")
-                  TRANSLATED="${TRANSLATED}${CHUNK_RESULT}
-          "
-                  CHANGED_SECTIONS=$((CHANGED_SECTIONS + 1))
-                done
-
-                # new에만 있는 추가 섹션 처리
-                for new_chunk_file in "$NEW_CHUNK_DIR"/chunk_*.txt; do
-                  idx=$(basename "$new_chunk_file" .txt)
-                  ko_chunk_file="$KO_CHUNK_DIR/$idx.txt"
-                  if [ ! -f "$ko_chunk_file" ]; then
-                    echo "🆕 새 섹션 번역: $(head -1 "$new_chunk_file")"
-                    NEW_SECTION=$(cat "$new_chunk_file")
-                    CHUNK_MSG="다음 React Hook Form 문서 섹션을 한국어로 번역하세요. 이 섹션만 번역하여 출력하세요.
-
-          <source>
-          $NEW_SECTION
-          </source>"
-                    CHUNK_RESULT=$(translate_chunk "$CHUNK_MSG" "$NEW_SECTION" "$NEW_SECTION" "new" "")
-                    TRANSLATED="${TRANSLATED}${CHUNK_RESULT}
-          "
-                    CHANGED_SECTIONS=$((CHANGED_SECTIONS + 1))
-                  fi
-                done
-
-                rm -rf "$OLD_CHUNK_DIR" "$NEW_CHUNK_DIR" "$KO_CHUNK_DIR"
-                echo "🔄 \`$file\` — 변경점 반영 (${CHANGED_SECTIONS}개 섹션 번역, ${SKIPPED_SECTIONS}개 섹션 유지)" >> translation_log.txt
-              else
-                TRANSLATED=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // empty' 2>/dev/null)
-                echo "🔄 \`$file\` — 변경점 반영" >> translation_log.txt
+              if diff -q "$OLD_ORIGIN_FILE" "$NEW_ORIGIN_FILE" > /dev/null 2>&1; then
+                echo "⏭️ diff 없음, 스킵: $file"
+                continue
               fi
+
+              # 변경된 줄 수 표시
+              CHANGED_LINES=$(diff "$OLD_ORIGIN_FILE" "$NEW_ORIGIN_FILE" | grep -c '^> ' || true)
+              echo "  🔧 diff 기반 패치: ${CHANGED_LINES}줄 번역 필요"
+
+              TRANSLATED=$(translate_and_patch "$OLD_ORIGIN_FILE" "$NEW_ORIGIN_FILE" "$KO_FILE")
+              echo "🔄 \`$file\` — diff 기반 변경점 반영 (${CHANGED_LINES}줄)" >> translation_log.txt
 
             else
               echo "⏭️ 알 수 없는 종류: $kind, 스킵"
@@ -416,8 +514,10 @@ jobs:
               continue
             fi
 
-            # 코드 펜스 래퍼 제거
-            TRANSLATED=$(echo "$TRANSLATED" | strip_fences)
+            # 코드 펜스 래퍼 제거 (A 케이스만 - M 케이스는 translate_and_patch 내부에서 처리됨)
+            if [ "$kind" = "A" ]; then
+              TRANSLATED=$(echo "$TRANSLATED" | strip_fences)
+            fi
 
             # 번역 결과 저장
             TARGET="src/$file"
@@ -426,10 +526,18 @@ jobs:
             TRANSLATED_COUNT=$((TRANSLATED_COUNT + 1))
             echo "✅ 번역 완료: $file"
 
+            # Rate limit 방지: 파일 간 대기
+            sleep 15
+
           done < changes.list
 
           echo "translated_count=$TRANSLATED_COUNT" >> "$GITHUB_ENV"
           echo "=== 번역 완료: ${TRANSLATED_COUNT}개 파일 ==="
+
+          if [ "$TRANSLATED_COUNT" -eq 0 ]; then
+            echo "❌ 모든 파일 번역 실패. API 응답을 확인하세요."
+            exit 1
+          fi
 
       - name: Create translation PR
         if: env.has_changes == 'true' && env.translated_count != '0'
@@ -474,7 +582,7 @@ jobs:
           $TRANSLATION_DETAILS
 
           ### 사용 모델
-          - \`openai/gpt-4o\` via GitHub Models API
+          - \`openai/gpt-4o-mini\` via GitHub Models API
 
           ### 참고
           - 번역 규칙: \`AGENTS.md\`, \`.claude/skills/translate.md\`
