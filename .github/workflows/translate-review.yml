@@ -1,3 +1,6 @@
+# 사람이 연 PR → pull_request 로 리뷰.
+# github-actions[bot] 이 GITHUB_TOKEN 으로 연 자동 번역 PR → 후속 pull_request 워크플로가 막히므로
+# Auto Translate 완료 후 workflow_run 으로 같은 잡을 실행 (아티팩트로 PR 번호 전달).
 name: Translation Review (GitHub Models)
 
 on:
@@ -5,25 +8,67 @@ on:
     types: [opened, synchronize]
     paths:
       - "src/content/**/*.mdx"
+  workflow_run:
+    workflows: ["Auto Translate (GitHub Models)"]
+    types: [completed]
 
 permissions:
   contents: read
   pull-requests: write
   models: read
+  actions: read
 
 jobs:
   review:
     runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     steps:
+      - name: Download auto-translate PR metadata
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: auto-translate-pr-info
+          path: artifact
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Resolve PR number
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "pr_number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ ! -f artifact/auto-translate-pr-info.json ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::번역 PR 메타 아티팩트 없음 — 리뷰 스킵(번역 PR 미생성 또는 구버전 워크플로)."
+            exit 0
+          fi
+          PR_NUMBER=$(jq -r '.pr_number // empty' artifact/auto-translate-pr-info.json)
+          if [ -z "$PR_NUMBER" ] || [ "$PR_NUMBER" = "null" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
       - name: Checkout repository
+        if: steps.meta.outputs.skip != 'true'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: refs/pull/${{ steps.meta.outputs.pr_number }}/merge
 
       - name: Get changed MDX files
         id: changed
+        if: steps.meta.outputs.skip != 'true'
         run: |
-          FILES=$(gh pr diff ${{ github.event.pull_request.number }} --name-only | grep '\.mdx$' || true)
+          FILES=$(gh pr diff ${{ steps.meta.outputs.pr_number }} --name-only | grep '\.mdx$' || true)
           if [ -z "$FILES" ]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
             echo "No MDX files changed."
@@ -35,28 +80,37 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save PR diff to file
-        if: steps.changed.outputs.skip == 'false'
+        if: steps.meta.outputs.skip != 'true' && steps.changed.outputs.skip == 'false'
         run: |
           # 일반 diff (라인 번호 파악용)
-          gh pr diff ${{ github.event.pull_request.number }} > /tmp/pr-diff.txt
-          
+          gh pr diff ${{ steps.meta.outputs.pr_number }} > /tmp/pr-diff.txt
+
           # word-diff (단어 단위 변경점 파악용)
           # [-삭제된 단어-] {+추가된 단어+} 형식으로 표시
-          BASE_SHA=$(gh pr view ${{ github.event.pull_request.number }} --json baseRefName -q '.baseRefName')
+          BASE_SHA=$(gh pr view ${{ steps.meta.outputs.pr_number }} --json baseRefName -q '.baseRefName')
           git fetch origin "$BASE_SHA" --depth=1 2>/dev/null || true
           git diff --word-diff origin/"$BASE_SHA"..HEAD -- 'src/content/**/*.mdx' > /tmp/pr-word-diff.txt || \
-            gh pr diff ${{ github.event.pull_request.number }} > /tmp/pr-word-diff.txt
+            gh pr diff ${{ steps.meta.outputs.pr_number }} > /tmp/pr-word-diff.txt
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resolve PR head SHA
+        if: steps.meta.outputs.skip != 'true' && steps.changed.outputs.skip == 'false'
+        id: head
+        run: |
+          HEAD_SHA=$(gh pr view ${{ steps.meta.outputs.pr_number }} --json headRefOid -q '.headRefOid')
+          echo "sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Review with GitHub Models
-        if: steps.changed.outputs.skip == 'false'
+        if: steps.meta.outputs.skip != 'true' && steps.changed.outputs.skip == 'false'
         env:
           GH_MODELS_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_NUMBER: ${{ steps.meta.outputs.pr_number }}
           REPO: ${{ github.repository }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_SHA: ${{ steps.head.outputs.sha }}
         run: |
           set -Eeuo pipefail
 
