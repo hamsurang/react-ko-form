@@ -1,0 +1,243 @@
+name: Translation Review (GitHub Models)
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - "src/content/**/*.mdx"
+
+permissions:
+  contents: read
+  pull-requests: write
+  models: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed MDX files
+        id: changed
+        run: |
+          FILES=$(gh pr diff ${{ github.event.pull_request.number }} --name-only | grep '\.mdx$' || true)
+          if [ -z "$FILES" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "No MDX files changed."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "$FILES" > /tmp/changed-files.txt
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Save PR diff to file
+        if: steps.changed.outputs.skip == 'false'
+        run: |
+          # 일반 diff (라인 번호 파악용)
+          gh pr diff ${{ github.event.pull_request.number }} > /tmp/pr-diff.txt
+          
+          # word-diff (단어 단위 변경점 파악용)
+          # [-삭제된 단어-] {+추가된 단어+} 형식으로 표시
+          BASE_SHA=$(gh pr view ${{ github.event.pull_request.number }} --json baseRefName -q '.baseRefName')
+          git fetch origin "$BASE_SHA" --depth=1 2>/dev/null || true
+          git diff --word-diff origin/"$BASE_SHA"..HEAD -- 'src/content/**/*.mdx' > /tmp/pr-word-diff.txt || \
+            gh pr diff ${{ github.event.pull_request.number }} > /tmp/pr-word-diff.txt
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Review with GitHub Models
+        if: steps.changed.outputs.skip == 'false'
+        env:
+          GH_MODELS_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -Eeuo pipefail
+
+          DIFF=$(cat /tmp/pr-diff.txt)
+          WORD_DIFF=$(cat /tmp/pr-word-diff.txt)
+          AGENTS=$(cat AGENTS.md)
+
+          read -r -d '' SYSTEM_PROMPT << 'SYSPROMPT' || true
+          당신은 React Hook Form 한국어 번역 프로젝트의 번역 품질 리뷰어입니다.
+          반드시 한국어로 응답하세요.
+
+          ## 번역 규칙
+          PLACEHOLDER_AGENTS
+
+          ## Word-Diff 읽는 법
+          - `[-삭제된 텍스트-]`: 이전 버전
+          - `{+추가된 텍스트+}`: 새 버전
+          - 예: `[-수동으로-]{+직접+}` = "수동으로"가 "직접"으로 변경됨
+
+          ## 리뷰 방법
+
+          **각 변경에 대해 다음을 분석하세요:**
+
+          1. **변경 내용 나열**: word-diff에서 모든 `[-...-]{+...+}` 쌍을 찾아 나열
+          2. **변경 이유 추론**: 왜 이렇게 변경했는지 파악
+          3. **적절성 판단**: 
+             - 번역 규칙에 맞는가?
+             - 더 자연스러운 한국어인가?
+             - 원래 의미를 잘 전달하는가?
+          4. **결론**: 좋은 변경인지, 불필요한 변경인지, 오히려 나빠진 변경인지
+
+          ## 응답 형식 (JSON)
+
+          {
+            "summary": "전체 요약 (1-2문장)",
+            "comments": [
+              {
+                "path": "src/content/.../파일.mdx",
+                "line": 변경된 라인 번호 (숫자),
+                "body": "**변경 내용:**\n- `이전` → `이후`\n- `이전2` → `이후2`\n\n**평가:** 좋은/나쁜 변경인 이유를 구체적으로 설명"
+              }
+            ]
+          }
+
+          ## 코멘트 기준 (실제 리뷰어처럼)
+
+          **코멘트를 다는 경우:**
+          - 번역 규칙 위반 (용어표 미준수)
+          - 오역 또는 의미 왜곡
+          - 어색한 번역투
+          - 정말 잘한 변경 (구체적 이유와 함께 칭찬)
+
+          **코멘트를 달지 않는 경우:**
+          - 변경이 납득됨, 이해됨, 괜찮음 → 굳이 안 달아도 됨
+          - summary에서 간단히 언급하면 충분
+
+          ## 필수 규칙
+          - 코멘트의 body에는 반드시:
+            1. 변경 내용 (`이전` → `이후` 형식)
+            2. 왜 문제인지 / 왜 좋은지 구체적 이유
+          - "좋아 보입니다" 같은 애매한 표현 금지. 구체적 근거 필수.
+          - 워크플로우(.yml) 파일 변경은 무시하세요
+          - 문제 없으면 comments를 빈 배열 []로 하세요
+          SYSPROMPT
+
+          SYSTEM_PROMPT="${SYSTEM_PROMPT//PLACEHOLDER_AGENTS/$AGENTS}"
+
+          USER_MSG="다음 PR의 번역 변경사항을 리뷰하고 JSON 형식으로 응답하세요.
+
+          ## Word Diff (단어 단위 변경점)
+          [-삭제-]와 {+추가+} 표시를 확인하여 정확히 무엇이 변경되었는지 파악하세요.
+
+          \`\`\`diff
+          $WORD_DIFF
+          \`\`\`
+
+          ## 일반 Diff (라인 번호 참조용)
+          인라인 코멘트의 line 번호는 이 diff를 참고하세요.
+
+          \`\`\`diff
+          $DIFF
+          \`\`\`"
+
+          PAYLOAD=$(jq -n \
+            --arg model "openai/gpt-4o" \
+            --arg system "$SYSTEM_PROMPT" \
+            --arg user "$USER_MSG" \
+            '{model: $model, messages: [
+              {role: "system", content: $system},
+              {role: "user", content: $user}
+            ], max_tokens: 4096, response_format: {type: "json_object"}}')
+
+          echo "Calling GitHub Models API..."
+
+          HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" --max-time 120 \
+            "https://models.github.ai/inference/chat/completions" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $GH_MODELS_TOKEN" \
+            -d "$PAYLOAD")
+
+          HTTP_STATUS=$(echo "$HTTP_RESPONSE" | tail -n1)
+          RESPONSE=$(echo "$HTTP_RESPONSE" | sed '$d')
+
+          echo "HTTP Status: $HTTP_STATUS"
+
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "API Error Response: $RESPONSE"
+            echo "::error::GitHub Models API returned status $HTTP_STATUS"
+            exit 1
+          fi
+
+          REVIEW_JSON=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // empty')
+
+          if [ -z "$REVIEW_JSON" ]; then
+            echo "Response body: $RESPONSE"
+            echo "::error::No review content in response"
+            exit 1
+          fi
+
+          echo "Review JSON: $REVIEW_JSON"
+
+          INPUT_TOKENS=$(echo "$RESPONSE" | jq -r '.usage.prompt_tokens // 0')
+          OUTPUT_TOKENS=$(echo "$RESPONSE" | jq -r '.usage.completion_tokens // 0')
+          echo "Tokens used - input: $INPUT_TOKENS, output: $OUTPUT_TOKENS"
+
+          SUMMARY=$(echo "$REVIEW_JSON" | jq -r '.summary // "요약 없음"')
+          GOOD_POINTS=$(echo "$REVIEW_JSON" | jq -r '.good_points // ""')
+          COMMENTS_COUNT=$(echo "$REVIEW_JSON" | jq '.comments | length')
+
+          echo "Summary: $SUMMARY"
+          echo "Good points: $GOOD_POINTS"
+          echo "Comments count: $COMMENTS_COUNT"
+
+          if [ "$COMMENTS_COUNT" -gt 0 ]; then
+            echo "Creating PR review with inline comments..."
+
+            REVIEW_COMMENTS=$(echo "$REVIEW_JSON" | jq '[.comments[] | {path: .path, line: .line, body: .body}]')
+
+            REVIEW_BODY="## 번역 리뷰 (GitHub Models)
+
+          ### 요약
+          $SUMMARY
+
+          ### 잘된 점
+          ${GOOD_POINTS:-"특별히 언급할 사항 없음"}
+
+          ---
+          <sub>GPT-4o via GitHub Models | tokens: ${INPUT_TOKENS} in / ${OUTPUT_TOKENS} out | 인라인 코멘트: ${COMMENTS_COUNT}개</sub>"
+
+            REVIEW_PAYLOAD=$(jq -n \
+              --arg body "$REVIEW_BODY" \
+              --arg commit_id "$HEAD_SHA" \
+              --arg event "COMMENT" \
+              --argjson comments "$REVIEW_COMMENTS" \
+              '{body: $body, commit_id: $commit_id, event: $event, comments: $comments}')
+
+            echo "Submitting review..."
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              "/repos/$REPO/pulls/$PR_NUMBER/reviews" \
+              --input - <<< "$REVIEW_PAYLOAD"
+
+          else
+            echo "No inline comments, posting summary only..."
+
+            COMMENT_BODY="## 번역 리뷰 (GitHub Models)
+
+          ### 요약
+          $SUMMARY
+
+          ### 잘된 점
+          ${GOOD_POINTS:-"특별히 언급할 사항 없음"}
+
+          ### 수정 제안
+          수정 제안 없음
+
+          ---
+          <sub>GPT-4o via GitHub Models | tokens: ${INPUT_TOKENS} in / ${OUTPUT_TOKENS} out</sub>"
+
+            gh pr comment "$PR_NUMBER" --body "$COMMENT_BODY"
+          fi
+
+          echo "Review posted successfully."
