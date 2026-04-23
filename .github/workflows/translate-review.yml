@@ -111,12 +111,43 @@ jobs:
           PR_NUMBER: ${{ steps.meta.outputs.pr_number }}
           REPO: ${{ github.repository }}
           HEAD_SHA: ${{ steps.head.outputs.sha }}
+          # gpt-4o 는 API 요청당 입력 ~8000 토큰(대략) 제한 — 대형 diff 시 413. mini 는 한도가 더 큼(문서 기준 16k 토큰 수준)
+          # 필요 시 org/repo Variables: REVIEW_MODEL=openai/gpt-4o (대형 PR은 강한 잘림)
+          REVIEW_MODEL: ${{ vars.REVIEW_MODEL }}
         run: |
           set -Eeuo pipefail
 
-          DIFF=$(cat /tmp/pr-diff.txt)
-          WORD_DIFF=$(cat /tmp/pr-word-diff.txt)
-          AGENTS=$(cat AGENTS.md)
+          REVIEW_MODEL="${REVIEW_MODEL:-openai/gpt-4o-mini}"
+          export REVIEW_MODEL
+
+          clip_str() {
+            local s=$1
+            local max=$2
+            local label=$3
+            local b
+            b=$(printf '%s' "$s" | wc -c | tr -d ' \n' || echo 0)
+            if [ "${b:-0}" -le "$max" ]; then
+              printf '%s' "$s"
+              return
+            fi
+            echo "::notice::[${label}] ${b} bytes → 앞 ${max} bytes만 전송 (GitHub Models 입력 토큰 제한)" >&2
+            printf '%s' "$s" | head -c "$max"
+          }
+
+          # 바이트 합 ≈ (시스템+유저) 토큰 — gpt-4o=~8k, mini 등=~16k 상한(문서) 기준으로 여유 있게
+          if [[ "$REVIEW_MODEL" == *"gpt-4o"* && "$REVIEW_MODEL" != *"mini"* ]]; then
+            MAX_A=4000
+            MAX_W=4500
+            MAX_L=4000
+          else
+            MAX_A=6000
+            MAX_W=10000
+            MAX_L=9000
+          fi
+
+          DIFF=$(clip_str "$(cat /tmp/pr-diff.txt)" "$MAX_L" "일반 diff")
+          WORD_DIFF=$(clip_str "$(cat /tmp/pr-word-diff.txt)" "$MAX_W" "word-diff")
+          AGENTS=$(clip_str "$(cat AGENTS.md)" "$MAX_A" "AGENTS.md")
 
           read -r -d '' SYSTEM_PROMPT << 'SYSPROMPT' || true
           당신은 React Hook Form 한국어 번역 프로젝트의 번역 품질 리뷰어입니다.
@@ -195,7 +226,7 @@ jobs:
           \`\`\`"
 
           PAYLOAD=$(jq -n \
-            --arg model "openai/gpt-4o" \
+            --arg model "$REVIEW_MODEL" \
             --arg system "$SYSTEM_PROMPT" \
             --arg user "$USER_MSG" \
             '{model: $model, messages: [
@@ -258,7 +289,7 @@ jobs:
           ${GOOD_POINTS:-"특별히 언급할 사항 없음"}
 
           ---
-          <sub>GPT-4o via GitHub Models | tokens: ${INPUT_TOKENS} in / ${OUTPUT_TOKENS} out | 인라인 코멘트: ${COMMENTS_COUNT}개</sub>"
+          <sub>${REVIEW_MODEL} via GitHub Models | tokens: ${INPUT_TOKENS} in / ${OUTPUT_TOKENS} out | 인라인 코멘트: ${COMMENTS_COUNT}개</sub>"
 
             REVIEW_PAYLOAD=$(jq -n \
               --arg body "$REVIEW_BODY" \
@@ -289,7 +320,7 @@ jobs:
           수정 제안 없음
 
           ---
-          <sub>GPT-4o via GitHub Models | tokens: ${INPUT_TOKENS} in / ${OUTPUT_TOKENS} out</sub>"
+          <sub>${REVIEW_MODEL} via GitHub Models | tokens: ${INPUT_TOKENS} in / ${OUTPUT_TOKENS} out</sub>"
 
             gh pr comment "$PR_NUMBER" --body "$COMMENT_BODY"
           fi
