@@ -591,3 +591,15 @@ jobs:
           )" \
             --base master-ko \
             --head "$BRANCH"
+
+          PR_NUMBER=$(gh pr list --head "$BRANCH" --json number --jq '.[0].number')
+          jq -n --argjson pr "$PR_NUMBER" '{pr_number: $pr}' > auto-translate-pr-info.json
+
+      - name: Upload PR metadata for translation review
+        if: env.has_changes == 'true' && env.translated_count != '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: auto-translate-pr-info
+          path: auto-translate-pr-info.json
+          retention-days: 3
+          if-no-files-found: ignore
