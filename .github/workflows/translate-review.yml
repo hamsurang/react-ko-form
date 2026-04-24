@@ -79,21 +79,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Save PR diff to file
-        if: steps.meta.outputs.skip != 'true' && steps.changed.outputs.skip == 'false'
-        run: |
-          # 일반 diff (라인 번호 파악용)
-          gh pr diff ${{ steps.meta.outputs.pr_number }} > /tmp/pr-diff.txt
-
-          # word-diff (단어 단위 변경점 파악용)
-          # [-삭제된 단어-] {+추가된 단어+} 형식으로 표시
-          BASE_SHA=$(gh pr view ${{ steps.meta.outputs.pr_number }} --json baseRefName -q '.baseRefName')
-          git fetch origin "$BASE_SHA" --depth=1 2>/dev/null || true
-          git diff --word-diff origin/"$BASE_SHA"..HEAD -- 'src/content/**/*.mdx' > /tmp/pr-word-diff.txt || \
-            gh pr diff ${{ steps.meta.outputs.pr_number }} > /tmp/pr-word-diff.txt
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Resolve PR head SHA
         if: steps.meta.outputs.skip != 'true' && steps.changed.outputs.skip == 'false'
         id: head
@@ -103,7 +88,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Review with GitHub Models
+      - name: Review with GitHub Models (file-chunked)
         if: steps.meta.outputs.skip != 'true' && steps.changed.outputs.skip == 'false'
         env:
           GH_MODELS_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
@@ -114,186 +99,202 @@ jobs:
         run: |
           set -Eeuo pipefail
 
-          # GitHub Models: openai/gpt-4o 는 요청 본문 입력 ~8000 토큰 상한 → 대형 diff면 413.
-          # Variables 로 gpt-4o 를 넣어도 동일하게 터지므로 리뷰 API 호출 모델은 mini 로 고정한다.
+          # GitHub Models 리뷰 API: 모델 불문 입력 ~8k 토큰 상한 → 파일 단위로 쪼개 여러 번 호출.
+          # 1파일 diff 도 크면 @@ hunk 로 2차 분할. auto-translate 의 split/retry 흐름과 동일 컨셉.
           API_MODEL="openai/gpt-4o-mini"
+          # 시스템 프롬프트 + AGENTS 발췌가 들어가고도 여유 있도록, user 쪽 상한은 한 번에 6k bytes 로 보수적 고정
+          CHUNK_MAX_BYTES=6000
 
-          clip_str() {
-            local s=$1
-            local max=$2
-            local label=$3
-            local b
-            b=$(printf '%s' "$s" | wc -c | tr -d ' \n' || echo 0)
-            if [ "${b:-0}" -le "$max" ]; then
-              printf '%s' "$s"
-              return
-            fi
-            echo "::notice::[${label}] ${b} bytes → 앞 ${max} bytes만 전송 (GitHub Models 입력 토큰 제한)" >&2
-            printf '%s' "$s" | head -c "$max"
-          }
+          AGENTS=$(head -c 2000 AGENTS.md || true)
+          BASE_SHA=$(gh pr view "$PR_NUMBER" --json baseRefName -q '.baseRefName')
+          git fetch origin "$BASE_SHA" --depth=1 2>/dev/null || true
 
-          # mini(입력 ~16k 토큰) 기준으로 diff·AGENTS 상한 — JSON 이스케이프·한글은 토큰/바이트 비율이 커서 보수적으로
-          MAX_A=5000
-          MAX_W=9000
-          MAX_L=8000
-
-          DIFF=$(clip_str "$(cat /tmp/pr-diff.txt)" "$MAX_L" "일반 diff")
-          WORD_DIFF=$(clip_str "$(cat /tmp/pr-word-diff.txt)" "$MAX_W" "word-diff")
-          AGENTS=$(clip_str "$(cat AGENTS.md)" "$MAX_A" "AGENTS.md")
-
+          # 공용 함수 ------------------------------------------------------------
           read -r -d '' SYSTEM_PROMPT << 'SYSPROMPT' || true
-          당신은 React Hook Form 한국어 번역 프로젝트의 번역 품질 리뷰어입니다.
-          반드시 한국어로 응답하세요.
+          너는 React Hook Form 한국어 번역 프로젝트의 번역 품질 리뷰어다. 반드시 한국어로 답하라.
 
-          ## 번역 규칙
+          ## 번역 규칙 요약 (AGENTS.md 일부)
           PLACEHOLDER_AGENTS
 
-          ## Word-Diff 읽는 법
-          - `[-삭제된 텍스트-]`: 이전 버전
-          - `{+추가된 텍스트+}`: 새 버전
-          - 예: `[-수동으로-]{+직접+}` = "수동으로"가 "직접"으로 변경됨
+          ## Word-Diff 표기
+          `[-삭제-]{+추가+}` 쌍을 찾아 분석. `.yml` 은 무시.
 
-          ## 리뷰 방법
+          ## 평가 기준
+          1) 번역 규칙(용어표) 준수  2) 자연스러운 한국어  3) 의미 보존
 
-          **각 변경에 대해 다음을 분석하세요:**
+          ## 출력 (반드시 JSON 객체 1개)
+          {"summary":"요약 1문장","comments":[{"path":"src/content/...mdx","line":정수,"body":"**변경:** `이전` → `이후`\n**평가:** 구체적 근거"}]}
 
-          1. **변경 내용 나열**: word-diff에서 모든 `[-...-]{+...+}` 쌍을 찾아 나열
-          2. **변경 이유 추론**: 왜 이렇게 변경했는지 파악
-          3. **적절성 판단**: 
-             - 번역 규칙에 맞는가?
-             - 더 자연스러운 한국어인가?
-             - 원래 의미를 잘 전달하는가?
-          4. **결론**: 좋은 변경인지, 불필요한 변경인지, 오히려 나빠진 변경인지
-
-          ## 응답 형식 (JSON)
-
-          {
-            "summary": "전체 요약 (1-2문장)",
-            "comments": [
-              {
-                "path": "src/content/.../파일.mdx",
-                "line": 변경된 라인 번호 (숫자),
-                "body": "**변경 내용:**\n- `이전` → `이후`\n- `이전2` → `이후2`\n\n**평가:** 좋은/나쁜 변경인 이유를 구체적으로 설명"
-              }
-            ]
-          }
-
-          ## 코멘트 기준 (실제 리뷰어처럼)
-
-          **코멘트를 다는 경우:**
-          - 번역 규칙 위반 (용어표 미준수)
-          - 오역 또는 의미 왜곡
-          - 어색한 번역투
-          - 정말 잘한 변경 (구체적 이유와 함께 칭찬)
-
-          **코멘트를 달지 않는 경우:**
-          - 변경이 납득됨, 이해됨, 괜찮음 → 굳이 안 달아도 됨
-          - summary에서 간단히 언급하면 충분
-
-          ## 필수 규칙
-          - 코멘트의 body에는 반드시:
-            1. 변경 내용 (`이전` → `이후` 형식)
-            2. 왜 문제인지 / 왜 좋은지 구체적 이유
-          - "좋아 보입니다" 같은 애매한 표현 금지. 구체적 근거 필수.
-          - 워크플로우(.yml) 파일 변경은 무시하세요
-          - 문제 없으면 comments를 빈 배열 []로 하세요
+          ## 규칙
+          - 규칙 위반·오역·어색한 번역투·정말 잘된 변경만 코멘트. 문제 없으면 comments=[].
+          - "좋아 보입니다" 류 금지, 반드시 근거 포함.
           SYSPROMPT
-
           SYSTEM_PROMPT="${SYSTEM_PROMPT//PLACEHOLDER_AGENTS/$AGENTS}"
 
-          USER_MSG="다음 PR의 번역 변경사항을 리뷰하고 JSON 형식으로 응답하세요.
+          is_token_error() {
+            local resp="$1"
+            echo "$resp" | jq -r '.error.code // empty' 2>/dev/null | grep -q 'tokens_limit_reached' && return 0
+            echo "$resp" | jq -r '.error.message // empty' 2>/dev/null | grep -qi 'too large\|max size' && return 0
+            return 1
+          }
 
-          ## Word Diff (단어 단위 변경점)
-          [-삭제-]와 {+추가+} 표시를 확인하여 정확히 무엇이 변경되었는지 파악하세요.
+          call_api() {
+            local user_msg="$1"
+            local max_retries=5
+            local retry=0
+            local wait_sec=10
+            local tmpfile
+            while [ "$retry" -lt "$max_retries" ]; do
+              tmpfile=$(mktemp)
+              local http_code
+              http_code=$(curl -s -o "$tmpfile" -w "%{http_code}" --max-time 120 \
+                "https://models.github.ai/inference/chat/completions" \
+                -H "Content-Type: application/json" \
+                -H "Authorization: Bearer $GH_MODELS_TOKEN" \
+                -d "$(jq -n \
+                  --arg model "$API_MODEL" \
+                  --arg system "$SYSTEM_PROMPT" \
+                  --arg user "$user_msg" \
+                  '{model: $model, messages: [
+                    {role: "system", content: $system},
+                    {role: "user", content: $user}
+                  ], max_tokens: 2048, response_format: {type: "json_object"}}')" 2>/dev/null) || http_code="000"
+              local resp
+              resp=$(cat "$tmpfile"); rm -f "$tmpfile"
+              if [ "$http_code" = "429" ]; then
+                retry=$((retry + 1))
+                echo "⚠️ 429 rate-limit, ${wait_sec}s 대기 후 재시도 ($retry/$max_retries)" >&2
+                sleep "$wait_sec"; wait_sec=$((wait_sec * 2)); continue
+              fi
+              printf '%s' "$resp"
+              return
+            done
+            echo '{}'
+          }
+
+          # word-diff 를 $@ hunk(`@@ -... +... @@`) 단위로 분할
+          split_hunks() {
+            local input_file="$1" out_dir="$2"
+            mkdir -p "$out_dir"
+            awk -v out="$out_dir" '
+              BEGIN { n=0; file=out"/hdr.txt" }
+              /^@@ / { n++; file=sprintf("%s/hunk_%03d.txt", out, n) }
+              { print >> file }
+            ' "$input_file"
+          }
+
+          # 단일 diff 텍스트를 리뷰 → JSON 문자열 반환 (실패시 빈 JSON)
+          review_chunk() {
+            local path="$1" diff_text="$2"
+            local user_msg
+            user_msg="아래는 PR 에서 파일 \`$path\` 의 word-diff 이다. JSON 한 개로만 응답하라. 파일명은 반드시 \"$path\" 로 표기.
 
           \`\`\`diff
-          $WORD_DIFF
-          \`\`\`
-
-          ## 일반 Diff (라인 번호 참조용)
-          인라인 코멘트의 line 번호는 이 diff를 참고하세요.
-
-          \`\`\`diff
-          $DIFF
+          $diff_text
           \`\`\`"
+            # 안전한 크기 상한
+            if [ "$(printf '%s' "$user_msg" | wc -c)" -gt "$CHUNK_MAX_BYTES" ]; then
+              user_msg="$(printf '%s' "$user_msg" | head -c "$CHUNK_MAX_BYTES")"
+            fi
 
-          # JSON·이스케이프 후에도 mini(입력 ~16k 토큰) 안에 들어가도록 system+user 합을 한 번 더 제한
-          MAX_COMBINED_BYTES=42000
-          SP_BYTES=$(printf '%s' "$SYSTEM_PROMPT" | wc -c | tr -d ' \n' || echo 0)
-          UM_BYTES=$(printf '%s' "$USER_MSG" | wc -c | tr -d ' \n' || echo 0)
-          TOT=$((SP_BYTES + UM_BYTES))
-          ROOM=$((MAX_COMBINED_BYTES - SP_BYTES - 400))
-          if [ "$ROOM" -lt 1500 ]; then ROOM=1500; fi
-          if [ "${UM_BYTES:-0}" -gt "$ROOM" ]; then
-            echo "::notice::system+user 합 ${TOT} bytes → user 를 ${ROOM} bytes 로 축소 (GitHub Models 입력 상한)" >&2
-            USER_MSG="$(printf '%s' "$USER_MSG" | head -c "$ROOM")"
+            local resp
+            resp=$(call_api "$user_msg")
+            if is_token_error "$resp"; then
+              echo "::notice::[${path}] 토큰 초과 → hunk 분할 재시도" >&2
+              return 2
+            fi
+            local content
+            content=$(echo "$resp" | jq -r '.choices[0].message.content // empty' 2>/dev/null)
+            if [ -z "$content" ]; then
+              echo "::warning::[${path}] 응답 비어 있음: $(echo "$resp" | jq -c '.error // .' 2>/dev/null || echo "$resp" | head -c 300)" >&2
+              printf '%s' '{"summary":"","comments":[]}'
+              return 0
+            fi
+            # 유효 JSON만 받아서 반환
+            echo "$content" | jq -c '.' 2>/dev/null || printf '%s' '{"summary":"","comments":[]}'
+          }
+
+          # =====================================================================
+          # 파일별 word-diff 생성 + 리뷰 수집
+          # =====================================================================
+          ALL_COMMENTS='[]'
+          SUMMARIES=""
+          TOTAL_FILES=0
+          FAILED_FILES=0
+
+          while IFS= read -r FILE; do
+            [ -z "$FILE" ] && continue
+            [ "${FILE##*.}" = "yml" ] && continue
+            TOTAL_FILES=$((TOTAL_FILES + 1))
+
+            DIFF_FILE=$(mktemp)
+            git diff --word-diff "origin/$BASE_SHA"..HEAD -- "$FILE" > "$DIFF_FILE" 2>/dev/null || true
+            if [ ! -s "$DIFF_FILE" ]; then
+              rm -f "$DIFF_FILE"; continue
+            fi
+
+            echo "=== 📄 Review: $FILE ($(wc -c < "$DIFF_FILE") bytes) ==="
+            CONTENT=$(cat "$DIFF_FILE")
+            CHUNK_JSON=$(review_chunk "$FILE" "$CONTENT" || true)
+            rc=$?
+
+            if [ "$rc" = "2" ]; then
+              # 토큰 초과 → hunk 단위 분할
+              HUNK_DIR=$(mktemp -d)
+              split_hunks "$DIFF_FILE" "$HUNK_DIR"
+              HUNK_JSONS='[]'
+              for hf in "$HUNK_DIR"/hunk_*.txt; do
+                [ -f "$hf" ] || continue
+                HUNK_CONTENT=$(cat "$hf")
+                SUB_JSON=$(review_chunk "$FILE" "$HUNK_CONTENT" || true)
+                if [ -n "$SUB_JSON" ]; then
+                  HUNK_JSONS=$(jq -c --argjson a "$HUNK_JSONS" --argjson b "[$SUB_JSON]" -n '$a + $b')
+                fi
+              done
+              rm -rf "$HUNK_DIR"
+              # hunk 결과 병합
+              MERGED_COMMENTS=$(echo "$HUNK_JSONS" | jq '[.[] | .comments // []] | add // []')
+              MERGED_SUMMARY=$(echo "$HUNK_JSONS" | jq -r '[.[] | .summary // ""] | map(select(length>0)) | join(" / ")')
+              CHUNK_JSON=$(jq -c -n --argjson c "$MERGED_COMMENTS" --arg s "$MERGED_SUMMARY" '{summary:$s, comments:$c}')
+            fi
+
+            if [ -z "$CHUNK_JSON" ] || [ "$CHUNK_JSON" = "null" ]; then
+              FAILED_FILES=$((FAILED_FILES + 1))
+              rm -f "$DIFF_FILE"; continue
+            fi
+
+            # 모델이 path 를 다르게 쓸 수 있으니 FILE 로 강제 치환
+            CHUNK_JSON=$(echo "$CHUNK_JSON" | jq -c --arg p "$FILE" '.comments = (.comments // [] | map(.path=$p))')
+            NEW_COMMENTS=$(echo "$CHUNK_JSON" | jq -c '.comments // []')
+            ALL_COMMENTS=$(jq -c --argjson a "$ALL_COMMENTS" --argjson b "$NEW_COMMENTS" -n '$a + $b')
+            S=$(echo "$CHUNK_JSON" | jq -r '.summary // ""')
+            if [ -n "$S" ] && [ "$S" != "null" ]; then
+              SUMMARIES+="- \`$FILE\`: $S"$'\n'
+            fi
+            rm -f "$DIFF_FILE"
+            sleep 2
+          done < /tmp/changed-files.txt
+
+          COMMENTS_COUNT=$(echo "$ALL_COMMENTS" | jq 'length')
+          echo "Total files: $TOTAL_FILES, failed: $FAILED_FILES, comments: $COMMENTS_COUNT"
+
+          SUMMARY_BLOCK="${SUMMARIES:-전체적으로 번역 품질 이슈는 크지 않음.}"
+          if [ "$FAILED_FILES" -gt 0 ]; then
+            SUMMARY_BLOCK="$SUMMARY_BLOCK
+          > 일부 파일(${FAILED_FILES}개)은 토큰 초과/에러로 리뷰를 스킵했습니다."
           fi
-
-          PAYLOAD=$(jq -n \
-            --arg model "$API_MODEL" \
-            --arg system "$SYSTEM_PROMPT" \
-            --arg user "$USER_MSG" \
-            '{model: $model, messages: [
-              {role: "system", content: $system},
-              {role: "user", content: $user}
-            ], max_tokens: 4096, response_format: {type: "json_object"}}')
-
-          echo "Calling GitHub Models API..."
-
-          HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" --max-time 120 \
-            "https://models.github.ai/inference/chat/completions" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $GH_MODELS_TOKEN" \
-            -d "$PAYLOAD")
-
-          HTTP_STATUS=$(echo "$HTTP_RESPONSE" | tail -n1)
-          RESPONSE=$(echo "$HTTP_RESPONSE" | sed '$d')
-
-          echo "HTTP Status: $HTTP_STATUS"
-
-          if [ "$HTTP_STATUS" != "200" ]; then
-            echo "API Error Response: $RESPONSE"
-            echo "::error::GitHub Models API returned status $HTTP_STATUS"
-            exit 1
-          fi
-
-          REVIEW_JSON=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // empty')
-
-          if [ -z "$REVIEW_JSON" ]; then
-            echo "Response body: $RESPONSE"
-            echo "::error::No review content in response"
-            exit 1
-          fi
-
-          echo "Review JSON: $REVIEW_JSON"
-
-          INPUT_TOKENS=$(echo "$RESPONSE" | jq -r '.usage.prompt_tokens // 0')
-          OUTPUT_TOKENS=$(echo "$RESPONSE" | jq -r '.usage.completion_tokens // 0')
-          echo "Tokens used - input: $INPUT_TOKENS, output: $OUTPUT_TOKENS"
-
-          SUMMARY=$(echo "$REVIEW_JSON" | jq -r '.summary // "요약 없음"')
-          GOOD_POINTS=$(echo "$REVIEW_JSON" | jq -r '.good_points // ""')
-          COMMENTS_COUNT=$(echo "$REVIEW_JSON" | jq '.comments | length')
-
-          echo "Summary: $SUMMARY"
-          echo "Good points: $GOOD_POINTS"
-          echo "Comments count: $COMMENTS_COUNT"
 
           if [ "$COMMENTS_COUNT" -gt 0 ]; then
             echo "Creating PR review with inline comments..."
-
-            REVIEW_COMMENTS=$(echo "$REVIEW_JSON" | jq '[.comments[] | {path: .path, line: .line, body: .body}]')
+            REVIEW_COMMENTS=$(echo "$ALL_COMMENTS" | jq '[.[] | {path: .path, line: (.line // 1 | tonumber? // 1), body: (.body // "")}]')
 
             REVIEW_BODY="## 번역 리뷰 (GitHub Models)
 
-          ### 요약
-          $SUMMARY
-
-          ### 잘된 점
-          ${GOOD_POINTS:-"특별히 언급할 사항 없음"}
+          ### 요약 (파일별)
+          $SUMMARY_BLOCK
 
           ---
-          <sub>${API_MODEL} via GitHub Models | tokens: ${INPUT_TOKENS} in / ${OUTPUT_TOKENS} out | 인라인 코멘트: ${COMMENTS_COUNT}개</sub>"
+          <sub>${API_MODEL} via GitHub Models | 파일 ${TOTAL_FILES}개 | 인라인 코멘트 ${COMMENTS_COUNT}개</sub>"
 
             REVIEW_PAYLOAD=$(jq -n \
               --arg body "$REVIEW_BODY" \
@@ -302,30 +303,22 @@ jobs:
               --argjson comments "$REVIEW_COMMENTS" \
               '{body: $body, commit_id: $commit_id, event: $event, comments: $comments}')
 
-            echo "Submitting review..."
-            gh api \
-              --method POST \
+            gh api --method POST \
               -H "Accept: application/vnd.github+json" \
               "/repos/$REPO/pulls/$PR_NUMBER/reviews" \
               --input - <<< "$REVIEW_PAYLOAD"
-
           else
             echo "No inline comments, posting summary only..."
-
             COMMENT_BODY="## 번역 리뷰 (GitHub Models)
 
-          ### 요약
-          $SUMMARY
-
-          ### 잘된 점
-          ${GOOD_POINTS:-"특별히 언급할 사항 없음"}
+          ### 요약 (파일별)
+          $SUMMARY_BLOCK
 
           ### 수정 제안
           수정 제안 없음
 
           ---
-          <sub>${API_MODEL} via GitHub Models | tokens: ${INPUT_TOKENS} in / ${OUTPUT_TOKENS} out</sub>"
-
+          <sub>${API_MODEL} via GitHub Models | 파일 ${TOTAL_FILES}개</sub>"
             gh pr comment "$PR_NUMBER" --body "$COMMENT_BODY"
           fi
 
