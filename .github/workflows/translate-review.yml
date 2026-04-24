@@ -119,6 +119,13 @@ jobs:
           ## Word-Diff 표기
           `[-삭제-]{+추가+}` 쌍을 찾아 분석. `.yml` 은 무시.
 
+          ## Diff 라인 형식 (매우 중요)
+          각 본문 라인은 `L<숫자> | <원래 word-diff 라인>` 형태로 우측(병합 후) 라인 번호가 prepend 되어 있다.
+          - 예: `L42  | const result = [-old-]{+new+}` → 우측 라인 42
+          - `L---- | [-...-]` 처럼 번호가 없는 라인은 통째로 삭제된 라인이라 코멘트 대상이 아니다.
+          - 코멘트의 `line` 필드에는 반드시 그 prepend 된 숫자(예: 42)를 그대로 넣어라. **추정/계산 금지.**
+          - 라인 번호가 없는(삭제만 된) 변경에는 코멘트를 달지 마라.
+
           ## 평가 기준
           1) 번역 규칙(용어표) 준수  2) 자연스러운 한국어  3) 의미 보존
 
@@ -128,6 +135,7 @@ jobs:
           ## 규칙
           - 규칙 위반·오역·어색한 번역투·정말 잘된 변경만 코멘트. 문제 없으면 comments=[].
           - "좋아 보입니다" 류 금지, 반드시 근거 포함.
+          - line 은 반드시 해당 변경이 위치한 `L<숫자>` 의 숫자만 사용.
           SYSPROMPT
           SYSTEM_PROMPT="${SYSTEM_PROMPT//PLACEHOLDER_AGENTS/$AGENTS}"
 
@@ -187,7 +195,8 @@ jobs:
           review_chunk() {
             local path="$1" diff_text="$2"
             local user_msg
-            user_msg="아래는 PR 에서 파일 \`$path\` 의 word-diff 이다. JSON 한 개로만 응답하라. 파일명은 반드시 \"$path\" 로 표기.
+            user_msg="아래는 PR 에서 파일 \`$path\` 의 word-diff 이다 (각 라인 앞 \`L<숫자> |\` 가 우측 라인 번호).
+          JSON 한 개로만 응답하라. 파일명은 반드시 \"$path\" 로 표기. 코멘트의 line 필드에는 해당 변경 라인의 \`L<숫자>\` 숫자를 그대로 넣어라.
 
           \`\`\`diff
           $diff_text
@@ -227,8 +236,34 @@ jobs:
             [ "${FILE##*.}" = "yml" ] && continue
             TOTAL_FILES=$((TOTAL_FILES + 1))
 
+            RAW_DIFF=$(mktemp)
+            git diff --word-diff "origin/$BASE_SHA"..HEAD -- "$FILE" > "$RAW_DIFF" 2>/dev/null || true
+            if [ ! -s "$RAW_DIFF" ]; then
+              rm -f "$RAW_DIFF"; continue
+            fi
+
+            # 우측 라인번호를 본문 앞에 prepend → 모델이 line 카운팅 안 해도 그대로 옮겨쓰면 됨
+            # - context / {+추가+} 라인: `L42| 본문`
+            # - 통째로 삭제된 라인([-...-] 만): `L---- | 본문` (우측 라인번호 없음)
+            # - hunk/index/파일 헤더: 그대로
             DIFF_FILE=$(mktemp)
-            git diff --word-diff "origin/$BASE_SHA"..HEAD -- "$FILE" > "$DIFF_FILE" 2>/dev/null || true
+            awk '
+              /^@@/ {
+                if (match($0, /\+([0-9]+)/, a)) n = a[1]+0
+                print; next
+              }
+              /^(diff |index |--- |\+\+\+ )/ { print; next }
+              {
+                # word-diff 본문: 한 줄에 [-...-] 만 있고 {+...+} 없으면 통째 삭제 (우측 라인 없음)
+                if (index($0, "[-") > 0 && index($0, "{+") == 0) {
+                  printf "L---- | %s\n", $0
+                } else {
+                  printf "L%-4d | %s\n", n, $0
+                  n++
+                }
+              }
+            ' "$RAW_DIFF" > "$DIFF_FILE"
+            rm -f "$RAW_DIFF"
             if [ ! -s "$DIFF_FILE" ]; then
               rm -f "$DIFF_FILE"; continue
             fi
@@ -284,9 +319,76 @@ jobs:
           > 일부 파일(${FAILED_FILES}개)은 토큰 초과/에러로 리뷰를 스킵했습니다."
           fi
 
+          # =====================================================================
+          # 인라인 코멘트 line 검증/스냅
+          # GitHub PR Review API 는 line 이 PR patch 의 유효한 우측(추가/컨텍스트) 라인이어야 함.
+          # 모델이 word-diff 만 보고 추정한 line 이 빗나가면 422 (Line could not be resolved)
+          # → 파일별 patch 에서 유효 라인 집합을 만들고, 코멘트 line 을 가장 가까운 유효 라인으로 스냅.
+          # =====================================================================
           if [ "$COMMENTS_COUNT" -gt 0 ]; then
-            echo "Creating PR review with inline comments..."
-            REVIEW_COMMENTS=$(echo "$ALL_COMMENTS" | jq '[.[] | {path: .path, line: (.line // 1 | tonumber? // 1), body: (.body // "")}]')
+            echo "Validating inline comment lines against PR patches..."
+            PR_FILES_JSON=$(mktemp)
+            gh api --paginate "/repos/$REPO/pulls/$PR_NUMBER/files?per_page=100" > "$PR_FILES_JSON" || echo '[]' > "$PR_FILES_JSON"
+
+            ALL_COMMENTS_FIXED=$(ALL_COMMENTS_JSON="$ALL_COMMENTS" python3 - "$PR_FILES_JSON" <<'PY'
+          import json, re, sys, os
+          files_path = sys.argv[1]
+          with open(files_path) as f:
+              raw = f.read().strip()
+          try:
+              pr_files = json.loads(raw)
+              if isinstance(pr_files, dict):
+                  pr_files = [pr_files]
+          except json.JSONDecodeError:
+              pr_files = []
+              for obj in re.findall(r'\[.*?\](?=\s*(?:\[|$))', raw, re.S):
+                  try: pr_files.extend(json.loads(obj))
+                  except Exception: pass
+
+          def valid_right_lines(patch: str):
+              lines = set()
+              new_no = None
+              for ln in patch.splitlines():
+                  if ln.startswith('@@'):
+                      m = re.search(r'\+(\d+)(?:,(\d+))?', ln)
+                      if m: new_no = int(m.group(1))
+                      continue
+                  if new_no is None: continue
+                  if ln.startswith('+++') or ln.startswith('---'): continue
+                  if ln.startswith('+'):
+                      lines.add(new_no); new_no += 1
+                  elif ln.startswith('-'):
+                      pass
+                  else:
+                      lines.add(new_no); new_no += 1
+              return lines
+
+          valid_map = {(f.get('filename') or ''): valid_right_lines(f.get('patch') or '') for f in pr_files}
+
+          comments = json.loads(os.environ['ALL_COMMENTS_JSON'])
+          kept, dropped = [], []
+          for c in comments:
+              p = c.get('path',''); body = c.get('body','')
+              try: line = int(c.get('line') or 0)
+              except Exception: line = 0
+              valid = valid_map.get(p)
+              if not valid:
+                  dropped.append({'path': p, 'line': line, 'body': body}); continue
+              if line in valid:
+                  kept.append({'path': p, 'line': line, 'side': 'RIGHT', 'body': body}); continue
+              snap = min(valid, key=lambda x: (abs(x-line), x))
+              kept.append({'path': p, 'line': snap, 'side': 'RIGHT',
+                           'body': f"(원본 line={line} → patch 내 line={snap} 로 스냅)\n\n{body}"})
+
+          sys.stdout.write(json.dumps({'comments': kept, 'dropped': dropped}, ensure_ascii=False))
+          PY
+            )
+
+            REVIEW_COMMENTS=$(echo "$ALL_COMMENTS_FIXED" | jq -c '.comments')
+            DROPPED_COMMENTS=$(echo "$ALL_COMMENTS_FIXED" | jq -c '.dropped')
+            KEPT_COUNT=$(echo "$REVIEW_COMMENTS" | jq 'length')
+            DROPPED_COUNT=$(echo "$DROPPED_COMMENTS" | jq 'length')
+            echo "Inline kept: $KEPT_COUNT, dropped (path not in PR): $DROPPED_COUNT"
 
             REVIEW_BODY="## 번역 리뷰 (GitHub Models)
 
@@ -294,19 +396,41 @@ jobs:
           $SUMMARY_BLOCK
 
           ---
-          <sub>${API_MODEL} via GitHub Models | 파일 ${TOTAL_FILES}개 | 인라인 코멘트 ${COMMENTS_COUNT}개</sub>"
+          <sub>${API_MODEL} via GitHub Models | 파일 ${TOTAL_FILES}개 | 인라인 코멘트 ${KEPT_COUNT}개 | 스킵 ${DROPPED_COUNT}개</sub>"
 
-            REVIEW_PAYLOAD=$(jq -n \
-              --arg body "$REVIEW_BODY" \
-              --arg commit_id "$HEAD_SHA" \
-              --arg event "COMMENT" \
-              --argjson comments "$REVIEW_COMMENTS" \
-              '{body: $body, commit_id: $commit_id, event: $event, comments: $comments}')
+            if [ "$KEPT_COUNT" -gt 0 ]; then
+              REVIEW_PAYLOAD=$(jq -n \
+                --arg body "$REVIEW_BODY" \
+                --arg commit_id "$HEAD_SHA" \
+                --arg event "COMMENT" \
+                --argjson comments "$REVIEW_COMMENTS" \
+                '{body: $body, commit_id: $commit_id, event: $event, comments: $comments}')
 
-            gh api --method POST \
-              -H "Accept: application/vnd.github+json" \
-              "/repos/$REPO/pulls/$PR_NUMBER/reviews" \
-              --input - <<< "$REVIEW_PAYLOAD"
+              echo "Submitting review (with inline comments)..."
+              REVIEW_RESP=$(mktemp)
+              REVIEW_CODE=$(gh api --method POST \
+                -H "Accept: application/vnd.github+json" \
+                "/repos/$REPO/pulls/$PR_NUMBER/reviews" \
+                --input - <<< "$REVIEW_PAYLOAD" 2>"$REVIEW_RESP" && echo 200 || echo "$?")
+              if [ "$REVIEW_CODE" != "200" ]; then
+                echo "::warning::Review API 실패 ($REVIEW_CODE): $(cat "$REVIEW_RESP" | head -c 500)"
+                echo "→ 요약 + 인라인 후보 목록을 일반 코멘트로 폴백"
+                FALLBACK_LIST=$(echo "$REVIEW_COMMENTS" | jq -r '[.[] | "- `" + .path + ":" + (.line|tostring) + "` " + (.body|split("\n")[0])] | .[]')
+                FALLBACK_BODY="$REVIEW_BODY
+
+          ### 인라인 코멘트 (라인 매칭 실패로 일반 코멘트로 첨부)
+          $FALLBACK_LIST"
+                gh pr comment "$PR_NUMBER" --body "$FALLBACK_BODY"
+              fi
+              rm -f "$REVIEW_RESP"
+            else
+              echo "No valid-line comments left, posting summary only..."
+              gh pr comment "$PR_NUMBER" --body "$REVIEW_BODY
+
+          ### 수정 제안
+          (인라인 위치 매칭 실패 또는 유효 라인 없음)"
+            fi
+            rm -f "$PR_FILES_JSON"
           else
             echo "No inline comments, posting summary only..."
             COMMENT_BODY="## 번역 리뷰 (GitHub Models)
