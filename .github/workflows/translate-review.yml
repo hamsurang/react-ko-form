@@ -407,13 +407,23 @@ jobs:
                 '{body: $body, commit_id: $commit_id, event: $event, comments: $comments}')
 
               echo "Submitting review (with inline comments)..."
-              REVIEW_RESP=$(mktemp)
-              REVIEW_CODE=$(gh api --method POST \
+              REVIEW_OUT=$(mktemp)
+              REVIEW_ERR=$(mktemp)
+              if gh api --method POST \
                 -H "Accept: application/vnd.github+json" \
                 "/repos/$REPO/pulls/$PR_NUMBER/reviews" \
-                --input - <<< "$REVIEW_PAYLOAD" 2>"$REVIEW_RESP" && echo 200 || echo "$?")
-              if [ "$REVIEW_CODE" != "200" ]; then
-                echo "::warning::Review API 실패 ($REVIEW_CODE): $(cat "$REVIEW_RESP" | head -c 500)"
+                --input - <<< "$REVIEW_PAYLOAD" >"$REVIEW_OUT" 2>"$REVIEW_ERR"; then
+                REVIEW_OK=1
+              else
+                REVIEW_OK=0
+                REVIEW_RC=$?
+              fi
+              if [ "$REVIEW_OK" = "1" ]; then
+                REVIEW_ID=$(jq -r '.id // empty' "$REVIEW_OUT" 2>/dev/null)
+                REVIEW_URL=$(jq -r '.html_url // empty' "$REVIEW_OUT" 2>/dev/null)
+                echo "✅ Inline review posted (id=${REVIEW_ID:-?}) ${REVIEW_URL}"
+              else
+                echo "::warning::Review API 실패 (rc=${REVIEW_RC:-?}): $(head -c 500 "$REVIEW_ERR")"
                 echo "→ 요약 + 인라인 후보 목록을 일반 코멘트로 폴백"
                 FALLBACK_LIST=$(echo "$REVIEW_COMMENTS" | jq -r '[.[] | "- `" + .path + ":" + (.line|tostring) + "` " + (.body|split("\n")[0])] | .[]')
                 FALLBACK_BODY="$REVIEW_BODY
@@ -422,7 +432,7 @@ jobs:
           $FALLBACK_LIST"
                 gh pr comment "$PR_NUMBER" --body "$FALLBACK_BODY"
               fi
-              rm -f "$REVIEW_RESP"
+              rm -f "$REVIEW_OUT" "$REVIEW_ERR"
             else
               echo "No valid-line comments left, posting summary only..."
               gh pr comment "$PR_NUMBER" --body "$REVIEW_BODY
