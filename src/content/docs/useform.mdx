@@ -94,8 +94,10 @@ sidebar: apiLinks
 | [criteriaMode](#criteriaMode)                           | 모든 유효성 검사 에러를 한 번에 노출하거나 하나씩 노출.                |
 | [shouldFocusError](#shouldFocusError)                   | 내장된 포커스 관리를 활성화하거나 비활성화.                            |
 | [delayError](#delayError)                               | 에러가 즉시 나타나는 것을 지연.                                        |
+| [validate](#validate)                                   | 폼 수준 검증은 내장 검증 메서드로 제한됩니다.                                                              |
 | [shouldUseNativeValidation](#shouldUseNativeValidation) | 브라우저 내장 폼 제약 조건 API 사용.                                   |
 | [shouldUnregister](#shouldUnregister)                   | 언마운트 후 입력의 등록 취소(unregister)를 활성화하거나 비활성화.      |
+| [progressive](/docs/useform/form)                       | `Form` 컴포넌트를 사용할 때 네이티브 폼 제출을 위한 점진적 향상을 활성화합니다.                                    |
 | [disabled](#disabled)                                   | 전체 폼과 해당 폼에 포함된 모든 입력을 비활성화합니다.                 |
 
 **스키마 유효성 검사 속성:**
@@ -276,6 +278,39 @@ useForm({
 |                                                                                                                                                                            |                                                                        |
 | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | 이 설정은 에러 상태가 사용자에게 표시되는 것을 지정된 밀리초만큼 지연시킵니다. 만약 사용자가 에러가 발생한 입력을 수정하면 에러는 즉시 제거되며, 지연이 적용되지 않습니다. | <CodeSandbox url="https://codesandbox.io/s/useform-delayerror-q6c2d"/> |
+
+#### validate: <TypeText>Function</TypeText> {#validate}
+
+---
+
+이 예시는 **새로운 `validate` API**를 `useForm`과 함께 사용하여 리액트 애플리케이션에서 **폼 수준 검증**을 수행하는 방법을 보여줍니다.
+
+`validate` 함수는 전체 폼 객체를 받아들이며, `formState.errors`와 통합되는 **구조화된 에러**를 반환할 수 있습니다.
+
+**Examples:**
+
+---
+
+```javascript copy
+const {
+  register,
+  formState: { errors },
+} = useForm({
+  validate: async ({ formValues }: FormValidateResult) => {
+    if (formValues.test1.length > formValues.test.length) {
+      return {
+        type: "formError",
+        message: "문제가 발생했습니다",
+      }
+    }
+
+    if (formValue.test === "test") {
+      return "직접 에러 메시지"
+    }
+
+    return true
+  },
+})
 
 #### shouldUnregister: <TypeText>boolean = false</TypeText> {#shouldUnregister}
 
