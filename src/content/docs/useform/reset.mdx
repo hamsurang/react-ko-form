@@ -29,26 +29,8 @@ sidebar: apiLinks
 
 <Admonition type="important" title="Rules">
 
-- 제어 컴포넌트의 경우 `defaultValues`를 `useForm`에 전달해야 `Controller` 컴포넌트의 값을 `reset`할 수 있습니다.
-- `reset` API에 `defaultValues`가 제공되지 않으면, HTML 기본 [reset](https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/reset) API가 호출되어 폼이 복원됩니다.
-- `useForm`의 `useEffect`가 호출되기 전에 `reset`을 호출하는 것을 피하세요. 이는 `useForm`의 구독이 준비된 후에만 `reset`이 신호를 보내 폼 상태 업데이트를 flush할 수 있기 때문입니다.
-- submission 후 `useEffect` 내부에서 `reset`을 호출하는 것이 좋습니다.
-  ```javascript
-  useEffect(() => {
-    reset({
-      data: "test",
-    })
-  }, [isSubmitSuccessful])
-  ```
-- `defaultValues`를 useForm에 제공한 경우, 인자 없이 `reset`을 실행하는 것도 가능합니다.
-
-  ```javascript
-  reset() // 폼을 기본값으로 다시 업데이트
-
-  reset({ test: "test" }) // 기본값과 폼 값을 업데이트
-
-  reset(undefined, { keepDirtyValues: true }) // 다른 폼 상태를 초기화하지만 기본값과 폼 값을 유지
-  ```
+- 폼을 초기화할 때 항상 <code>defaultValues</code>를 제공하는 것이 좋습니다. 
+  이를 통해 모든 인풋, 특히 제어된 컴포넌트가 올바르게 복원됩니다.
 
 </Admonition>
 
