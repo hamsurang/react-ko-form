@@ -1,16 +1,9 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-node_modules
+/node_modules
 /.pnp
-.yarn/*
-!.yarn/patches
-!.yarn/releases
-!.yarn/plugins
-!.yarn/sdks
-!.yarn/versions
 .pnp.*
-
 
 # testing
 /coverage
@@ -33,13 +26,9 @@ yarn-error.log*
 .idea
 .cache/
 package-lock.json
+.vscode
 tsconfig.tsbuildinfo
 .next/
 
 # contentlayer
 .contentlayer
-
-# llms.txt (build artifacts)
-public/llms.txt
-public/llms-full.txt
-public/md/
