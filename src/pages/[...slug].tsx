@@ -9,7 +9,6 @@ import StarRepo from "@/components/StarRepo"
 import containerStyles from "@/styles/container.module.css"
 import typographyStyles from "@/styles/typography.module.css"
 import Menu from "@/components/Menu/Menu"
-import CopyMarkdownButton from "@/components/CopyMarkdownButton"
 import { Pages } from "@/types/types"
 
 export const getStaticPaths: GetStaticPaths = () => {
@@ -60,7 +59,6 @@ export default function Page({
           <Menu pages={doc.pages as Pages} />
 
           <main>
-            <CopyMarkdownButton slug={doc._raw.flattenedPath} />
             <MDXContent components={MDXComponents} />
 
             <StarRepo />
