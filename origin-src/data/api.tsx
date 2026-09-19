@@ -2843,6 +2843,21 @@ setValue('notRegisteredInput', { test: '1', test2: '2' }); // ✅ sugar syntax t
             </ul>
           </td>
         </tr>
+        <tr>
+          <td>
+            <code>exact</code>
+          </td>
+          <td>
+            <code className={typographyStyles.typeText}>boolean = false</code>
+          </td>
+          <td></td>
+          <td>
+            <p>
+              This prop will enable an exact match for input name subscriptions,
+              default to true.
+            </p>
+          </td>
+        </tr>
       </tbody>
     ),
     tips: (
