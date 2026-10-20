@@ -4,6 +4,8 @@ import remarkGfm from "remark-gfm"
 import rehypeMdxCodeProps from "rehype-mdx-code-props"
 import emoji from "remark-emoji"
 import * as sidebar from "./src/components/Menu/MenuLinks"
+import { rehypeHeadingAnchors } from "./src/components/logic/rehypeHeadingAnchors"
+import type { Pages } from "./src/types/types"
 
 export const Doc = defineDocumentType(() => ({
   name: "Doc",
@@ -12,6 +14,7 @@ export const Doc = defineDocumentType(() => ({
   fields: {
     title: { type: "string", required: true },
     description: { type: "string", required: true },
+    metaDescription: { type: "string", required: false },
     sidebar: {
       type: "enum",
       options: [
@@ -20,7 +23,7 @@ export const Doc = defineDocumentType(() => ({
         "tsLinks",
         "faqLinks",
         "getStartedLinks",
-        "aiIntegrationLinks",
+        "migrateV7ToV8Links",
       ],
       required: true,
     },
@@ -34,13 +37,22 @@ export const Doc = defineDocumentType(() => ({
       type: "string",
       resolve: (doc) => doc._raw.flattenedPath.split("/").slice(1).join("/"),
     },
+
+    /**
+     * Can't define value different from primitives, so hardcoding the correct type
+     * @see https://github.com/contentlayerdev/contentlayer/issues/149
+     */
     segment: {
-      type: "list",
+      type: "string[]" as "list",
       resolve: (doc) => doc._raw.flattenedPath.split("/"),
     },
     pages: {
-      type: "list",
-      resolve: (doc) => sidebar[doc.sidebar] ?? [],
+      type: "json",
+      resolve: (doc) => {
+        // added explicit type casting to keep track of this data structure
+        // in case in the future contentlayer will support values different than primitives
+        return sidebar[doc.sidebar] as unknown as Pages
+      },
     },
   },
 }))
@@ -50,6 +62,6 @@ export default makeSource({
   documentTypes: [Doc],
   mdx: {
     remarkPlugins: [remarkGfm, remarkHeadingId, emoji],
-    rehypePlugins: [rehypeMdxCodeProps],
+    rehypePlugins: [rehypeMdxCodeProps, rehypeHeadingAnchors],
   },
 })
