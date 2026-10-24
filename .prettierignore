@@ -1,0 +1,7 @@
+pnpm-lock.yaml
+.cache/
+.contentlayer/
+.next/
+next-env.d.ts
+public/**/*.md
+public/llms*.txt
