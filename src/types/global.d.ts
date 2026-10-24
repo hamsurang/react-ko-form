@@ -4,15 +4,7 @@ interface Window {
     apiKey: string
     indexName: string
     inputSelector: string
-    transformData?: (suggestions: Array<{ url: string; [key: string]: unknown }>) => Array<{ url: string; [key: string]: unknown }>
-    handleSelected?: (
-      input: HTMLInputElement,
-      event: Event,
-      suggestion: { url: string; [key: string]: unknown },
-      datasetNumber: number,
-      context: { selectionMethod: string }
-    ) => void
-  }) => void
+  }) => vod
 }
 
 declare module "*.mdx" {
